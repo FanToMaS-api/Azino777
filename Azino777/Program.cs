@@ -1,9 +1,9 @@
 ﻿using Games.Interfaces.Game;
 using Games.src;
-using Games.src.Games;
-using Games.src.User;
 using System.Collections.Generic;
+using Games.Impl.Games;
 using Games.Impl.MoneyService;
+using Games.User;
 
 namespace Games
 {

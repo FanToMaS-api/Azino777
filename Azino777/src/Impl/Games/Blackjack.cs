@@ -4,7 +4,7 @@ using Games.Interfaces.Game;
 using Games.Interfaces.MoneyService;
 using Games.Interfaces.User;
 
-namespace Games.src.Games
+namespace Games.Impl.Games
 {
     /// <summary>
     ///     Игра блэкджек
@@ -64,7 +64,7 @@ namespace Games.src.Games
         {
             Console.WriteLine(ToString());
 
-            if (_user.GetBalance() - bid < 0)
+            if (_user.GetBalance() - _bid < 0)
             {
                 Console.WriteLine("Недостаточно денег на счете");
                 return;
@@ -73,18 +73,9 @@ namespace Games.src.Games
             _moneyHandler.AddBalance(_user, -bid);
             _bid = bid;
 
+            // Первоначальная настройка
             _userScope = _random.Next(1, 14) + _random.Next(1, 14);
-
-            if (_dialerScope == 21)
-            {
-                _dialerScope = 0;
-                _moneyHandler.AddBalance(_user, EndGame());
-                return;
-            }
-
             _dialerScope = _random.Next(1, 14) + _random.Next(1, 14);
-
-
             while (_dialerScope > 21)
             {
                 _dialerScope = 0;
@@ -93,6 +84,7 @@ namespace Games.src.Games
 
             if (_dialerScope == 21)
             {
+                _dialerScope = 0;
                 _moneyHandler.AddBalance(_user, EndGame());
                 return;
             }
@@ -101,11 +93,13 @@ namespace Games.src.Games
 
             while (!GameOver())
             {
+                // TODO: Убрать зависимости от среды выполнения!
+                // TODO: создать интерфейс, определяющий методы для вывода этих сообщений, и подставлять классы в зависимости от среды
                 Console.WriteLine("Хочешь взять еще карту? (ENTER)");
 
                 if (Console.ReadKey().Key == ConsoleKey.Enter)
                 {
-                    Logic();
+                    Logic("input_text");
                     Console.WriteLine(GetInformation());
                 }
                 else
@@ -117,7 +111,7 @@ namespace Games.src.Games
         }
 
         /// <inheritdoc />
-        public void Logic()
+        public void Logic(string input)
         {
             var userNum = _random.Next(1, 14);
             var dealerNum = _random.Next(1, 14);
@@ -130,7 +124,7 @@ namespace Games.src.Games
             else if (userNum <= 13)
             {
                 _userScope += 10;
-                Console.WriteLine($"Выпало 10 очков");
+                Console.WriteLine("Выпало 10 очков");
             }
             else
             {
@@ -139,6 +133,7 @@ namespace Games.src.Games
                     _userScope += 1;
                 }
             }
+
             _dialerScope += dealerNum;
         }
         /// <inheritdoc />

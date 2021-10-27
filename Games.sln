@@ -5,7 +5,9 @@ VisualStudioVersion = 17.0.31612.314
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Games", "Azino777\Games.csproj", "{A2C60ED1-92B9-43FE-BB71-B22E459AE69C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GamesTests", "GamesTests\GamesTests.csproj", "{672E633A-B761-4FFB-B4F7-88453695CD20}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GamesTests", "GamesTests\GamesTests.csproj", "{672E633A-B761-4FFB-B4F7-88453695CD20}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataBase", "DataBase\DataBase.csproj", "{ADF9C815-2E1B-4343-A560-EA9CD9FF6ABC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{672E633A-B761-4FFB-B4F7-88453695CD20}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{672E633A-B761-4FFB-B4F7-88453695CD20}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{672E633A-B761-4FFB-B4F7-88453695CD20}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ADF9C815-2E1B-4343-A560-EA9CD9FF6ABC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ADF9C815-2E1B-4343-A560-EA9CD9FF6ABC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ADF9C815-2E1B-4343-A560-EA9CD9FF6ABC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ADF9C815-2E1B-4343-A560-EA9CD9FF6ABC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

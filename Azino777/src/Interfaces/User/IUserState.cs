@@ -2,6 +2,9 @@
 
 namespace Games.Interfaces.User
 {
+    /// <summary>
+    ///     Отражает текущее состояние пользователя
+    /// </summary>
     public interface IUserState
     {
         #region Properties

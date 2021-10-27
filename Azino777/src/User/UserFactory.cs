@@ -1,7 +1,7 @@
 ﻿using Games.Impl.User;
 using Games.Interfaces.User;
 
-namespace Games.src.User
+namespace Games.User
 {
     /// <summary>
     ///     Фабрика пользователей

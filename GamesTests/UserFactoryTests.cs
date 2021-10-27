@@ -1,4 +1,4 @@
-using Games.src.User;
+using Games.User;
 using Xunit;
 
 namespace GamesTests

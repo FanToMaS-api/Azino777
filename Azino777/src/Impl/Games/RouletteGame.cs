@@ -7,7 +7,7 @@ using Games.Interfaces.Game;
 using Games.Interfaces.MoneyService;
 using Games.Interfaces.User;
 
-namespace Games.src.Games
+namespace Games.Impl.Games
 {
     /// <summary>
     ///     Игра рулетка
@@ -87,7 +87,7 @@ namespace Games.src.Games
 
                 if (Console.ReadKey().Key != ConsoleKey.Enter)
                 {
-                    Logic();
+                    Logic("");
 
                     Console.WriteLine($"Твои монеты: {_coin}");
                 }
@@ -102,7 +102,7 @@ namespace Games.src.Games
         }
 
         /// <inheritdoc />
-        public void Logic()
+        public void Logic(string input)
         {
             _coin -= 10;
 

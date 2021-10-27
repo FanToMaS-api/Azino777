@@ -29,12 +29,13 @@
         /// <summary>
         ///     Начало игры
         /// </summary>
+        /// <param name="bid"> Ставка </param>
         public void StartGame(double bid);
 
         /// <summary>
         ///     Логика игры
         /// </summary>
-        public void Logic();
+        public void Logic(string input);
 
         /// <summary>
         ///     Определяет, когда игра завершена
