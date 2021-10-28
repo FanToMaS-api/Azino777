@@ -1,4 +1,5 @@
-﻿using Games.Interfaces.User;
+﻿using System;
+using Games.Interfaces.User;
 
 namespace Games.Impl.User
 {
@@ -14,11 +15,13 @@ namespace Games.Impl.User
         #region .ctor
 
         /// <inheritdoc cref="User"/>
-        public User(IUserState state, string id, string nickname)
+        public User(IUserState state, string id, string nickname, string phoneNumber)
         {
             State = state;
             Nickname = nickname;
             Id = id;
+            LastAction = DateTime.Now;
+            PhoneNumber = phoneNumber;
         }
 
         #endregion
@@ -33,6 +36,12 @@ namespace Games.Impl.User
 
         /// <inheritdoc />
         public string Id { get; init; }
+
+        /// <inheritdoc />
+        public string PhoneNumber { get; init; }
+
+        /// <inheritdoc />
+        public DateTime LastAction { get; init; }
 
         #endregion
 

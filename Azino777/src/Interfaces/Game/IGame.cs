@@ -1,4 +1,7 @@
-﻿namespace Games.Interfaces.Game
+﻿using System.Threading;
+using System.Threading.Tasks;
+
+namespace Games.Interfaces.Game
 {
     /// <summary>
     ///     Базовый интерфейс игры
@@ -30,22 +33,22 @@
         ///     Начало игры
         /// </summary>
         /// <param name="bid"> Ставка </param>
-        public void StartGame(double bid);
+        public Task StartGameAsync(double bid, CancellationToken token = default);
 
         /// <summary>
         ///     Логика игры
         /// </summary>
-        public void Logic(string input);
+        public Task LogicAsync(string input, CancellationToken token);
 
         /// <summary>
         ///     Определяет, когда игра завершена
         /// </summary>
-        public bool GameOver();
+        public Task<bool> GameOverAsync(CancellationToken token);
 
         /// <summary>
         ///     Обрабатывает завершение игры
         /// </summary>
-        public double EndGame();
+        public Task<double> EndGameAsync(CancellationToken token);
 
         /// <summary>
         ///     Выводит информацию об игре

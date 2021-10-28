@@ -1,7 +1,7 @@
 ﻿using Games.Impl.User;
 using Games.Interfaces.User;
 
-namespace Games.User
+namespace Games.UserFactory
 {
     /// <summary>
     ///     Фабрика пользователей
@@ -13,10 +13,10 @@ namespace Games.User
         /// <summary>
         ///     Инициализирует пользователя бота
         /// </summary>
-        public static IUser CreateUser(string id, string nickname)
+        public static IUser CreateUser(string id, string nickname, string phoneNumber)
         {
             var userState = new UserState();
-            return new Impl.User.User(userState, id, nickname);
+            return new Impl.User.User(userState, id, nickname, phoneNumber);
         }
 
         #endregion

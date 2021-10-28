@@ -1,4 +1,6 @@
-﻿namespace Games.Interfaces.User
+﻿using System;
+
+namespace Games.Interfaces.User
 {
     /// <summary>
     ///     Базовый интерфейс для пользователей
@@ -19,6 +21,16 @@
         ///     ID пользователя в телеге
         /// </summary>
         public string Id { get; init; }
+
+        /// <summary>
+        ///     Номер телефона
+        /// </summary>
+        public string PhoneNumber { get; init; }
+
+        /// <summary>
+        ///     Отражает дату последнего действия пользователя
+        /// </summary>
+        public DateTime LastAction { get; init; }
 
         #endregion
 

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Games.Impl.MoneyService;
 using Games.Interfaces.Game;
 using Games.Interfaces.MoneyService;
@@ -60,7 +62,7 @@ namespace Games.Impl.Games
         #region Public methods
 
         /// <inheritdoc />
-        public void StartGame(double bid)
+        public async Task StartGameAsync(double bid, CancellationToken token = default)
         {
             Console.WriteLine(ToString());
 
@@ -85,13 +87,13 @@ namespace Games.Impl.Games
             if (_dialerScope == 21)
             {
                 _dialerScope = 0;
-                _moneyHandler.AddBalance(_user, EndGame());
+                _moneyHandler.AddBalance(_user, await EndGameAsync(token));
                 return;
             }
 
             Console.WriteLine(GetInformation());
 
-            while (!GameOver())
+            while (!await GameOverAsync(token))
             {
                 // TODO: Убрать зависимости от среды выполнения!
                 // TODO: создать интерфейс, определяющий методы для вывода этих сообщений, и подставлять классы в зависимости от среды
@@ -99,19 +101,19 @@ namespace Games.Impl.Games
 
                 if (Console.ReadKey().Key == ConsoleKey.Enter)
                 {
-                    Logic("input_text");
+                    await LogicAsync("input_text", token);
                     Console.WriteLine(GetInformation());
                 }
                 else
                 {
-                    _moneyHandler.AddBalance(_user, EndGame());
+                    _moneyHandler.AddBalance(_user, await EndGameAsync(token));
                     return;
                 }
             }
         }
 
         /// <inheritdoc />
-        public void Logic(string input)
+        public async Task LogicAsync(string input, CancellationToken token)
         {
             var userNum = _random.Next(1, 14);
             var dealerNum = _random.Next(1, 14);
@@ -137,13 +139,13 @@ namespace Games.Impl.Games
             _dialerScope += dealerNum;
         }
         /// <inheritdoc />
-        public bool GameOver()
+        public async Task<bool> GameOverAsync(CancellationToken token)
         {
             return _userScope > 21;
         }
 
         /// <inheritdoc />
-        public double EndGame()
+        public async Task<double> EndGameAsync(CancellationToken token)
         {
             if (_userScope > 21 && _dialerScope <= 21)
             {
@@ -176,7 +178,7 @@ namespace Games.Impl.Games
             {
                 Console.WriteLine("Удивительно, очков у дилера столько же сколько и у тебя! Придется перераздать");
                 _moneyHandler.AddBalance(_user, _bid);
-                StartGame(_bid);
+                await StartGameAsync(_bid, token);
             }
 
             return 0;

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -30,6 +31,12 @@ namespace DataBase.Entities
         [Column("phone_number")]
         public string PhoneNumber { get; set; }
 
+        /// <summary>
+        ///     Отражает дату последнего действия пользователя
+        /// </summary>
+        [Column("last_action")]
+        public DateTime LastAction { get; init; }
+
         #endregion
 
         #region Setup
@@ -48,6 +55,8 @@ namespace DataBase.Entities
                 .HasDatabaseName("IX_users_phone_number");
             builder.HasIndex(_ => _.Nickname)
                 .HasDatabaseName("IX_users_nickname");
+            builder.HasIndex(_ => _.LastAction)
+                .HasDatabaseName("IX_users_last_action");
         }
 
         #endregion

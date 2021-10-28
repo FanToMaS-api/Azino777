@@ -1,4 +1,5 @@
-﻿using Games.Interfaces.Game;
+﻿using DataBase.Models;
+using Games.Interfaces.Game;
 using Games.Interfaces.User;
 
 namespace Games.Impl.User
@@ -16,6 +17,9 @@ namespace Games.Impl.User
         /// <inheritdoc />
         public IGame Game { get; private set; }
 
+        /// <inheritdoc />
+        public UserStateType UserStateType { get; private set; }
+
         #endregion
 
         #region Public methods
@@ -30,6 +34,12 @@ namespace Games.Impl.User
         public void SetGame(IGame game)
         {
             Game = game;
+        }
+
+        /// <inheritdoc />
+        public void SetUserStateType(UserStateType type)
+        {
+            UserStateType = type;
         }
 
         #endregion

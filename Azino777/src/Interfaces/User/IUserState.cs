@@ -1,4 +1,5 @@
-﻿using Games.Interfaces.Game;
+﻿using DataBase.Models;
+using Games.Interfaces.Game;
 
 namespace Games.Interfaces.User
 {
@@ -19,6 +20,11 @@ namespace Games.Interfaces.User
         /// </summary>
         IGame Game { get; }
 
+        /// <summary>
+        ///     Текущее состояние пользователя
+        /// </summary>
+        UserStateType UserStateType { get; }
+
         #endregion
 
         #region Public methods
@@ -32,6 +38,11 @@ namespace Games.Interfaces.User
         ///     Устанавливает игру для пользователя
         /// </summary>
         public void SetGame(IGame game);
+
+        /// <summary>
+        ///     Устанавливает статус пользователя
+        /// </summary>
+        public void SetUserStateType(UserStateType type);
 
         #endregion
     }

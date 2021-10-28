@@ -1,4 +1,4 @@
-using Games.User;
+using Games.UserFactory;
 using Xunit;
 
 namespace GamesTests
@@ -10,10 +10,12 @@ namespace GamesTests
         {
             var id = "01ER";
             var nickname = "FanToMas";
-            var user = UserFactory.CreateUser(id, nickname);
+            var phone = "123456789";
+            var user = UserFactory.CreateUser(id, nickname, phone);
 
             Assert.Equal(id, user.Id);
             Assert.Equal(nickname, user.Nickname);
+            Assert.Equal(phone, user.PhoneNumber);
             Assert.Equal(0, user.GetBalance());
         }
     }

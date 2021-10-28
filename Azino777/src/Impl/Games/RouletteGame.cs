@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Games.Impl.MoneyService;
 using Games.Interfaces.Game;
 using Games.Interfaces.MoneyService;
@@ -61,7 +63,7 @@ namespace Games.Impl.Games
         #region Public methods
 
         /// <inheritdoc />
-        public void StartGame(double bid)
+        public async Task StartGameAsync(double bid, CancellationToken token = default)
         {
             Console.WriteLine(ToString());
 
@@ -76,7 +78,7 @@ namespace Games.Impl.Games
 
             Console.WriteLine($"Твои монеты: {_coin}");
 
-            while (!GameOver())
+            while (!await GameOverAsync(token))
             {
                 if (_firstCheck)
                 {
@@ -87,22 +89,22 @@ namespace Games.Impl.Games
 
                 if (Console.ReadKey().Key != ConsoleKey.Enter)
                 {
-                    Logic("");
+                    await LogicAsync("", token);
 
                     Console.WriteLine($"Твои монеты: {_coin}");
                 }
                 else
                 {
-                    _moneyHandler.AddBalance(_user, EndGame());
+                    _moneyHandler.AddBalance(_user, await EndGameAsync(token));
                     return;
                 }
             }
 
-            _moneyHandler.AddBalance(_user, EndGame());
+            _moneyHandler.AddBalance(_user, await EndGameAsync(token));
         }
 
         /// <inheritdoc />
-        public void Logic(string input)
+        public async Task LogicAsync(string input, CancellationToken token)
         {
             _coin -= 10;
 
@@ -168,14 +170,14 @@ namespace Games.Impl.Games
         }
 
         /// <inheritdoc />
-        public double EndGame()
+        public async Task<double> EndGameAsync(CancellationToken token)
         {
             Console.WriteLine("Отличная игра! Возвращайся ещё!");
             return _coin;
         }
 
         /// <inheritdoc />
-        public bool GameOver()
+        public async Task<bool> GameOverAsync(CancellationToken token)
         {
             return _coin - 10 < 0;
         }
