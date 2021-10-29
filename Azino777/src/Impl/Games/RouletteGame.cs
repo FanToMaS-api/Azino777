@@ -89,7 +89,7 @@ namespace Games.Impl.Games
             {
                 if (_firstCheck)
                 {
-                    await InOutHandler.PrintAsync("Хотите закончить и забрать выйгрыш?", token);
+                    await InOutHandler.PrintAsync("Хотите продолжить?", token);
                 }
 
                 _firstCheck = true;
