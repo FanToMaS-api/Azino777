@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Games.Impl.Games;
+using Games.Impl.OutputHandlers;
 using Games.Interfaces.Game;
+using Games.Interfaces.User;
+
 namespace Games.src
 {
     /// <summary>
@@ -13,14 +17,17 @@ namespace Games.src
 
         private readonly List<IGame> _games;
 
+        private readonly OutputHandlerBase _outputHandler;
+
         #endregion
 
         #region .ctor
 
         /// <inheritdoc cref="Menu"/>
-        public Menu(List<IGame> games)
+        public Menu(IUser user, OutputHandlerBase outputHandler)
         {
-            _games = games;
+            _outputHandler = outputHandler;
+            _games = new List<IGame> { new RouletteGame(user, _outputHandler), new Blackjack(user, _outputHandler) };
         }
 
         #endregion

@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using Games.Impl.OutputHandlers;
 
 namespace Games.Interfaces.Game
 {
@@ -9,6 +10,11 @@ namespace Games.Interfaces.Game
     public interface IGame
     {
         #region Properties
+
+        /// <summary>
+        ///     Обработчик вывода сообщений в разные среды
+        /// </summary>
+        OutputHandlerBase OutputHandler { get; }
 
         /// <summary>
         ///     Название игры

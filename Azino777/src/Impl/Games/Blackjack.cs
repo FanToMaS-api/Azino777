@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Games.Impl.MoneyService;
+using Games.Impl.OutputHandlers;
 using Games.Interfaces.Game;
 using Games.Interfaces.MoneyService;
 using Games.Interfaces.User;
@@ -34,10 +35,11 @@ namespace Games.Impl.Games
         #region .ctor
 
         /// <inheritdoc cref="Blackjack"/>
-        public Blackjack(IUser user)
+        public Blackjack(IUser user, OutputHandlerBase outputHandler)
         {
             _moneyHandler = new MoneyHandler();
             _user = user;
+            OutputHandler = outputHandler;
             Name = "21 очко";
             Description = "Набери максимальное количество очков, но не больше 21, и получи гарантированный приз";
             GameRules = "Твоя задача набрать очков больше, чем у дилера, но не превысить 21 очко. Делай ставку, и давай побеждать!";
@@ -47,6 +49,9 @@ namespace Games.Impl.Games
         #endregion
 
         #region Properties
+
+        /// <inheritdoc />
+        public OutputHandlerBase OutputHandler { get; }
 
         /// <inheritdoc />
         public string Name { get; }
@@ -64,11 +69,11 @@ namespace Games.Impl.Games
         /// <inheritdoc />
         public async Task StartGameAsync(double bid, CancellationToken token = default)
         {
-            Console.WriteLine(ToString());
+            await OutputHandler.PrintAsync(ToString());
 
             if (_user.GetBalance() - _bid < 0)
             {
-                Console.WriteLine("Недостаточно денег на счете");
+                await OutputHandler.PrintAsync("Недостаточно денег на счете");
                 return;
             }
 
@@ -91,18 +96,17 @@ namespace Games.Impl.Games
                 return;
             }
 
-            Console.WriteLine(GetInformation());
+            await OutputHandler.PrintAsync(GetInformation());
 
             while (!await GameOverAsync(token))
             {
-                // TODO: Убрать зависимости от среды выполнения!
-                // TODO: создать интерфейс, определяющий методы для вывода этих сообщений, и подставлять классы в зависимости от среды
-                Console.WriteLine("Хочешь взять еще карту? (ENTER)");
+                // TODO: сделать выбор пользователя одинаковым для консоли и бота
+                await OutputHandler.PrintAsync("Хочешь взять еще карту? (ENTER)");
 
                 if (Console.ReadKey().Key == ConsoleKey.Enter)
                 {
                     await LogicAsync("input_text", token);
-                    Console.WriteLine(GetInformation());
+                    await OutputHandler.PrintAsync(GetInformation());
                 }
                 else
                 {
@@ -121,12 +125,12 @@ namespace Games.Impl.Games
             if (userNum < 11)
             {
                 _userScope += userNum;
-                Console.WriteLine($"Выпало {userNum} {GetRightDeclension(userNum)}");
+                await OutputHandler.PrintAsync($"Выпало {userNum} {GetRightDeclension(userNum)}");
             }
             else if (userNum <= 13)
             {
                 _userScope += 10;
-                Console.WriteLine("Выпало 10 очков");
+                await OutputHandler.PrintAsync("Выпало 10 очков");
             }
             else
             {
@@ -149,34 +153,34 @@ namespace Games.Impl.Games
         {
             if (_userScope > 21 && _dialerScope <= 21)
             {
-                Console.WriteLine($"К сожалению, очков у дилера {_dialerScope} {GetRightDeclension(_dialerScope)}.\n" +
+                await OutputHandler.PrintAsync($"К сожалению, очков у дилера {_dialerScope} {GetRightDeclension(_dialerScope)}.\n" +
                     "Но не стоит расстраиваться, в следующий раз обязательно повезет!");
 
                 return -_bid;
             }
             else if (_dialerScope > 21 && _userScope <= 21)
             {
-                Console.WriteLine($"Отличная игра! Твой выйгрыш {_bid * 1.5}");
+                await OutputHandler.PrintAsync($"Отличная игра! Твой выйгрыш {_bid * 1.5}");
 
                 return _bid * 1.5;
             }
             else if (_dialerScope > _userScope)
             {
-                Console.WriteLine($"К сожалению, очков у дилера {_dialerScope} {GetRightDeclension(_dialerScope)}.\n" +
+                await OutputHandler.PrintAsync($"К сожалению, очков у дилера {_dialerScope} {GetRightDeclension(_dialerScope)}.\n" +
                     "Но не стоит расстраиваться, в следующий раз обязательно повезет!");
 
                 return -_bid;
             }
             else if (_userScope > _dialerScope)
             {
-                Console.WriteLine($"Отличная игра! Очков у дилера {_dialerScope} {GetRightDeclension(_dialerScope)}.\n" +
+                await OutputHandler.PrintAsync($"Отличная игра! Очков у дилера {_dialerScope} {GetRightDeclension(_dialerScope)}.\n" +
                     $"Твой выйгрыш {_bid * 1.5}");
 
                 return _bid * 1.5;
             }
             else
             {
-                Console.WriteLine("Удивительно, очков у дилера столько же сколько и у тебя! Придется перераздать");
+                await OutputHandler.PrintAsync("Удивительно, очков у дилера столько же сколько и у тебя! Придется перераздать");
                 _moneyHandler.AddBalance(_user, _bid);
                 await StartGameAsync(_bid, token);
             }
@@ -186,7 +190,7 @@ namespace Games.Impl.Games
 
         public override string ToString()
         {
-            return $"Название игры: {Name}\n Описание: {Description}\n Правила: {GameRules}";
+            return $"Название игры: {Name}\nОписание: {Description}\nПравила: {GameRules}";
         }
 
         #endregion

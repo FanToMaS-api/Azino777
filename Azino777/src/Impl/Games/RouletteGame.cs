@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Games.Impl.MoneyService;
+using Games.Impl.OutputHandlers;
 using Games.Interfaces.Game;
 using Games.Interfaces.MoneyService;
 using Games.Interfaces.User;
@@ -33,10 +34,11 @@ namespace Games.Impl.Games
         #region .ctor
 
         /// <inheritdoc cref="RouletteGame"/>
-        public RouletteGame(IUser user)
+        public RouletteGame(IUser user, OutputHandlerBase outputHandler)
         {
             _moneyHandler = new MoneyHandler();
             _user = user;
+            OutputHandler = outputHandler;
             Name = "Австралийская Рулетка";
             Description = "Испытай удачу! Собери 6 одинаковых цифр выйграй джекпот!";
             GameRules = "Игра простая до ужаса, проиграть в нее невозможно!\n" +
@@ -48,6 +50,9 @@ namespace Games.Impl.Games
         #endregion
 
         #region Properties
+
+        /// <inheritdoc />
+        public OutputHandlerBase OutputHandler { get; }
 
         /// <inheritdoc />
         public string Name { get; }
@@ -65,24 +70,24 @@ namespace Games.Impl.Games
         /// <inheritdoc />
         public async Task StartGameAsync(double bid, CancellationToken token = default)
         {
-            Console.WriteLine(ToString());
+            await OutputHandler.PrintAsync(ToString());
 
             if (_user.GetBalance() - bid < 0)
             {
-                Console.WriteLine("Недостаточно денег на счете");
+                await OutputHandler.PrintAsync("Недостаточно денег на счете");
                 return;
             }
 
             _moneyHandler.AddBalance(_user, -bid);
             _coin = bid;
 
-            Console.WriteLine($"Твои монеты: {_coin}");
+            await OutputHandler.PrintAsync($"Твои монеты: {_coin}");
 
             while (!await GameOverAsync(token))
             {
                 if (_firstCheck)
                 {
-                    Console.WriteLine("Хотите закончить и забрать выйгрыш? (ENTER)");
+                    await OutputHandler.PrintAsync("Хотите закончить и забрать выйгрыш? (ENTER)");
                 }
 
                 _firstCheck = true;
@@ -91,7 +96,7 @@ namespace Games.Impl.Games
                 {
                     await LogicAsync("", token);
 
-                    Console.WriteLine($"Твои монеты: {_coin}");
+                    await OutputHandler.PrintAsync($"Твои монеты: {_coin}");
                 }
                 else
                 {
@@ -117,7 +122,7 @@ namespace Games.Impl.Games
                 sb.Append(num);
                 curNum.Add(num);
             }
-            Console.WriteLine($"{sb}");
+            await OutputHandler.PrintAsync($"{sb}");
 
             var tempList = curNum.GroupBy(x => x)
                 .Select(y => y.Count())
@@ -166,13 +171,13 @@ namespace Games.Impl.Games
                     }
             }
 
-            Console.WriteLine($"{price} монет!");
+            await OutputHandler.PrintAsync($"{price} монет!");
         }
 
         /// <inheritdoc />
         public async Task<double> EndGameAsync(CancellationToken token)
         {
-            Console.WriteLine("Отличная игра! Возвращайся ещё!");
+            await OutputHandler.PrintAsync("Отличная игра! Возвращайся ещё!");
             return _coin;
         }
 
@@ -184,7 +189,7 @@ namespace Games.Impl.Games
 
         public override string ToString()
         {
-            return $"Название игры: {Name}\n Описание: {Description}\n Правила: {GameRules}";
+            return $"Название игры: {Name}\nОписание: {Description}\nПравила: {GameRules}";
         }
 
         #endregion
