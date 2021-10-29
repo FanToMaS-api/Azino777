@@ -1,5 +1,5 @@
 ﻿using Games.Impl.MoneyService;
-using Games.Impl.OutputHandlers;
+using Games.Impl.Services;
 using Games.src;
 
 namespace Games
@@ -11,7 +11,7 @@ namespace Games
             var user = UserFactory.UserFactory.CreateUser("0", "FanToMas", "123456789");
             var moneyHandler = new MoneyHandler();
             moneyHandler.AddBalance(user, 50);
-            var consoleOutputHandler = new ConsoleOutputHandler();
+            var consoleOutputHandler = new ConsoleInOutHandler();
 
             var menu = new Menu(user, consoleOutputHandler);
             var game = menu.ChooseGame();

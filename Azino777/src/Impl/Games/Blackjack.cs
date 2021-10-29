@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Games.Impl.MoneyService;
-using Games.Impl.OutputHandlers;
+using Games.Impl.Services;
 using Games.Interfaces.Game;
 using Games.Interfaces.MoneyService;
 using Games.Interfaces.User;
@@ -12,7 +12,7 @@ namespace Games.Impl.Games
     /// <summary>
     ///     Игра блэкджек
     /// </summary>
-    public class Blackjack : IGame
+    public class Blackjack : InputValidator, IGame
     {
         #region Fields
 
@@ -35,14 +35,16 @@ namespace Games.Impl.Games
         #region .ctor
 
         /// <inheritdoc cref="Blackjack"/>
-        public Blackjack(IUser user, OutputHandlerBase outputHandler)
+        public Blackjack(IUser user, InOutHandlerBase inOutHandler)
         {
             _moneyHandler = new MoneyHandler();
             _user = user;
-            OutputHandler = outputHandler;
+            InOutHandler = inOutHandler;
             Name = "21 очко";
             Description = "Набери максимальное количество очков, но не больше 21, и получи гарантированный приз";
-            GameRules = "Твоя задача набрать очков больше, чем у дилера, но не превысить 21 очко. Делай ставку, и давай побеждать!";
+            GameRules = "Твоя задача набрать очков больше, чем у дилера, но не превысить 21 очко. Делай ставку, и давай побеждать!\n" +
+                        "На все вопросы разрешено отвечать ДА, да, д, Yes, yes, YES и иными другими способами.\n" +
+                        "Все иные символы будут восприняты как отказ";
             _random = new();
         }
 
@@ -51,7 +53,7 @@ namespace Games.Impl.Games
         #region Properties
 
         /// <inheritdoc />
-        public OutputHandlerBase OutputHandler { get; }
+        public InOutHandlerBase InOutHandler { get; }
 
         /// <inheritdoc />
         public string Name { get; }
@@ -69,11 +71,11 @@ namespace Games.Impl.Games
         /// <inheritdoc />
         public async Task StartGameAsync(double bid, CancellationToken token = default)
         {
-            await OutputHandler.PrintAsync(ToString());
+            await InOutHandler.PrintAsync(ToString(), token);
 
             if (_user.GetBalance() - _bid < 0)
             {
-                await OutputHandler.PrintAsync("Недостаточно денег на счете");
+                await InOutHandler.PrintAsync("Недостаточно денег на счете", token);
                 return;
             }
 
@@ -96,17 +98,16 @@ namespace Games.Impl.Games
                 return;
             }
 
-            await OutputHandler.PrintAsync(GetInformation());
+            await InOutHandler.PrintAsync(GetInformation(), token);
 
             while (!await GameOverAsync(token))
             {
-                // TODO: сделать выбор пользователя одинаковым для консоли и бота
-                await OutputHandler.PrintAsync("Хочешь взять еще карту? (ENTER)");
+                await InOutHandler.PrintAsync("Хочешь взять еще карту?", token);
 
-                if (Console.ReadKey().Key == ConsoleKey.Enter)
+                if (CheckInput(await InOutHandler.InputAsync(token)))
                 {
                     await LogicAsync("input_text", token);
-                    await OutputHandler.PrintAsync(GetInformation());
+                    await InOutHandler.PrintAsync(GetInformation(), token);
                 }
                 else
                 {
@@ -125,12 +126,12 @@ namespace Games.Impl.Games
             if (userNum < 11)
             {
                 _userScope += userNum;
-                await OutputHandler.PrintAsync($"Выпало {userNum} {GetRightDeclension(userNum)}");
+                await InOutHandler.PrintAsync($"Выпало {userNum} {GetRightDeclension(userNum)}", token);
             }
             else if (userNum <= 13)
             {
                 _userScope += 10;
-                await OutputHandler.PrintAsync("Выпало 10 очков");
+                await InOutHandler.PrintAsync("Выпало 10 очков", token);
             }
             else
             {
@@ -153,34 +154,34 @@ namespace Games.Impl.Games
         {
             if (_userScope > 21 && _dialerScope <= 21)
             {
-                await OutputHandler.PrintAsync($"К сожалению, очков у дилера {_dialerScope} {GetRightDeclension(_dialerScope)}.\n" +
-                    "Но не стоит расстраиваться, в следующий раз обязательно повезет!");
+                await InOutHandler.PrintAsync($"К сожалению, очков у дилера {_dialerScope} {GetRightDeclension(_dialerScope)}.\n" +
+                    "Но не стоит расстраиваться, в следующий раз обязательно повезет!", token);
 
                 return -_bid;
             }
             else if (_dialerScope > 21 && _userScope <= 21)
             {
-                await OutputHandler.PrintAsync($"Отличная игра! Твой выйгрыш {_bid * 1.5}");
+                await InOutHandler.PrintAsync($"Отличная игра! Твой выйгрыш {_bid * 1.5}", token);
 
                 return _bid * 1.5;
             }
             else if (_dialerScope > _userScope)
             {
-                await OutputHandler.PrintAsync($"К сожалению, очков у дилера {_dialerScope} {GetRightDeclension(_dialerScope)}.\n" +
-                    "Но не стоит расстраиваться, в следующий раз обязательно повезет!");
+                await InOutHandler.PrintAsync($"К сожалению, очков у дилера {_dialerScope} {GetRightDeclension(_dialerScope)}.\n" +
+                    "Но не стоит расстраиваться, в следующий раз обязательно повезет!", token);
 
                 return -_bid;
             }
             else if (_userScope > _dialerScope)
             {
-                await OutputHandler.PrintAsync($"Отличная игра! Очков у дилера {_dialerScope} {GetRightDeclension(_dialerScope)}.\n" +
-                    $"Твой выйгрыш {_bid * 1.5}");
+                await InOutHandler.PrintAsync($"Отличная игра! Очков у дилера {_dialerScope} {GetRightDeclension(_dialerScope)}.\n" +
+                    $"Твой выйгрыш {_bid * 1.5}", token);
 
                 return _bid * 1.5;
             }
             else
             {
-                await OutputHandler.PrintAsync("Удивительно, очков у дилера столько же сколько и у тебя! Придется перераздать");
+                await InOutHandler.PrintAsync("Удивительно, очков у дилера столько же сколько и у тебя! Придется перераздать", token);
                 _moneyHandler.AddBalance(_user, _bid);
                 await StartGameAsync(_bid, token);
             }

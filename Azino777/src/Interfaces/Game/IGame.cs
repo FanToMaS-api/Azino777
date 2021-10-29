@@ -1,6 +1,7 @@
-﻿using System.Threading;
+﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Games.Impl.OutputHandlers;
+using Games.Impl.Services;
 
 namespace Games.Interfaces.Game
 {
@@ -14,7 +15,7 @@ namespace Games.Interfaces.Game
         /// <summary>
         ///     Обработчик вывода сообщений в разные среды
         /// </summary>
-        OutputHandlerBase OutputHandler { get; }
+        InOutHandlerBase InOutHandler { get; }
 
         /// <summary>
         ///     Название игры

@@ -1,4 +1,5 @@
 ﻿using System;
+using DataBase.Models;
 using Games.Interfaces.User;
 
 namespace Games.Impl.User
@@ -10,6 +11,8 @@ namespace Games.Impl.User
     {
         #region Fields
 
+        private DateTime _lastAction;
+
         #endregion
 
         #region .ctor
@@ -20,7 +23,7 @@ namespace Games.Impl.User
             State = state;
             Nickname = nickname;
             Id = id;
-            LastAction = DateTime.Now;
+            _lastAction = DateTime.Now;
             PhoneNumber = phoneNumber;
         }
 
@@ -41,7 +44,15 @@ namespace Games.Impl.User
         public string PhoneNumber { get; init; }
 
         /// <inheritdoc />
-        public DateTime LastAction { get; init; }
+        public DateTime LastAction
+        {
+            get => _lastAction;
+            set
+            {
+                State.SetUserStateType(UserStateType.Inactive);
+                _lastAction = value;
+            }
+        }
 
         #endregion
 
@@ -50,7 +61,18 @@ namespace Games.Impl.User
         /// <inheritdoc />
         public double GetBalance()
         {
+            LastAction = DateTime.Now;
             return State.Balance;
+        }
+
+        /// <inheritdoc />
+        public string GetUserInfo()
+        {
+            LastAction = DateTime.Now;
+            var info = $"Ваш баланс: {State.Balance}\n" +
+                       $"Ваш статус: {State.UserStateType}";
+
+            return info;
         }
 
         #endregion

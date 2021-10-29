@@ -30,7 +30,7 @@ namespace Games.Interfaces.User
         /// <summary>
         ///     Отражает дату последнего действия пользователя
         /// </summary>
-        public DateTime LastAction { get; init; }
+        public DateTime LastAction { get; }
 
         #endregion
 
@@ -40,6 +40,11 @@ namespace Games.Interfaces.User
         ///     Возвращает баланас пользователя
         /// </summary>
         public double GetBalance();
+
+        /// <summary>
+        ///     Возвращает сводную информацию о пользователе
+        /// </summary>
+        public string GetUserInfo();
 
         #endregion
     }
