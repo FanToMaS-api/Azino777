@@ -8,8 +8,8 @@ namespace DataBase.Entities
     /// <summary>
     ///     История игр в рулетку
     /// </summary>
-    [Table("roulette_games")]
-    internal class RouletteGameEntity
+    [Table("roulette_history")]
+    internal class RouletteHistoryEntity
     {
         #region Properties
 
@@ -44,15 +44,15 @@ namespace DataBase.Entities
         /// <summary>
         ///     Настройка
         /// </summary>
-        public static void Setup(EntityTypeBuilder<RouletteGameEntity> builder)
+        public static void Setup(EntityTypeBuilder<RouletteHistoryEntity> builder)
         {
             // Ключ
             builder.HasKey(_ => _.Id);
 
             // Индексы
-            builder.HasIndex(_ => _.UserId).HasDatabaseName("IX_roulette_games_user_id");
-            builder.HasIndex(_ => _.GameState).HasDatabaseName("IX_roulette_games_state");
-            builder.HasIndex(_ => _.Coin).HasDatabaseName("IX_roulette_games_coin");
+            builder.HasIndex(_ => _.UserId).HasDatabaseName("IX_roulette_history_user_id");
+            builder.HasIndex(_ => _.GameState).HasDatabaseName("IX_roulette_history_state");
+            builder.HasIndex(_ => _.Coin).HasDatabaseName("IX_roulette_history_coin");
         }
 
         #endregion

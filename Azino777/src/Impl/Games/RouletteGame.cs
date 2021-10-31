@@ -15,7 +15,7 @@ namespace Games.Impl.Games
     /// <summary>
     ///     Игра рулетка
     /// </summary>
-    internal class RouletteGame : InputValidator, IGame
+    internal class RouletteGame : IGame
     {
         #region Fileds
 
@@ -94,7 +94,7 @@ namespace Games.Impl.Games
 
                 _firstCheck = true;
 
-                if (CheckInput(await InOutHandler.InputAsync(token)))
+                if (InputValidator.CheckInput(await InOutHandler.InputAsync(token)))
                 {
                     await LogicAsync("", token);
 

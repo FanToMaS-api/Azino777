@@ -10,13 +10,13 @@ namespace Games.Impl.Services
     internal class ConsoleInOutHandler : InOutHandlerBase
     {
         /// <inheritdoc />
-        public override async Task PrintAsync(string message, CancellationToken token)
+        public async override Task PrintAsync(string message, CancellationToken token)
         {
             Console.WriteLine(message);
         }
 
         /// <inheritdoc />
-        public override async Task<string> InputAsync(CancellationToken token)
+        public async override Task<string> InputAsync(CancellationToken token)
         {
             return Console.ReadLine();
         }

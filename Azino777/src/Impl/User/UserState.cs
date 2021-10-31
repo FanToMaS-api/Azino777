@@ -14,6 +14,7 @@ namespace Games.Impl.User
         /// <inheritdoc />
         public double Balance { get; private set; }
 
+        // TODO: РЕФАКТОРИНГ
         /// <inheritdoc />
         public IGame Game { get; private set; }
 

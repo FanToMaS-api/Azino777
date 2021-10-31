@@ -5,14 +5,14 @@ namespace Games.Impl.Services
     /// <summary>
     ///     Проверят ввод пользователя
     /// </summary>
-    public abstract class InputValidator
+    internal static class InputValidator
     {
         #region Public methods
 
         /// <summary>
         ///     Проверяет согласие пользователя
         /// </summary>
-        public bool CheckInput(string input)
+        public static bool CheckInput(string input)
         {
             var message = input.ToLower();
             var length = input.Length;

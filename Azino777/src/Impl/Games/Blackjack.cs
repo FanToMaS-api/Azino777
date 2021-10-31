@@ -12,7 +12,7 @@ namespace Games.Impl.Games
     /// <summary>
     ///     Игра блэкджек
     /// </summary>
-    public class Blackjack : InputValidator, IGame
+    public class Blackjack : IGame
     {
         #region Fields
 
@@ -40,6 +40,8 @@ namespace Games.Impl.Games
             _moneyHandler = new MoneyHandler();
             _user = user;
             InOutHandler = inOutHandler;
+
+            // TODO: Вынести инициализацию описания игр в отдельные фейлы txt
             Name = "21 очко";
             Description = "Набери максимальное количество очков, но не больше 21, и получи гарантированный приз";
             GameRules = "Твоя задача набрать очков больше, чем у дилера, но не превысить 21 очко. Делай ставку, и давай побеждать!\n" +
@@ -104,7 +106,7 @@ namespace Games.Impl.Games
             {
                 await InOutHandler.PrintAsync("Хочешь взять еще карту?", token);
 
-                if (CheckInput(await InOutHandler.InputAsync(token)))
+                if (InputValidator.CheckInput(await InOutHandler.InputAsync(token)))
                 {
                     await LogicAsync("input_text", token);
                     await InOutHandler.PrintAsync(GetInformation(), token);

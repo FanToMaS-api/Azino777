@@ -13,13 +13,13 @@ namespace Games.Impl.Services
         /// <summary>
         ///     Выводит сообщение
         /// </summary>
-        public virtual async Task PrintAsync(string message, CancellationToken token)
+        public async virtual Task PrintAsync(string message, CancellationToken token)
         { }
 
         /// <summary>
         ///     Получает ввод пользователя
         /// </summary>
-        public virtual async Task<string> InputAsync(CancellationToken token)
+        public async virtual Task<string> InputAsync(CancellationToken token)
         {
             return "";
         }

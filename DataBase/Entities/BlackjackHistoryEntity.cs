@@ -1,6 +1,5 @@
-﻿using DataBase.Models;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Runtime.InteropServices;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using DataBase.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -9,8 +8,8 @@ namespace DataBase.Entities
     /// <summary>
     ///     История игр в блэкджэк
     /// </summary>
-    [Table("blackjack_games")]
-    internal class BlackjackGameEntity
+    [Table("blackjack_history")]
+    internal class BlackjackHistoryEntity
     {
         #region Properties
 
@@ -57,17 +56,17 @@ namespace DataBase.Entities
         /// <summary>
         ///     Настройка
         /// </summary>
-        public static void Setup(EntityTypeBuilder<BlackjackGameEntity> builder)
+        public static void Setup(EntityTypeBuilder<BlackjackHistoryEntity> builder)
         {
             // Ключ
             builder.HasKey(_ => _.Id);
 
             // Индексы
-            builder.HasIndex(_ => _.UserId).HasDatabaseName("IX_blackjack_games_user_id");
-            builder.HasIndex(_ => _.GameState).HasDatabaseName("IX_blackjack_games_state");
-            builder.HasIndex(_ => _.DialerScope).HasDatabaseName("IX_blackjack_games_dialer_scope");
-            builder.HasIndex(_ => _.UserScope).HasDatabaseName("IX_blackjack_games_user_scope");
-            builder.HasIndex(_ => _.Bid).HasDatabaseName("IX_blackjack_games_bid");
+            builder.HasIndex(_ => _.UserId).HasDatabaseName("IX_blackjack_history_user_id");
+            builder.HasIndex(_ => _.GameState).HasDatabaseName("IX_blackjack_history_state");
+            builder.HasIndex(_ => _.DialerScope).HasDatabaseName("IX_blackjack_history_dialer_scope");
+            builder.HasIndex(_ => _.UserScope).HasDatabaseName("IX_blackjack_history_user_scope");
+            builder.HasIndex(_ => _.Bid).HasDatabaseName("IX_blackjack_history_bid");
         }
 
         #endregion
