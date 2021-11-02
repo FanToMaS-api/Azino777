@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Games.Impl.Services
+namespace Games.Services
 {
     /// <summary>
     ///     Выводит сообщения в консоль

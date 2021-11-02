@@ -1,9 +1,8 @@
-﻿using System.Linq;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
-using Games.Impl.Services;
+using Games.Services;
 
-namespace Games.Interfaces.Game
+namespace Games.Games
 {
     /// <summary>
     ///     Базовый интерфейс игры

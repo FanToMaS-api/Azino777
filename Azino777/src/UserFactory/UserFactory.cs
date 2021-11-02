@@ -1,5 +1,5 @@
-﻿using Games.Impl.User;
-using Games.Interfaces.User;
+﻿using Games.User;
+using Games.User.Impl;
 
 namespace Games.UserFactory
 {
@@ -16,7 +16,7 @@ namespace Games.UserFactory
         public static IUser CreateUser(string id, string nickname, string phoneNumber)
         {
             var userState = new UserState();
-            return new Impl.User.User(userState, id, nickname, phoneNumber);
+            return new User.Impl.User(userState, id, nickname, phoneNumber);
         }
 
         #endregion

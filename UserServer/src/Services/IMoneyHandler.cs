@@ -1,6 +1,6 @@
-﻿using Games.Interfaces.User;
+﻿using Games.User;
 
-namespace Games.Interfaces.MoneyService
+namespace UserServer.src.Services
 {
     /// <summary>
     ///     Базовый интерфейс для обработчика баланса клиента

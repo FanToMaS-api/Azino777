@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Games.Interfaces.User
+namespace Games.User
 {
     /// <summary>
     ///     Базовый интерфейс для пользователей

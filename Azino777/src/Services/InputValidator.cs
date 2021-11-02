@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 
-namespace Games.Impl.Services
+namespace Games.Services
 {
     /// <summary>
     ///     Проверят ввод пользователя

@@ -1,8 +1,7 @@
 ﻿using System;
 using DataBase.Models;
-using Games.Interfaces.User;
 
-namespace Games.Impl.User
+namespace Games.User.Impl
 {
     /// <summary>
     ///     Пользователь бота

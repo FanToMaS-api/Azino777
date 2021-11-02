@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Games.Impl.MoneyService;
-using Games.Impl.Services;
-using Games.Interfaces.Game;
-using Games.Interfaces.MoneyService;
-using Games.Interfaces.User;
+using Games.Services;
+using Games.User;
 
-namespace Games.Impl.Games
+namespace Games.Games.Impl
 {
     /// <summary>
     ///     Игра блэкджек

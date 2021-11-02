@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Games.Impl.Games;
-using Games.Impl.Services;
-using Games.Interfaces.Game;
-using Games.Interfaces.User;
+using Games.Games;
+using Games.Games.Impl;
+using Games.Services;
+using Games.User;
 
-namespace Games.src
+namespace Games
 {
     /// <summary>
     ///     Меню игр

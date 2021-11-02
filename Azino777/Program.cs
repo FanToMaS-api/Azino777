@@ -1,6 +1,4 @@
-﻿using Games.Impl.MoneyService;
-using Games.Impl.Services;
-using Games.src;
+﻿using Games.Services;
 
 namespace Games
 {

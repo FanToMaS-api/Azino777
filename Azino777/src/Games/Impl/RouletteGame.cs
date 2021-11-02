@@ -4,13 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Games.Impl.MoneyService;
-using Games.Impl.Services;
-using Games.Interfaces.Game;
-using Games.Interfaces.MoneyService;
-using Games.Interfaces.User;
+using Games.Services;
+using Games.User;
 
-namespace Games.Impl.Games
+namespace Games.Games.Impl
 {
     /// <summary>
     ///     Игра рулетка
@@ -27,8 +24,6 @@ namespace Games.Impl.Games
 
         private readonly IUser _user;
 
-        private readonly IMoneyHandler _moneyHandler;
-
         #endregion
 
         #region .ctor
@@ -36,7 +31,6 @@ namespace Games.Impl.Games
         /// <inheritdoc cref="RouletteGame"/>
         public RouletteGame(IUser user, InOutHandlerBase inOutHandler)
         {
-            _moneyHandler = new MoneyHandler();
             _user = user;
             InOutHandler = inOutHandler;
             Name = "Австралийская Рулетка";

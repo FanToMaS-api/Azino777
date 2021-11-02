@@ -1,7 +1,4 @@
-﻿using Games.Interfaces.MoneyService;
-using Games.Interfaces.User;
-
-namespace Games.Impl.MoneyService
+﻿namespace UserServer.src.Services
 {
     /// <summary>
     ///     Отчевает за работу с монетами пользователя

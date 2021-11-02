@@ -1,7 +1,7 @@
 ﻿using DataBase.Models;
-using Games.Interfaces.Game;
+using Games.Games;
 
-namespace Games.Interfaces.User
+namespace Games.User
 {
     /// <summary>
     ///     Отражает текущее состояние пользователя
