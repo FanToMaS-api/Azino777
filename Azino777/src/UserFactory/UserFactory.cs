@@ -13,10 +13,10 @@ namespace Games.UserFactory
         /// <summary>
         ///     Инициализирует пользователя бота
         /// </summary>
-        public static IUser CreateUser(string id, string nickname, string phoneNumber)
+        public static IUser CreateUser(string id, string nickname, string phoneNumber, double balance)
         {
             var userState = new UserState();
-            return new User.Impl.User(userState, id, nickname, phoneNumber);
+            return new User.Impl.User(userState, id, nickname, phoneNumber, balance);
         }
 
         #endregion

@@ -9,7 +9,7 @@ namespace DataBase.Entities
     ///     Таблица состояний пользователей бота
     /// </summary>
     [Table("users_state")]
-    internal class UserStateEntity
+    public class UserStateEntity
     {
         #region Properties
 

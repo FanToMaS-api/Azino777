@@ -8,7 +8,7 @@ namespace DataBase
     /// <summary>
     ///     Контекст базы данных
     /// </summary>
-    internal class AppDbContext : DbContext
+    public class AppDbContext : DbContext
     {
         #region Properties
 

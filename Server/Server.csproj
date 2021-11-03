@@ -1,17 +1,13 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Library</OutputType>
+    <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Azino777\Games.csproj" />
     <ProjectReference Include="..\DataBase\DataBase.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="src\Services\" />
   </ItemGroup>
 
 </Project>

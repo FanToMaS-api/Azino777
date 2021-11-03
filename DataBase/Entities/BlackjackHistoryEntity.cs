@@ -9,7 +9,7 @@ namespace DataBase.Entities
     ///     История игр в блэкджэк
     /// </summary>
     [Table("blackjack_history")]
-    internal class BlackjackHistoryEntity
+    public class BlackjackHistoryEntity
     {
         #region Properties
 
