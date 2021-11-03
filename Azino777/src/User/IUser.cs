@@ -42,6 +42,11 @@ namespace Games.User
         public double GetBalance();
 
         /// <summary>
+        ///     Изменяет баланс пользователя
+        /// </summary>
+        public void AddBalance(double value);
+
+        /// <summary>
         ///     Возвращает сводную информацию о пользователе
         /// </summary>
         public string GetUserInfo();

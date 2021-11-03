@@ -43,11 +43,9 @@ namespace Games.User.Impl
         public string PhoneNumber { get; init; }
 
         /// <inheritdoc />
-        public DateTime LastAction
-        {
+        public DateTime LastAction {
             get => _lastAction;
-            set
-            {
+            set {
                 State.SetUserStateType(UserStateType.Inactive);
                 _lastAction = value;
             }
@@ -62,6 +60,12 @@ namespace Games.User.Impl
         {
             LastAction = DateTime.Now;
             return State.Balance;
+        }
+
+        /// <inheritdoc />
+        public void AddBalance(double value)
+        {
+            State.AddBalance(value);
         }
 
         /// <inheritdoc />

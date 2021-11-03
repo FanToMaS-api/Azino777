@@ -74,7 +74,7 @@ namespace Games.Games.Impl
                 return;
             }
 
-            _moneyHandler.AddBalance(_user, -bid);
+            _user.AddBalance(-bid);
             _coin = bid;
 
             await InOutHandler.PrintAsync($"Твои монеты: {_coin}", token);
@@ -96,12 +96,12 @@ namespace Games.Games.Impl
                 }
                 else
                 {
-                    _moneyHandler.AddBalance(_user, await EndGameAsync(token));
+                    _user.AddBalance(await EndGameAsync(token));
                     return;
                 }
             }
 
-            _moneyHandler.AddBalance(_user, await EndGameAsync(token));
+            _user.AddBalance(await EndGameAsync(token));
         }
 
         /// <inheritdoc />

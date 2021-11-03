@@ -25,8 +25,6 @@ namespace Games.Games.Impl
 
         private readonly IUser _user;
 
-        private readonly IMoneyHandler _moneyHandler;
-
         #endregion
 
         #region .ctor
@@ -34,7 +32,6 @@ namespace Games.Games.Impl
         /// <inheritdoc cref="Blackjack"/>
         public Blackjack(IUser user, InOutHandlerBase inOutHandler)
         {
-            _moneyHandler = new MoneyHandler();
             _user = user;
             InOutHandler = inOutHandler;
 
@@ -78,7 +75,7 @@ namespace Games.Games.Impl
                 return;
             }
 
-            _moneyHandler.AddBalance(_user, -bid);
+            _user.AddBalance(-bid);
             _bid = bid;
 
             // Первоначальная настройка
@@ -93,7 +90,7 @@ namespace Games.Games.Impl
             if (_dialerScope == 21)
             {
                 _dialerScope = 0;
-                _moneyHandler.AddBalance(_user, await EndGameAsync(token));
+                _user.AddBalance(await EndGameAsync(token));
                 return;
             }
 
@@ -110,7 +107,7 @@ namespace Games.Games.Impl
                 }
                 else
                 {
-                    _moneyHandler.AddBalance(_user, await EndGameAsync(token));
+                    _user.AddBalance(await EndGameAsync(token));
                     return;
                 }
             }
@@ -181,7 +178,7 @@ namespace Games.Games.Impl
             else
             {
                 await InOutHandler.PrintAsync("Удивительно, очков у дилера столько же сколько и у тебя! Придется перераздать", token);
-                _moneyHandler.AddBalance(_user, _bid);
+                _user.AddBalance(_bid);
                 await StartGameAsync(_bid, token);
             }
 
