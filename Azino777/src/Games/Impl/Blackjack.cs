@@ -13,12 +13,6 @@ namespace Games.Games.Impl
     {
         #region Fields
 
-        private int _userScope;
-
-        private int _dialerScope;
-
-        private double _bid;
-
         private readonly Random _random;
 
         private bool _firstCheck;
@@ -34,13 +28,7 @@ namespace Games.Games.Impl
         {
             _user = user;
             InOutHandler = inOutHandler;
-
-            // TODO: Вынести инициализацию описания игр в отдельные фейлы txt
-            Name = "21 очко";
-            Description = "Набери максимальное количество очков, но не больше 21, и получи гарантированный приз";
-            GameRules = "Твоя задача набрать очков больше, чем у дилера, но не превысить 21 очко. Делай ставку, и давай побеждать!\n" +
-                        "На все вопросы разрешено отвечать ДА, да, д, Yes, yes, YES и иными другими способами.\n" +
-                        "Все иные символы будут восприняты как отказ";
+            InOutHandler.OnMessageReceived += OnMessageReceived;
             _random = new();
         }
 
@@ -51,14 +39,39 @@ namespace Games.Games.Impl
         /// <inheritdoc />
         public InOutHandlerBase InOutHandler { get; }
 
-        /// <inheritdoc />
-        public string Name { get; }
+        /// <summary>
+        ///     Очки пользователя
+        /// </summary>
+        public int UserScope { get; private set; }
 
-        /// <inheritdoc />
-        public string Description { get; }
+        /// <summary>
+        ///     Очки дилера
+        /// </summary>
+        public int DialerScope { get; set; }
 
-        /// <inheritdoc />
-        public string GameRules { get; }
+        /// <summary>
+        ///     Ставка игры
+        /// </summary>
+        public double Bid { get; set; }
+
+        /// <summary>
+        ///     Название игры
+        /// </summary>
+        public string Name => "21 очко";
+
+        /// <summary>
+        ///      Описание игры
+        /// </summary>
+        public static string Description =>
+            "Набери максимальное количество очков, но не больше 21, и получи гарантированный приз";
+
+        /// <summary>
+        ///     Правила игры
+        /// </summary>
+        public static string GameRules =>
+            "Твоя задача набрать очков больше, чем у дилера, но не превысить 21 очко. Делай ставку, и давай побеждать!\n" +
+            "На все вопросы разрешено отвечать ДА, да, д, Yes, yes, YES и иными другими способами.\n" +
+            "Все иные символы будут восприняты как отказ";
 
         #endregion
 
@@ -69,48 +82,36 @@ namespace Games.Games.Impl
         {
             await InOutHandler.PrintAsync(ToString(), token);
 
-            if (_user.GetBalance() - _bid < 0)
+            if (_user.GetBalance() - Bid < 0)
             {
                 await InOutHandler.PrintAsync("Недостаточно денег на счете", token);
                 return;
             }
 
             _user.AddBalance(-bid);
-            _bid = bid;
+            Bid = bid;
 
             // Первоначальная настройка
-            _userScope = _random.Next(1, 14) + _random.Next(1, 14);
-            _dialerScope = _random.Next(1, 14) + _random.Next(1, 14);
-            while (_dialerScope > 21)
+            UserScope = _random.Next(1, 14) + _random.Next(1, 14);
+            DialerScope = _random.Next(1, 14) + _random.Next(1, 14);
+            while (DialerScope > 21)
             {
-                _dialerScope = 0;
-                _dialerScope = _random.Next(1, 14) + _random.Next(1, 14);
+                DialerScope = 0;
+                DialerScope = _random.Next(1, 14) + _random.Next(1, 14);
             }
 
-            if (_dialerScope == 21)
+            if (DialerScope == 21)
             {
-                _dialerScope = 0;
+                DialerScope = 0;
                 _user.AddBalance(await EndGameAsync(token));
                 return;
             }
 
             await InOutHandler.PrintAsync(GetInformation(), token);
+            await InOutHandler.PrintAsync("Хочешь взять еще карту?", token);
 
-            while (!await GameOverAsync(token))
-            {
-                await InOutHandler.PrintAsync("Хочешь взять еще карту?", token);
-
-                if (InputValidator.CheckInput(await InOutHandler.InputAsync(token)))
-                {
-                    await LogicAsync("input_text", token);
-                    await InOutHandler.PrintAsync(GetInformation(), token);
-                }
-                else
-                {
-                    _user.AddBalance(await EndGameAsync(token));
-                    return;
-                }
-            }
+            // Вызов метода получения сообщения, нужен для консоли, в телеге просто проходит мимо
+            await InOutHandler.InputAsync(token);
         }
 
         /// <inheritdoc />
@@ -121,65 +122,67 @@ namespace Games.Games.Impl
 
             if (userNum < 11)
             {
-                _userScope += userNum;
+                UserScope += userNum;
                 await InOutHandler.PrintAsync($"Выпало {userNum} {GetRightDeclension(userNum)}", token);
             }
             else if (userNum <= 13)
             {
-                _userScope += 10;
+                UserScope += 10;
                 await InOutHandler.PrintAsync("Выпало 10 очков", token);
             }
             else
             {
-                if (_userScope + _dialerScope > 21)
+                if (UserScope + DialerScope > 21)
                 {
-                    _userScope += 1;
+                    UserScope += 1;
                 }
             }
 
-            _dialerScope += dealerNum;
+            DialerScope += dealerNum;
         }
+
         /// <inheritdoc />
-        public async Task<bool> GameOverAsync(CancellationToken token)
+        public bool IsGameOver()
         {
-            return _userScope > 21;
+            return UserScope > 21;
         }
 
         /// <inheritdoc />
         public async Task<double> EndGameAsync(CancellationToken token)
         {
-            if (_userScope > 21 && _dialerScope <= 21)
+            InOutHandler.OnMessageReceived -= OnMessageReceived;
+            if (UserScope > 21 && DialerScope <= 21)
             {
-                await InOutHandler.PrintAsync($"К сожалению, очков у дилера {_dialerScope} {GetRightDeclension(_dialerScope)}.\n" +
+                await InOutHandler.PrintAsync($"К сожалению, очков у дилера {DialerScope} {GetRightDeclension(DialerScope)}.\n" +
                     "Но не стоит расстраиваться, в следующий раз обязательно повезет!", token);
 
-                return -_bid;
+                return -Bid;
             }
-            else if (_dialerScope > 21 && _userScope <= 21)
+            else if (DialerScope > 21 && UserScope <= 21)
             {
-                await InOutHandler.PrintAsync($"Отличная игра! Твой выйгрыш {_bid * 1.5}", token);
+                await InOutHandler.PrintAsync($"Отличная игра! Твой выйгрыш {Bid * 1.5}", token);
 
-                return _bid * 1.5;
+                return Bid * 1.5;
             }
-            else if (_dialerScope > _userScope)
+            else if (DialerScope > UserScope)
             {
-                await InOutHandler.PrintAsync($"К сожалению, очков у дилера {_dialerScope} {GetRightDeclension(_dialerScope)}.\n" +
+                await InOutHandler.PrintAsync($"К сожалению, очков у дилера {DialerScope} {GetRightDeclension(DialerScope)}.\n" +
                     "Но не стоит расстраиваться, в следующий раз обязательно повезет!", token);
 
-                return -_bid;
+                return -Bid;
             }
-            else if (_userScope > _dialerScope)
+            else if (UserScope > DialerScope)
             {
-                await InOutHandler.PrintAsync($"Отличная игра! Очков у дилера {_dialerScope} {GetRightDeclension(_dialerScope)}.\n" +
-                    $"Твой выйгрыш {_bid * 1.5}", token);
+                await InOutHandler.PrintAsync($"Отличная игра! Очков у дилера {DialerScope} {GetRightDeclension(DialerScope)}.\n" +
+                    $"Твой выйгрыш {Bid * 1.5}", token);
 
-                return _bid * 1.5;
+                return Bid * 1.5;
             }
             else
             {
                 await InOutHandler.PrintAsync("Удивительно, очков у дилера столько же сколько и у тебя! Придется перераздать", token);
-                _user.AddBalance(_bid);
-                await StartGameAsync(_bid, token);
+                _user.AddBalance(Bid);
+                await StartGameAsync(Bid, token);
             }
 
             return 0;
@@ -195,6 +198,28 @@ namespace Games.Games.Impl
         #region Private methods
 
         /// <summary>
+        ///     Обработчик прихода сообщения от пользователя
+        /// </summary>
+        private void OnMessageReceived(object? sender, string message)
+        {
+            if (InputValidator.CheckInput(message))
+            {
+                LogicAsync("unused_input_text", CancellationToken.None).GetAwaiter().GetResult();
+                InOutHandler.PrintAsync(GetInformation(), CancellationToken.None).GetAwaiter().GetResult();
+
+                if (IsGameOver())
+                {
+                    _user.AddBalance(EndGameAsync(CancellationToken.None).GetAwaiter().GetResult());
+                    return;
+                }
+                InOutHandler.PrintAsync("Хочешь взять еще карту?", CancellationToken.None).GetAwaiter();
+
+                // Вызов метода получения сообщения, нужен для консоли, в телеге просто проходит мимо
+                InOutHandler.InputAsync(CancellationToken.None).GetAwaiter();
+            }
+        }
+
+        /// <summary>
         ///     Возвращает информацию о текущем состоянии игры
         /// </summary>
         private string GetInformation()
@@ -203,15 +228,16 @@ namespace Games.Games.Impl
             {
                 _firstCheck = true;
 
-                return $"Текущий счет: Дилер: {_dialerScope} {GetRightDeclension(_dialerScope)}\n" +
-                  $"У тебя {_userScope} {GetRightDeclension(_userScope)}";
+                return $"Текущий счет: Дилер: {DialerScope} {GetRightDeclension(DialerScope)}\n" +
+                  $"У тебя {UserScope} {GetRightDeclension(UserScope)}";
             }
-            else
-            {
-                return $"Твои очки: {_userScope}";
-            }
+
+            return $"Твои очки: {UserScope}";
         }
 
+        /// <summary>
+        ///     Возвращает верное склонение слова
+        /// </summary>
         private string GetRightDeclension(int num)
         {
             switch (num)

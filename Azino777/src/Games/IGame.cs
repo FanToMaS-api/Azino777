@@ -16,21 +16,6 @@ namespace Games.Games
         /// </summary>
         InOutHandlerBase InOutHandler { get; }
 
-        /// <summary>
-        ///     Название игры
-        /// </summary>
-        public string Name { get; }
-
-        /// <summary>
-        ///      Описание игры
-        /// </summary>
-        public string Description { get; }
-
-        /// <summary>
-        ///     Правила игры
-        /// </summary>
-        public string GameRules { get; }
-
         #endregion
 
         #region Public methods
@@ -49,7 +34,7 @@ namespace Games.Games
         /// <summary>
         ///     Определяет, когда игра завершена
         /// </summary>
-        public Task<bool> GameOverAsync(CancellationToken token);
+        public bool IsGameOver();
 
         /// <summary>
         ///     Обрабатывает завершение игры

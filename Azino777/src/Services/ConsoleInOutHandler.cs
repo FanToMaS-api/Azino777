@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace Games.Services
 {
     /// <summary>
-    ///     Выводит сообщения в консоль
+    ///     Отвечает за ввод и вывод данных в консоль
     /// </summary>
     internal class ConsoleInOutHandler : InOutHandlerBase
     {
@@ -16,9 +16,10 @@ namespace Games.Services
         }
 
         /// <inheritdoc />
-        public async override Task<string> InputAsync(CancellationToken token)
+        public async override Task InputAsync(CancellationToken token)
         {
-            return Console.ReadLine();
+            var message = Console.ReadLine();
+            OnMessageReceived?.Invoke(this, message);
         }
     }
 }

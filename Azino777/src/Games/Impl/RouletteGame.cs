@@ -20,8 +20,6 @@ namespace Games.Games.Impl
 
         private readonly Random _random;
 
-        private bool _firstCheck;
-
         private readonly IUser _user;
 
         #endregion
@@ -33,13 +31,7 @@ namespace Games.Games.Impl
         {
             _user = user;
             InOutHandler = inOutHandler;
-            Name = "Австралийская Рулетка";
-            Description = "Испытай удачу! Собери 6 одинаковых цифр выйграй джекпот!";
-            GameRules = "Игра простая до ужаса, проиграть в нее невозможно!\n" +
-                "Твоя задача выбить как можно больше повторяющихся цифр!\n" +
-                "На все вопросы разрешено отвечать ДА, да, д, Yes, yes, YES и иными другими способами.\n" +
-                "Все иные символы будут восприняты как отказ";
-
+            InOutHandler.OnMessageReceived += OnMessageReceived;
             _random = new();
         }
 
@@ -50,14 +42,24 @@ namespace Games.Games.Impl
         /// <inheritdoc />
         public InOutHandlerBase InOutHandler { get; }
 
-        /// <inheritdoc />
-        public string Name { get; }
+        /// <summary>
+        ///     Название игры
+        /// </summary>
+        public string Name => "Австралийская Рулетка";
 
-        /// <inheritdoc />
-        public string Description { get; }
+        /// <summary>
+        ///      Описание игры
+        /// </summary>
+        public static string Description =>
+            "Испытай удачу! Собери 6 одинаковых цифр выйграй джекпот!";
 
-        /// <inheritdoc />
-        public string GameRules { get; }
+        /// <summary>
+        ///     Правила игры
+        /// </summary>
+        public static string GameRules =>
+            "Твоя задача выбить как можно больше повторяющихся цифр!\n" +
+            "На все вопросы разрешено отвечать ДА, да, д, Yes, yes, YES и иными другими способами.\n" +
+            "Все иные символы будут восприняты как отказ";
 
         #endregion
 
@@ -79,29 +81,10 @@ namespace Games.Games.Impl
 
             await InOutHandler.PrintAsync($"Твои монеты: {_coin}", token);
 
-            while (!await GameOverAsync(token))
-            {
-                if (_firstCheck)
-                {
-                    await InOutHandler.PrintAsync("Хотите продолжить?", token);
-                }
+            await InOutHandler.PrintAsync("Хотите продолжить?", token);
 
-                _firstCheck = true;
-
-                if (InputValidator.CheckInput(await InOutHandler.InputAsync(token)))
-                {
-                    await LogicAsync("", token);
-
-                    await InOutHandler.PrintAsync($"Твои монеты: {_coin}", token);
-                }
-                else
-                {
-                    _user.AddBalance(await EndGameAsync(token));
-                    return;
-                }
-            }
-
-            _user.AddBalance(await EndGameAsync(token));
+            // Вызов метода получения сообщения, нужен для консоли, в телеге просто проходит мимо
+            InOutHandler.InputAsync(CancellationToken.None).GetAwaiter();
         }
 
         /// <inheritdoc />
@@ -118,6 +101,7 @@ namespace Games.Games.Impl
                 sb.Append(num);
                 curNum.Add(num);
             }
+
             await InOutHandler.PrintAsync($"{sb}", token);
 
             var tempList = curNum.GroupBy(x => x)
@@ -125,7 +109,7 @@ namespace Games.Games.Impl
                 .ToList();
             var max = tempList.Max();
 
-            Console.Write("Поздравляем! Вам начислено ");
+            await InOutHandler.PrintAsync("Поздравляем! Вам начислено ", token);
 
             double price;
             switch (max)
@@ -173,12 +157,14 @@ namespace Games.Games.Impl
         /// <inheritdoc />
         public async Task<double> EndGameAsync(CancellationToken token)
         {
+            InOutHandler.OnMessageReceived -= OnMessageReceived;
             await InOutHandler.PrintAsync("Отличная игра! Возвращайся ещё!", token);
+
             return _coin;
         }
 
         /// <inheritdoc />
-        public async Task<bool> GameOverAsync(CancellationToken token)
+        public bool IsGameOver()
         {
             return _coin - 10 < 0;
         }
@@ -192,6 +178,29 @@ namespace Games.Games.Impl
 
         #region Private methods
 
-        #endregion
+        /// <summary>
+        ///     Обработчик получения сообщений от пользователя
+        /// </summary>
+        private void OnMessageReceived(object? sender, string message)
+        {
+            if (InputValidator.CheckInput(message))
+            {
+                LogicAsync("", CancellationToken.None).GetAwaiter();
+                InOutHandler.PrintAsync($"Твои монеты: {_coin}", CancellationToken.None).GetAwaiter();
+
+                if (IsGameOver())
+                {
+                    _user.AddBalance(EndGameAsync(CancellationToken.None).GetAwaiter().GetResult());
+                    return;
+                }
+
+                InOutHandler.PrintAsync("Хотите продолжить?", CancellationToken.None).GetAwaiter();
+
+                // Вызов метода получения сообщения, нужен для консоли, в телеге просто проходит мимо
+                InOutHandler.InputAsync(CancellationToken.None).GetAwaiter();
+            }
+
+            #endregion
+        }
     }
 }

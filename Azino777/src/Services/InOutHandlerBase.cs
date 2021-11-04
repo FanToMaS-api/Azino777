@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Games.Services
@@ -8,6 +9,15 @@ namespace Games.Services
     /// </summary>
     public class InOutHandlerBase
     {
+        #region Properties
+
+        /// <summary>
+        ///     Событие получения сообщения от пользователя
+        /// </summary>
+        public EventHandler<string> OnMessageReceived { get; set; }
+
+        #endregion
+
         #region Public methods
 
         /// <summary>
@@ -19,10 +29,8 @@ namespace Games.Services
         /// <summary>
         ///     Получает ввод пользователя
         /// </summary>
-        public async virtual Task<string> InputAsync(CancellationToken token)
-        {
-            return "";
-        }
+        public async virtual Task InputAsync(CancellationToken token)
+        { }
 
         #endregion
     }
