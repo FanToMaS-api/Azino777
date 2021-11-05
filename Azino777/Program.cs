@@ -10,9 +10,13 @@ namespace Games
             var consoleOutputHandler = new ConsoleInOutHandler();
 
             var menu = new Menu(user, consoleOutputHandler);
-            var game = menu.ChooseGame();
 
-            game.StartGameAsync(user.GetBalance());
+            while (true)
+            {
+                var game = menu.ChooseGame();
+                user.AddBalance(50);
+                game.StartGameAsync(50);
+            }
         }
     }
 }

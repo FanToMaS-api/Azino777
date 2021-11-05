@@ -19,6 +19,8 @@ namespace Games
 
         private readonly InOutHandlerBase _inOutHandler;
 
+        private readonly IUser _user;
+
         #endregion
 
         #region .ctor
@@ -27,7 +29,7 @@ namespace Games
         public Menu(IUser user, InOutHandlerBase inOutHandler)
         {
             _inOutHandler = inOutHandler;
-            _games = new List<IGame> { new RouletteGame(user, _inOutHandler), new Blackjack(user, _inOutHandler) };
+            _user = user;
         }
 
         #endregion
@@ -39,7 +41,20 @@ namespace Games
         /// </summary>
         public IGame ChooseGame()
         {
-            return _games.ElementAt(new Random().Next(0, _games.Count));
+            var gameNumber = new Random().Next(1, 2);
+            switch (gameNumber)
+            {
+                case 0:
+                    {
+                        return new RouletteGame(_user, _inOutHandler);
+                    }
+                case 1:
+                    {
+                        return new Blackjack(_user, _inOutHandler);
+                    }
+
+                default: throw new ArgumentException();
+            }
         }
 
         #endregion

@@ -11,10 +11,10 @@ namespace Server.Mappers
         #region Public methods
 
         // TODO: AutoMapper!!!
-        public static UserEntity Map(IUser user)
-        {
+        //public static UserEntity Map(IUser user)
+        //{
 
-        }
+        //}
 
         #endregion
     }

@@ -199,8 +199,12 @@ namespace Games.Games.Impl
                 // Вызов метода получения сообщения, нужен для консоли, в телеге просто проходит мимо
                 InOutHandler.InputAsync(CancellationToken.None).GetAwaiter();
             }
-
-            #endregion
+            else
+            {
+                _user.AddBalance(EndGameAsync(CancellationToken.None).GetAwaiter().GetResult());
+            }
         }
+
+        #endregion
     }
 }

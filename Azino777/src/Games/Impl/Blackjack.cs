@@ -15,8 +15,6 @@ namespace Games.Games.Impl
 
         private readonly Random _random;
 
-        private bool _firstCheck;
-
         private readonly IUser _user;
 
         #endregion
@@ -92,13 +90,8 @@ namespace Games.Games.Impl
             Bid = bid;
 
             // Первоначальная настройка
-            UserScope = _random.Next(1, 14) + _random.Next(1, 14);
-            DialerScope = _random.Next(1, 14) + _random.Next(1, 14);
-            while (DialerScope > 21)
-            {
-                DialerScope = 0;
-                DialerScope = _random.Next(1, 14) + _random.Next(1, 14);
-            }
+            UserScope = _random.Next(1, 10) + _random.Next(1, 11);
+            DialerScope = _random.Next(1, 5) + _random.Next(1, 5) + _random.Next(1, 5) + _random.Next(1, 6);
 
             if (DialerScope == 21)
             {
@@ -118,7 +111,7 @@ namespace Games.Games.Impl
         public async Task LogicAsync(string input, CancellationToken token)
         {
             var userNum = _random.Next(1, 14);
-            var dealerNum = _random.Next(1, 14);
+            var dealerNum = _random.Next(1, 7);
 
             if (userNum < 11)
             {
@@ -151,9 +144,10 @@ namespace Games.Games.Impl
         public async Task<double> EndGameAsync(CancellationToken token)
         {
             InOutHandler.OnMessageReceived -= OnMessageReceived;
-            if (UserScope > 21 && DialerScope <= 21)
+            if (UserScope > 21)
             {
-                await InOutHandler.PrintAsync($"К сожалению, очков у дилера {DialerScope} {GetRightDeclension(DialerScope)}.\n" +
+                DialerScope = new Random().Next(16, 22);
+                await InOutHandler.PrintAsync($"К сожалению, у дилера {DialerScope} {GetRightDeclension(DialerScope)}.\n" +
                     "Но не стоит расстраиваться, в следующий раз обязательно повезет!", token);
 
                 return -Bid;
@@ -173,7 +167,7 @@ namespace Games.Games.Impl
             }
             else if (UserScope > DialerScope)
             {
-                await InOutHandler.PrintAsync($"Отличная игра! Очков у дилера {DialerScope} {GetRightDeclension(DialerScope)}.\n" +
+                await InOutHandler.PrintAsync($"Отличная игра! У дилера {DialerScope} {GetRightDeclension(DialerScope)}.\n" +
                     $"Твой выйгрыш {Bid * 1.5}", token);
 
                 return Bid * 1.5;
@@ -217,6 +211,10 @@ namespace Games.Games.Impl
                 // Вызов метода получения сообщения, нужен для консоли, в телеге просто проходит мимо
                 InOutHandler.InputAsync(CancellationToken.None).GetAwaiter();
             }
+            else
+            {
+                _user.AddBalance(EndGameAsync(CancellationToken.None).GetAwaiter().GetResult());
+            }
         }
 
         /// <summary>
@@ -224,15 +222,7 @@ namespace Games.Games.Impl
         /// </summary>
         private string GetInformation()
         {
-            if (!_firstCheck)
-            {
-                _firstCheck = true;
-
-                return $"Текущий счет: Дилер: {DialerScope} {GetRightDeclension(DialerScope)}\n" +
-                  $"У тебя {UserScope} {GetRightDeclension(UserScope)}";
-            }
-
-            return $"Твои очки: {UserScope}";
+            return $"У тебя {UserScope} {GetRightDeclension(UserScope)}";
         }
 
         /// <summary>
@@ -246,7 +236,7 @@ namespace Games.Games.Impl
                     {
                         return "очко";
                     }
-                case 2 or 3 or 4:
+                case 2 or 3 or 4 or >= 22 and < 25:
                     {
                         return "очка";
                     }
