@@ -17,7 +17,7 @@ namespace DataBase.Entities
         ///     Уникальный id
         /// </summary>
         [Column("id")]
-        public string Id { get; set; }
+        public long Id { get; set; }
 
         /// <summary>
         ///     Имя пользователя

@@ -6,7 +6,7 @@ namespace DataBase
     /// <summary>
     ///     Design-time фабрика для <see cref="AppDbContext"/>
     /// </summary>
-    internal class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
+    public class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
     {
         /// <inheritdoc />
         public AppDbContext CreateDbContext(string[] args)

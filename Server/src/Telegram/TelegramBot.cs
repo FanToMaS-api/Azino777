@@ -3,37 +3,36 @@ using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
-using Telegram.Bot.Types;
 using Telegram.Bot.Extensions.Polling;
+using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
-namespace Games.Services
+namespace Server.Telegram
 {
     /// <summary>
-    ///     Отвечает за ввод и вывод данных в telegram
+    ///     Модель телеграм бота
     /// </summary>
-    internal class TelegramInOutHandler : InOutHandlerBase
+    internal class TelegramBot
     {
         #region Fields
 
-        private readonly ITelegramBotClient _client;
 
         #endregion
 
         #region .ctor
 
-        /// <inheritdoc cref="TelegramInOutHandler"/>
-        public TelegramInOutHandler(ITelegramBotClient client, CancellationToken token = default)
+        /// <inheritdoc cref="TelegramBot"/>
+        public TelegramBot(string token)
         {
-            _client = client;
+            Client = new TelegramBotClient(token);
             var updateHandler = new DefaultUpdateHandler(
                 HandleUpdateAsync,
                 HandleErrorAsync,
-                new [] {
+                new[] {
                     UpdateType.Message
                 });
 
-            _client.StartReceiving(updateHandler, token);
+            Client.StartReceiving(updateHandler);
         }
 
         #endregion
@@ -41,38 +40,26 @@ namespace Games.Services
         #region Properties
 
         /// <summary>
-        ///     Id чата для отправки сообщения
+        ///     Клиент телеграм бота
         /// </summary>
-        public ChatId ChatId { get; set; }
+        public TelegramBotClient Client { get; }
 
         #endregion
 
         #region Public methods
 
-        /// <inheritdoc />
-        public async override Task PrintAsync(string message, CancellationToken token)
-        {
-            if (ChatId is null)
-            {
-                throw new ArgumentNullException(nameof(ChatId), "ChatId shouldn't be null");
-            }
-
-            await _client.SendTextMessageAsync(ChatId, message, cancellationToken: token);
-            ChatId = null;
-        }
-
-        #endregion
-
-        #region Private methods
-
         /// <summary>
         ///     Обработчик событий обновлений чата
         /// </summary>
-        private async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+        private async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken = default)
         {
             if (update.Message is { } message)
             {
-                OnMessageReceived?.Invoke(message, message.Text);
+                if (message.Text == "/start")
+                {
+                    await Client.SendTextMessageAsync(message.Chat,
+                        "Привет! Если ты нажал на старт, значит ты уже на полпути к победам и новым выйгрышам!", cancellationToken: cancellationToken);
+                }
             }
         }
 
@@ -81,6 +68,7 @@ namespace Games.Services
         /// </summary>
         private async Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
         {
+            // TODO: Добавить логирование
             if (exception is ApiRequestException apiRequestException)
             {
                 throw new Exception(apiRequestException.ToString());
