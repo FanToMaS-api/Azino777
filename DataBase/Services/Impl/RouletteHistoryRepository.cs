@@ -10,7 +10,7 @@ namespace DataBase.Services.Impl
     /// <summary>
     ///     Репозиторий историй игр в австралийскую рулетку
     /// </summary>
-    internal class RouletteHistoryRepository
+    internal class RouletteHistoryRepository : IRouletteHistoryRepository
     {
         #region Fields
 

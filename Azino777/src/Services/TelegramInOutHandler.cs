@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using NLog;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
@@ -18,6 +19,8 @@ namespace Games.Services
 
         private readonly ITelegramBotClient _client;
 
+        private readonly static Logger _logger = LogManager.GetCurrentClassLogger();
+
         #endregion
 
         #region .ctor
@@ -29,7 +32,7 @@ namespace Games.Services
             var updateHandler = new DefaultUpdateHandler(
                 HandleUpdateAsync,
                 HandleErrorAsync,
-                new [] {
+                new[] {
                     UpdateType.Message
                 });
 
@@ -54,6 +57,7 @@ namespace Games.Services
         {
             if (ChatId is null)
             {
+                _logger.Error("ChatId shouldn't be null");
                 throw new ArgumentNullException(nameof(ChatId), "ChatId shouldn't be null");
             }
 
@@ -81,10 +85,7 @@ namespace Games.Services
         /// </summary>
         private async Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
         {
-            if (exception is ApiRequestException apiRequestException)
-            {
-                throw new Exception(apiRequestException.ToString());
-            }
+            _logger.Error(exception);
         }
 
         #endregion

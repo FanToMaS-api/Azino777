@@ -12,11 +12,12 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D01364FD-42F7-4F20-A38A-E27C66B3A814}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		NLog.config = NLog.config
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{FCD6D0E5-1EC3-487B-8364-F7E16E66A923}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csproj", "{63E694D5-C5C6-4C47-AC93-05C1A7DA5F40}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Server", "Server\Server.csproj", "{63E694D5-C5C6-4C47-AC93-05C1A7DA5F40}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

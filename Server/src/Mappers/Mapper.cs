@@ -17,10 +17,10 @@ namespace Server.Mappers
         #endregion
         #region Public methods
 
-        public static UserEntity Map(User user)
-        {
+        //public static UserEntity Map(User user)
+        //{
             
-        }
+        //}
 
         #endregion
     }

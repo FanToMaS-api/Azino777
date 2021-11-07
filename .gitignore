@@ -46,7 +46,7 @@ Thumbs.db
 *.war
 
 # Configuration files
-*.config
+App.config
 
 # Large media files
 *.mp4

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using NLog;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Extensions.Polling;
@@ -16,6 +17,7 @@ namespace Server.Telegram
     {
         #region Fields
 
+        private readonly static Logger _logger = LogManager.GetCurrentClassLogger();
 
         #endregion
 
@@ -71,6 +73,7 @@ namespace Server.Telegram
             // TODO: Добавить логирование
             if (exception is ApiRequestException apiRequestException)
             {
+                _logger.Error(apiRequestException, apiRequestException.Message);
                 throw new Exception(apiRequestException.ToString());
             }
         }

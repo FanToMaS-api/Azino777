@@ -1,4 +1,6 @@
 ﻿using System;
+using NLog;
+using NLog.Config;
 
 namespace Server
 {
@@ -6,7 +8,10 @@ namespace Server
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            LogManager.Configuration = new XmlLoggingConfiguration("../../../../NLog.config");
+            var logger = LogManager.GetCurrentClassLogger();
+
+            LogManager.Shutdown();
         }
     }
 }
