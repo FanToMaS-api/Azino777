@@ -18,6 +18,16 @@ namespace DataBase.Services.Impl
 
         #endregion
 
+        #region .ctor
+
+        /// <inheritdoc cref="UserRepository"/>
+        public UserRepository(AppDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
+        #endregion
+
         #region Public methods
 
         /// <inheritdoc />
