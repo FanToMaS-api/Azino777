@@ -56,8 +56,11 @@ namespace DataBase.Services.Impl
             var blackjackHistoryRecord = new BlackjackHistoryEntity();
             action(blackjackHistoryRecord);
 
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+
             await _dbContext.BlackjackHistory.AddAsync(blackjackHistoryRecord, cancellationToken);
             await _dbContext.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
 
             return blackjackHistoryRecord;
         }
@@ -75,7 +78,11 @@ namespace DataBase.Services.Impl
 
             action(blackjackHistoryRecord);
 
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+
             await _dbContext.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+
             return blackjackHistoryRecord;
         }
 

@@ -37,14 +37,14 @@ namespace DataBase.Services.Impl
         }
 
         /// <inheritdoc />
-        public async Task<UserEntity> GetAsync(string phoneNumber, CancellationToken cancellationToken = default)
+        public async Task<UserEntity> GetAsync(long id, CancellationToken cancellationToken = default)
         {
-            var user =  await _dbContext.Users
-                .Where(_ => _.PhoneNumber == phoneNumber)
+            var user = await _dbContext.Users
+                .Where(_ => _.Id == id)
                 .FirstOrDefaultAsync(cancellationToken);
             if (user is null)
             {
-                throw new Exception($"Cannot find user with phone number: {phoneNumber}");
+                throw new Exception($"Cannot find user with id: {id}");
                 // TODO: не забыть обработать
             }
 
@@ -58,7 +58,7 @@ namespace DataBase.Services.Impl
             action(user);
 
             var conflictingUser = await _dbContext.Users
-                .Where(_ => _.PhoneNumber == user.PhoneNumber)
+                .Where(_ => _.Id == user.Id)
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (conflictingUser != null)
@@ -66,10 +66,13 @@ namespace DataBase.Services.Impl
                 throw new Exception("User with this phone number is already exist");
             }
 
-            // TODO: Транзакции
-            // TODO: Аналогично для все остальных
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+
             await _dbContext.Users.AddAsync(user, cancellationToken);
             await _dbContext.SaveChangesAsync(cancellationToken);
+
+            await transaction.CommitAsync(cancellationToken);
+
             return user;
         }
 
@@ -87,14 +90,18 @@ namespace DataBase.Services.Impl
             action(user);
 
             var conflictingUser = await _dbContext.Users
-                .Where(_ => _.PhoneNumber == user.PhoneNumber && _.Id != id)
+                .Where(_ => _.Id == user.Id && _.Id != id)
                 .FirstOrDefaultAsync(cancellationToken);
             if (conflictingUser != null)
             {
                 throw new Exception("User with this phone number is already exist");
             }
 
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+
             await _dbContext.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+
             return user;
         }
 

@@ -20,10 +20,22 @@ namespace DataBase.Entities
         public long Id { get; set; }
 
         /// <summary>
-        ///     Имя пользователя
+        ///     Ник пользователя
         /// </summary>
         [Column("nickname")]
         public string Nickname { get; set; }
+
+        /// <summary>
+        ///     Фамилия пользователя
+        /// </summary>
+        [Column("lastname")]
+        public string LastName { get; set; }
+
+        /// <summary>
+        ///     Имя пользователя
+        /// </summary>
+        [Column("firstname")]
+        public string FirstName { get; set; }
 
         /// <summary>
         ///     Номер телефона
@@ -35,7 +47,7 @@ namespace DataBase.Entities
         ///     Отражает дату последнего действия пользователя
         /// </summary>
         [Column("last_action")]
-        public DateTime LastAction { get; init; }
+        public DateTime LastAction { get; set; }
 
         #endregion
 
@@ -55,6 +67,10 @@ namespace DataBase.Entities
                 .HasDatabaseName("IX_users_phone_number");
             builder.HasIndex(_ => _.Nickname)
                 .HasDatabaseName("IX_users_nickname");
+            builder.HasIndex(_ => _.FirstName)
+                .HasDatabaseName("IX_users_firstname");
+            builder.HasIndex(_ => _.LastName)
+                .HasDatabaseName("IX_users_lastname");
             builder.HasIndex(_ => _.LastAction)
                 .HasDatabaseName("IX_users_last_action");
         }

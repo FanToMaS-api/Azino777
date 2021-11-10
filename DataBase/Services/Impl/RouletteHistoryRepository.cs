@@ -56,8 +56,11 @@ namespace DataBase.Services.Impl
             var historyRecord = new RouletteHistoryEntity();
             action(historyRecord);
 
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+
             await _dbContext.RouletteHistory.AddAsync(historyRecord, cancellationToken);
             await _dbContext.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
 
             return historyRecord;
         }
@@ -74,8 +77,11 @@ namespace DataBase.Services.Impl
             }
 
             action(historyRecord);
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
 
             await _dbContext.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+
             return historyRecord;
         }
 

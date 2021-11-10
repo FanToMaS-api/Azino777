@@ -64,8 +64,11 @@ namespace DataBase.Services.Impl
                 throw new Exception("Cannot add user state, because it already exists");
             }
 
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+
             await _dbContext.UsersStates.AddAsync(userState, cancellationToken);
             await _dbContext.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
 
             return userState;
         }
@@ -91,7 +94,11 @@ namespace DataBase.Services.Impl
                 throw new Exception($"State for user with id: {userState.UserId} is already exist");
             }
 
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+
             await _dbContext.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+
             return userState;
         }
 
