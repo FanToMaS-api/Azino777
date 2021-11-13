@@ -22,16 +22,16 @@ namespace Server.Telegram
 
         private readonly static Logger _logger = LogManager.GetCurrentClassLogger();
 
-        private readonly IUserRepository _userRepository;
+        private readonly ITelegramDbContext _dbContext;
 
         #endregion
 
         #region .ctor
 
         /// <inheritdoc cref="TelegramBot"/>
-        public TelegramBot(string token, IUserRepository userRepository)
+        public TelegramBot(string token, ITelegramDbContext dbContext)
         {
-            _userRepository = userRepository;
+            _dbContext = dbContext;
             Client = new TelegramBotClient(token);
             _logger.Info("Successful connection to bot");
 
@@ -65,19 +65,30 @@ namespace Server.Telegram
         {
             if (update.Message is { } message)
             {
-                if (message.Text == "/start")
+                switch (message.Text.ToLower())
                 {
-                    if (_userRepository.CreateQuery().Any(_ => _.Id == message.From.Id))
-                    {
-                        await _userRepository.UpdateAsync(message.From.Id, UpdateUserEntity, cancellationToken);
-                        await Client.SendTextMessageAsync(message.Chat, DefaultText.HelloText, cancellationToken: cancellationToken);
-                    }
-                    else
-                    {
-                        await _userRepository.CreateAsync(CreateUserEntity, cancellationToken);
-                        await Client.SendTextMessageAsync(message.Chat, DefaultText.FirstHelloText, cancellationToken: cancellationToken);
-                    }
-                    // TODO: фуня проверки и создания нового пользователя в бд
+                    case "/start":
+                        {
+                            if (_dbContext.Users.CreateQuery().Any(_ => _.Id == message.From.Id))
+                            {
+                                await _dbContext.Users.UpdateAsync(message.From.Id, UpdateUserEntity, cancellationToken);
+                                await Client.SendTextMessageAsync(message.Chat, DefaultText.HelloText, cancellationToken: cancellationToken);
+                            }
+                            else
+                            {
+                                await _dbContext.Users.CreateAsync(CreateUserEntity, cancellationToken);
+                                await Client.SendTextMessageAsync(message.Chat, DefaultText.FirstHelloText, cancellationToken: cancellationToken);
+                            }
+
+                            break;
+                        }
+                    case "help":
+                        {
+
+                            await Client.SendTextMessageAsync(message.Chat, DefaultText.HelpInfo, cancellationToken: cancellationToken);
+                            _logger.Info($"Пользователь с id: {message.From.Id} обратился в поддержку");
+                            break;
+                        }
                 }
             }
 

@@ -1,16 +1,19 @@
 ﻿using System;
 using NLog;
 using NLog.Config;
+using Server.Telegram;
 
 namespace Server
 {
     internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             LogManager.Configuration = new XmlLoggingConfiguration("../../../../NLog.config");
-            var logger = LogManager.GetCurrentClassLogger();
 
+            var bot = TelegramBotFactory.Create();
+
+            Console.ReadKey();
             LogManager.Shutdown();
         }
     }

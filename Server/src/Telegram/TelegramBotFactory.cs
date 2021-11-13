@@ -1,4 +1,7 @@
-﻿using Server.Configuration;
+﻿using DataBase;
+using DataBase.Services.Impl;
+using Server.Configuration;
+using System;
 using System.Configuration;
 
 namespace Server.Telegram
@@ -14,7 +17,10 @@ namespace Server.Telegram
         public static TelegramBot Create()
         {
             var token = ConfigurationManager.AppSettings.Get(Config.TELEGRAM_TOKEN);
-            return new TelegramBot(token);
+            var _dbContext = new AppDbContextFactory().CreateDbContext(Array.Empty<string>());
+            var telegramDbContext = new TelegramDbContext(_dbContext);
+
+            return new TelegramBot(token, telegramDbContext);
         }
     }
 }

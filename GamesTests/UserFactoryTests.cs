@@ -11,12 +11,13 @@ namespace GamesTests
             var id = "01ER";
             var nickname = "FanToMas";
             var phone = "123456789";
-            var user = UserFactory.CreateUser(id, nickname, phone);
+            var balance = 50.2;
+            var user = UserFactory.CreateUser(id, nickname, phone, balance);
 
             Assert.Equal(id, user.Id);
             Assert.Equal(nickname, user.Nickname);
             Assert.Equal(phone, user.PhoneNumber);
-            Assert.Equal(0, user.GetBalance());
+            Assert.Equal(balance, user.GetBalance());
         }
     }
 }

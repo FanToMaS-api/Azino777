@@ -17,9 +17,9 @@ namespace DataBase.Services
         IQueryable<UserEntity> CreateQuery();
 
         /// <summary>
-        ///     Получить пользователя по его телефону
+        ///     Получить пользователя по его id
         /// </summary>
-        Task<UserEntity> GetAsync(string phoneNumber, CancellationToken cancellationToken = default);
+        Task<UserEntity> GetAsync(long id, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Создать пользователя

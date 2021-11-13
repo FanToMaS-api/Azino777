@@ -47,7 +47,7 @@ namespace DataBase
         #region Public methods
 
         /// <inheritdoc />
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        override protected void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Проставляем имя поля по умолчанию (snake_case)
             var mapper = new NpgsqlSnakeCaseNameTranslator();
