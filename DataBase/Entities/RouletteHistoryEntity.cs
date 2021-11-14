@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using DataBase.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -58,8 +59,7 @@ namespace DataBase.Entities
             builder
                 .HasOne(_ => _.User)
                 .WithMany(_ => _.RouletteHistory)
-                .HasForeignKey(_ => _.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .HasForeignKey(_ => _.UserId);
 
             // Индексы
             builder.HasIndex(_ => _.UserId).HasDatabaseName("IX_roulette_history_user_id");

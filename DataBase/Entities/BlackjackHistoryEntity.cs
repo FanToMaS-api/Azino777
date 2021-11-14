@@ -70,8 +70,7 @@ namespace DataBase.Entities
             builder
                 .HasOne(_ => _.User)
                 .WithMany(_ => _.BlackjackHistory)
-                .HasForeignKey(_ => _.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .HasForeignKey(_ => _.UserId);
 
             // Индексы
             builder.HasIndex(_ => _.UserId).HasDatabaseName("IX_blackjack_history_user_id");

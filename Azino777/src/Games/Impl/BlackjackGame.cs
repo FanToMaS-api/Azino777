@@ -107,6 +107,8 @@ namespace Games.Games.Impl
             {
                 DialerScope = 0;
                 _user.AddBalance(await EndGameAsync(token));
+
+                OnGameEnded?.Invoke(this, EventArgs.Empty, token);
                 return;
             }
 
@@ -156,6 +158,7 @@ namespace Games.Games.Impl
         public async Task<double> EndGameAsync(CancellationToken token)
         {
             InOutHandler.OnMessageReceived -= OnMessageReceived;
+
             if (UserScope > 21)
             {
                 DialerScope = new Random().Next(16, 22);
@@ -191,7 +194,6 @@ namespace Games.Games.Impl
                 await StartGameAsync(Bid, token);
             }
 
-            OnGameEnded?.Invoke(this, EventArgs.Empty, token);
             return 0;
         }
 
@@ -217,6 +219,8 @@ namespace Games.Games.Impl
                 if (IsGameOver())
                 {
                     _user.AddBalance(await EndGameAsync(token));
+                    OnGameEnded?.Invoke(this, EventArgs.Empty, token);
+
                     return;
                 }
                 await InOutHandler.PrintAsync("Хочешь взять еще карту?", _user.ChatId, token);
@@ -228,6 +232,7 @@ namespace Games.Games.Impl
             else
             {
                 _user.AddBalance(await EndGameAsync(token));
+                OnGameEnded?.Invoke(this, EventArgs.Empty, token);
             }
         }
 

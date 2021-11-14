@@ -41,12 +41,12 @@ namespace DataBase.Services.Impl
         public async Task<UserEntity> GetAsync(long id, CancellationToken cancellationToken = default)
         {
             var user = await _dbContext.Users
+                .Include(_ => _.UserState)
                 .Where(_ => _.TelegramId == id)
                 .FirstOrDefaultAsync(cancellationToken);
             if (user is null)
             {
                 throw new Exception($"Cannot find user with id: {id}");
-                // TODO: не забыть обработать
             }
 
             return user;
@@ -81,7 +81,7 @@ namespace DataBase.Services.Impl
         public async Task<UserEntity> UpdateAsync(long id, Action<UserEntity> action, CancellationToken cancellationToken = default)
         {
             var user = await _dbContext.Users
-                .Where(_ => _.TelegramId == id)
+                .Where(_ => _.Id == id)
                 .FirstOrDefaultAsync(cancellationToken);
             if (user == null)
             {

@@ -46,11 +46,9 @@ namespace Server.GameHandlers
         public async Task StartBlackJackAsync(long userId, CancellationToken cancellationToken)
         {
             UserEntity userEntity;
-            UserStateEntity userStateEntity;
             try
             {
                 userEntity = await _dbContext.Users.GetAsync(userId, cancellationToken);
-                userStateEntity = await _dbContext.UserStates.GetAsync(userId, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -58,7 +56,7 @@ namespace Server.GameHandlers
                 return;
             }
 
-            var user = Mapper.Map(userEntity, userStateEntity);
+            var user = Mapper.Map(userEntity, userEntity.UserState);
             var game = new BlackjackGame(user, _inOutHandler);
             var bid = 10;
             game.OnGameUpdated += OnGameUpdatedAsync;
@@ -80,7 +78,7 @@ namespace Server.GameHandlers
                 record.Bid = bid;
                 record.DialerScope = 0;
                 record.UserScope = 0;
-                record.UserId = userEntity.TelegramId;
+                record.User = userEntity;
                 record.GameState = GameStateType.IsOn;
             }
         }
@@ -100,11 +98,8 @@ namespace Server.GameHandlers
             try
             {
                 var userId = game.User.Id;
-                await _dbContext.Users.UpdateAsync(userId, UpdateUserEntity, token);
-                var state = _dbContext.UserStates.GetAsync(userId, token) ??
-                            throw new NullReferenceException($"UserState is empty for user with id: {userId}");
-
-                await _dbContext.UserStates.UpdateAsync(state.Id, UpdateUserStateEntity, token);
+                var user = await _dbContext.Users.UpdateAsync(userId, UpdateUserEntity, token);
+                await _dbContext.UserStates.UpdateAsync(user.UserState.Id, UpdateUserStateEntity, token);
             }
             catch (Exception ex)
             {
@@ -138,9 +133,9 @@ namespace Server.GameHandlers
             {
                 try
                 {
-                    await _dbContext.Users.UpdateAsync(blackjackGame.User.Id, UpdateUserEntity, token);
-                    var record = await _dbContext.BlackjackHistory.GetAsync(blackjackGame.User.Id, token) ??
-                                 throw new NullReferenceException($"BlackjackHistory record is empty for user with id: {blackjackGame.User.Id}");
+                    var user = await _dbContext.Users.UpdateAsync(blackjackGame.User.Id, UpdateUserEntity, token);
+                    var record = await _dbContext.BlackjackHistory.GetAsync(user.Id, token) ??
+                                 throw new NullReferenceException($"BlackjackHistory record is empty for user with id: {user.TelegramId}");
 
                     await _dbContext.BlackjackHistory.UpdateAsync(record.Id, UpdateRecord, token);
                 }

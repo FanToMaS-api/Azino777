@@ -174,7 +174,6 @@ namespace Games.Games.Impl
         {
             InOutHandler.OnMessageReceived -= OnMessageReceived;
             await InOutHandler.PrintAsync("Отличная игра! Возвращайся ещё!", _user.ChatId, token);
-            OnGameEnded?.Invoke(this, EventArgs.Empty, token);
 
             return Coin;
         }
@@ -207,6 +206,8 @@ namespace Games.Games.Impl
                 if (IsGameOver())
                 {
                     _user.AddBalance(await EndGameAsync(token));
+                    OnGameEnded?.Invoke(this, EventArgs.Empty, token);
+
                     return;
                 }
 
@@ -219,6 +220,7 @@ namespace Games.Games.Impl
             else
             {
                 _user.AddBalance(await EndGameAsync(token));
+                OnGameEnded?.Invoke(this, EventArgs.Empty, token);
             }
         }
 

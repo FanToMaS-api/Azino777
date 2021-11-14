@@ -1,4 +1,6 @@
-﻿using DataBase.Entities;
+﻿using System;
+using DataBase.Entities;
+using DataBase.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Npgsql.NameTranslation;
@@ -59,6 +61,25 @@ namespace DataBase
                     property.SetColumnName(mapper.TranslateMemberName(property.GetColumnName(storeObjectId)));
                 }
             }
+
+            // Преобразование значений
+            modelBuilder.Entity<BlackjackHistoryEntity>()
+                .Property(_ => _.GameState)
+                .HasConversion(
+                    v => v.ToString(),
+                    v => (GameStateType)Enum.Parse(typeof(GameStateType), v));
+
+            modelBuilder.Entity<RouletteHistoryEntity>()
+                .Property(_ => _.GameState)
+                .HasConversion(
+                    v => v.ToString(),
+                    v => (GameStateType)Enum.Parse(typeof(GameStateType), v));
+
+            modelBuilder.Entity<UserStateEntity>()
+                .Property(_ => _.UserStateType)
+                .HasConversion(
+                    v => v.ToString(),
+                    v => (UserStateType)Enum.Parse(typeof(UserStateType), v));
 
             // Setup
             UserEntity.Setup(modelBuilder.Entity<UserEntity>());

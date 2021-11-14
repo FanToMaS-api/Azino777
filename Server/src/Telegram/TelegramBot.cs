@@ -73,7 +73,6 @@ namespace Server.Telegram
                 if (!_dbContext.Users.CreateQuery().Any(_ => _.TelegramId == message.From.Id))
                 {
                     await _dbContext.Users.CreateAsync(CreateUserEntity, cancellationToken);
-                    await _dbContext.UserStates.CreateAsync(CreateUserStateEntity, cancellationToken);
                 }
             }
             catch (Exception ex)
@@ -120,15 +119,14 @@ namespace Server.Telegram
                 user.TelegramId = message.From.Id;
                 user.Nickname = message.From.Username;
                 user.LastName = message.From.LastName;
+                user.ChatId = message.Chat.Id;
                 user.FirstName = message.From.FirstName;
                 user.LastAction = DateTime.Now;
-            }
-
-            void CreateUserStateEntity(UserStateEntity userState)
-            {
-                userState.Balance = 50;
-                userState.UserId = message.From.Id;
-                userState.UserStateType = UserStateType.Active;
+                user.UserState = new UserStateEntity {
+                    Balance = 50,
+                    UserId = user.TelegramId,
+                    UserStateType = UserStateType.Active,
+                };
             }
         }
 
@@ -154,8 +152,8 @@ namespace Server.Telegram
         {
             try
             {
-                var userState = await _dbContext.UserStates.GetAsync(userId, cancellationToken);
-                return $"Ваш баланс: {userState.Balance}\nВаш статус: {userState.UserStateType}";
+                var user = await _dbContext.Users.GetAsync(userId, cancellationToken);
+                return $"Ваш баланс: {user.UserState.Balance}\nВаш статус: {user.UserState.UserStateType}";
             }
             catch (Exception ex)
             {
