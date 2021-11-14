@@ -68,6 +68,8 @@ namespace Server.Telegram
                 return;
             }
 
+            // TODO: Добавить ставку в игру
+            // TODO: разобраться почему IsOn не переходит в IsOver
             try
             {
                 if (!_dbContext.Users.CreateQuery().Any(_ => _.TelegramId == message.From.Id))
@@ -99,13 +101,25 @@ namespace Server.Telegram
                         _logger.Info($"Пользователь с id: {message.From.Id} обратился в поддержку");
                         break;
                     }
-                case "/command3": // 21 очко
+                case "/command3": // пополнение средств
+                    {
+                        await AddCoinAsync(message, cancellationToken);
+                        _logger.Info($"Пользователь с id: {message.From.Id} запросил пополнение средств");
+                        break;
+                    }
+                case "/command4": // снятие средств
+                    {
+                        await Client.SendTextMessageAsync(message.Chat, DefaultText.WithdrawFunds, cancellationToken: cancellationToken);
+                        _logger.Info($"Пользователь с id: {message.From.Id} запросил вывод средств");
+                        break;
+                    }
+                case "/command5": // 21 очко
                     {
                         var newGame = new BlackjackGameHandler(_dbContext, _inOutHandler);
                         await newGame.StartBlackJackAsync(message.From.Id, cancellationToken);
                         break;
                     }
-                case "/command4": // рулетка
+                case "/command6": // рулетка
                     {
 
                         var newGame = new RouletteGameHandler(_dbContext, _inOutHandler);
@@ -146,6 +160,25 @@ namespace Server.Telegram
         }
 
         /// <summary>
+        ///     Функция пополнения средств пользователя
+        /// </summary>
+        private async Task AddCoinAsync(Message message, CancellationToken cancellationToken)
+        {
+            var user = await _dbContext.Users.GetAsync(message.From.Id, cancellationToken);
+
+            await _dbContext.UserStates.UpdateAsync(user.UserState.Id, UpdateState, cancellationToken);
+
+            static void UpdateState(UserStateEntity stateEntity)
+            {
+                stateEntity.Balance += 50;
+            }
+
+            var info = "Ваш баланс успешно пополнен!\n";
+            info += await GetProfileInfoAsync(message.From.Id, cancellationToken);
+            await Client.SendTextMessageAsync(message.Chat, info, cancellationToken: cancellationToken);
+        }
+
+        /// <summary>
         ///     Возвращает информацию о профиле пользователя
         /// </summary>
         private async Task<string> GetProfileInfoAsync(long userId, CancellationToken cancellationToken)
@@ -170,6 +203,7 @@ namespace Server.Telegram
         public void Dispose()
         {
             _cancellationTokenSource.Dispose();
+            _dbContext.Dispose();
         }
 
         #endregion

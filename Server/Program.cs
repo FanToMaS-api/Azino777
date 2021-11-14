@@ -14,6 +14,7 @@ namespace Server
             var bot = TelegramBotFactory.Create();
 
             Console.ReadKey();
+            bot.Dispose();
             LogManager.Shutdown();
         }
     }

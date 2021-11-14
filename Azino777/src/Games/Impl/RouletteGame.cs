@@ -85,7 +85,8 @@ namespace Games.Games.Impl
             if (_user.GetBalance() - bid < 0)
             {
                 await InOutHandler.PrintAsync("Недостаточно денег на счете", _user.ChatId, token);
-                OnGameUpdated?.Invoke(this, EventArgs.Empty, token);
+                OnGameEnded?.Invoke(this, EventArgs.Empty, token);
+
                 return;
             }
 
