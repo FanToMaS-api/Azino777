@@ -37,6 +37,16 @@
         public static string NotFunctionText = "Данная функция пока не работает. Извините за неудобства.";
 
         /// <summary>
+        ///     Сообщение о вводе ставки
+        /// </summary>
+        public static string InputBid = "Введите вашу ставку";
+
+        /// <summary>
+        ///     Сообщение о неверном вводе ставки
+        /// </summary>
+        public static string ErrorInputBid = "Ставка не принята, введите еще раз";
+
+        /// <summary>
         ///     Сообщение о выводе денежных средств пользователю
         /// </summary>
         public static string WithdrawFunds = $"Чтобы вывести денежные средства напишите сумму, номер телефона и свой ник в телеграмме на почту: {HelpEmail}\n" +
