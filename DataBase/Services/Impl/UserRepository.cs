@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DataBase.Entities;
+using DataBase.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataBase.Services.Impl
@@ -40,7 +41,7 @@ namespace DataBase.Services.Impl
         public async Task<UserEntity> GetAsync(long id, CancellationToken cancellationToken = default)
         {
             var user = await _dbContext.Users
-                .Where(_ => _.Id == id)
+                .Where(_ => _.TelegramId == id)
                 .FirstOrDefaultAsync(cancellationToken);
             if (user is null)
             {
@@ -58,12 +59,12 @@ namespace DataBase.Services.Impl
             action(user);
 
             var conflictingUser = await _dbContext.Users
-                .Where(_ => _.Id == user.Id)
+                .Where(_ => _.TelegramId == user.TelegramId)
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (conflictingUser != null)
             {
-                throw new Exception("User with this phone number is already exist");
+                throw new Exception("User with this id is already exist");
             }
 
             await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
@@ -80,7 +81,7 @@ namespace DataBase.Services.Impl
         public async Task<UserEntity> UpdateAsync(long id, Action<UserEntity> action, CancellationToken cancellationToken = default)
         {
             var user = await _dbContext.Users
-                .Where(_ => _.Id == id)
+                .Where(_ => _.TelegramId == id)
                 .FirstOrDefaultAsync(cancellationToken);
             if (user == null)
             {
@@ -90,11 +91,11 @@ namespace DataBase.Services.Impl
             action(user);
 
             var conflictingUser = await _dbContext.Users
-                .Where(_ => _.Id == user.Id && _.Id != id)
+                .Where(_ => _.TelegramId == user.TelegramId && _.Id != id)
                 .FirstOrDefaultAsync(cancellationToken);
             if (conflictingUser != null)
             {
-                throw new Exception("User with this phone number is already exist");
+                throw new Exception("User with this id is already exist");
             }
 
             await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);

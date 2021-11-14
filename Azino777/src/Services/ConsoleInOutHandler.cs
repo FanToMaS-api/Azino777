@@ -7,19 +7,22 @@ namespace Games.Services
     /// <summary>
     ///     Отвечает за ввод и вывод данных в консоль
     /// </summary>
-    internal class ConsoleInOutHandler : InOutHandlerBase
+    internal class ConsoleInOutHandler : IInOutHandler
     {
         /// <inheritdoc />
-        public async override Task PrintAsync(string message, CancellationToken token)
+        public event Func<object, string, CancellationToken, Task> OnMessageReceived;
+
+        /// <inheritdoc />
+        public async Task PrintAsync(string message, long chatId, CancellationToken token)
         {
             Console.WriteLine(message);
         }
 
         /// <inheritdoc />
-        public async override Task InputAsync(CancellationToken token)
+        public async Task InputAsync(CancellationToken token)
         {
             var message = Console.ReadLine();
-            OnMessageReceived?.Invoke(this, message);
+            OnMessageReceived?.Invoke(this, message, token);
         }
     }
 }

@@ -3,9 +3,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using NLog;
 using Telegram.Bot;
-using Telegram.Bot.Exceptions;
-using Telegram.Bot.Types;
 using Telegram.Bot.Extensions.Polling;
+using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
 namespace Games.Services
@@ -13,7 +12,7 @@ namespace Games.Services
     /// <summary>
     ///     Отвечает за ввод и вывод данных в telegram
     /// </summary>
-    internal class TelegramInOutHandler : InOutHandlerBase
+    public class TelegramInOutHandler : IInOutHandler
     {
         #region Fields
 
@@ -43,27 +42,21 @@ namespace Games.Services
 
         #region Properties
 
-        /// <summary>
-        ///     Id чата для отправки сообщения
-        /// </summary>
-        public ChatId ChatId { get; set; }
+        /// <inheritdoc />
+        public event Func<object, string, CancellationToken, Task> OnMessageReceived;
 
         #endregion
 
         #region Public methods
 
         /// <inheritdoc />
-        public async override Task PrintAsync(string message, CancellationToken token)
+        public async Task PrintAsync(string message, long chatId, CancellationToken token)
         {
-            if (ChatId is null)
-            {
-                _logger.Error("ChatId shouldn't be null");
-                throw new ArgumentNullException(nameof(ChatId), "ChatId shouldn't be null");
-            }
-
-            await _client.SendTextMessageAsync(ChatId, message, cancellationToken: token);
-            ChatId = null;
+            await _client.SendTextMessageAsync(chatId, message, cancellationToken: token);
         }
+
+        /// <inheritdoc />
+        public async Task InputAsync(CancellationToken token) { }
 
         #endregion
 
@@ -76,7 +69,7 @@ namespace Games.Services
         {
             if (update.Message is { } message)
             {
-                OnMessageReceived?.Invoke(message, message.Text);
+                OnMessageReceived?.Invoke(message, message.Text, cancellationToken);
             }
         }
 
@@ -85,7 +78,8 @@ namespace Games.Services
         /// </summary>
         private async Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
         {
-            _logger.Error(exception);
+            _logger.Error(exception, exception.Message);
+            throw new Exception(exception.ToString());
         }
 
         #endregion

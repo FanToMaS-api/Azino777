@@ -7,14 +7,14 @@ namespace Games.Services
     /// <summary>
     ///     Базовый класс для вывода текстовых сообщений
     /// </summary>
-    public class InOutHandlerBase
+    public interface IInOutHandler
     {
         #region Properties
 
         /// <summary>
         ///     Событие получения сообщения от пользователя
         /// </summary>
-        public EventHandler<string> OnMessageReceived { get; set; }
+        public event Func<object, string, CancellationToken, Task> OnMessageReceived;
 
         #endregion
 
@@ -23,14 +23,12 @@ namespace Games.Services
         /// <summary>
         ///     Выводит сообщение
         /// </summary>
-        public async virtual Task PrintAsync(string message, CancellationToken token)
-        { }
+        public Task PrintAsync(string message, long chatId, CancellationToken token);
 
         /// <summary>
         ///     Получает ввод пользователя
         /// </summary>
-        public async virtual Task InputAsync(CancellationToken token)
-        { }
+        public Task InputAsync(CancellationToken token);
 
         #endregion
     }

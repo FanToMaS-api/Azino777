@@ -1,7 +1,6 @@
-﻿using System;
-using DataBase;
-using DataBase.Entities;
-using Telegram.Bot.Types;
+﻿using DataBase.Entities;
+using Games.User;
+using Games.UserFactory;
 
 namespace Server.Mappers
 {
@@ -10,17 +9,15 @@ namespace Server.Mappers
     /// </summary>
     internal static class Mapper
     {
-        #region Fields
-
-        private static AppDbContext _dbContext = new AppDbContextFactory().CreateDbContext(Array.Empty<string>());
-
-        #endregion
         #region Public methods
 
-        //public static UserEntity Map(User user)
-        //{
-            
-        //}
+        /// <summary>
+        ///     Сопоставляет <see cref="UserEntity"/> с <see cref="IUser"/>
+        /// </summary>
+        public static IUser Map(UserEntity user, UserStateEntity state)
+        {
+            return UserFactory.CreateUser(user.Id, user.ChatId, user.Nickname, state.Balance);
+        }
 
         #endregion
     }

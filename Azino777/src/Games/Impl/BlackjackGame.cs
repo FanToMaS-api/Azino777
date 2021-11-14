@@ -9,7 +9,7 @@ namespace Games.Games.Impl
     /// <summary>
     ///     Игра блэкджек
     /// </summary>
-    public class Blackjack : IGame
+    public class BlackjackGame : IGame
     {
         #region Fields
 
@@ -21,8 +21,8 @@ namespace Games.Games.Impl
 
         #region .ctor
 
-        /// <inheritdoc cref="Blackjack"/>
-        public Blackjack(IUser user, InOutHandlerBase inOutHandler)
+        /// <inheritdoc cref="BlackjackGame"/>
+        public BlackjackGame(IUser user, IInOutHandler inOutHandler)
         {
             _user = user;
             InOutHandler = inOutHandler;
@@ -35,7 +35,13 @@ namespace Games.Games.Impl
         #region Properties
 
         /// <inheritdoc />
-        public InOutHandlerBase InOutHandler { get; }
+        public IInOutHandler InOutHandler { get; }
+
+        /// <inheritdoc />
+        public event Func<IGame, EventArgs, CancellationToken, Task> OnGameUpdated;
+
+        /// <inheritdoc />
+        public event Func<IGame, EventArgs, CancellationToken, Task> OnGameEnded;
 
         /// <summary>
         ///     Очки пользователя
@@ -45,12 +51,15 @@ namespace Games.Games.Impl
         /// <summary>
         ///     Очки дилера
         /// </summary>
-        public int DialerScope { get; set; }
+        public int DialerScope { get; private set; }
 
         /// <summary>
         ///     Ставка игры
         /// </summary>
-        public double Bid { get; set; }
+        public double Bid { get; private set; }
+
+        /// <inheritdoc />
+        public IUser User => _user;
 
         /// <summary>
         ///     Название игры
@@ -78,11 +87,12 @@ namespace Games.Games.Impl
         /// <inheritdoc />
         public async Task StartGameAsync(double bid, CancellationToken token = default)
         {
-            await InOutHandler.PrintAsync(ToString(), token);
+            await InOutHandler.PrintAsync(ToString(), _user.ChatId, token);
 
             if (_user.GetBalance() - Bid < 0)
             {
-                await InOutHandler.PrintAsync("Недостаточно денег на счете", token);
+                await InOutHandler.PrintAsync("Недостаточно денег на счете", _user.ChatId, token);
+                OnGameUpdated?.Invoke(this, EventArgs.Empty, token);
                 return;
             }
 
@@ -100,8 +110,9 @@ namespace Games.Games.Impl
                 return;
             }
 
-            await InOutHandler.PrintAsync(GetInformation(), token);
-            await InOutHandler.PrintAsync("Хочешь взять еще карту?", token);
+            await InOutHandler.PrintAsync(GetInformation(), _user.ChatId, token);
+            await InOutHandler.PrintAsync("Хочешь взять еще карту?", _user.ChatId, token);
+
 
             // Вызов метода получения сообщения, нужен для консоли, в телеге просто проходит мимо
             await InOutHandler.InputAsync(token);
@@ -116,12 +127,12 @@ namespace Games.Games.Impl
             if (userNum < 11)
             {
                 UserScope += userNum;
-                await InOutHandler.PrintAsync($"Выпало {userNum} {GetRightDeclension(userNum)}", token);
+                await InOutHandler.PrintAsync($"Выпало {userNum} {GetRightDeclension(userNum)}", _user.ChatId, token);
             }
             else if (userNum <= 13)
             {
                 UserScope += 10;
-                await InOutHandler.PrintAsync("Выпало 10 очков", token);
+                await InOutHandler.PrintAsync("Выпало 10 очков", _user.ChatId, token);
             }
             else
             {
@@ -132,6 +143,7 @@ namespace Games.Games.Impl
             }
 
             DialerScope += dealerNum;
+            OnGameUpdated?.Invoke(this, EventArgs.Empty, token);
         }
 
         /// <inheritdoc />
@@ -148,37 +160,38 @@ namespace Games.Games.Impl
             {
                 DialerScope = new Random().Next(16, 22);
                 await InOutHandler.PrintAsync($"К сожалению, у дилера {DialerScope} {GetRightDeclension(DialerScope)}.\n" +
-                    "Но не стоит расстраиваться, в следующий раз обязательно повезет!", token);
+                    "Но не стоит расстраиваться, в следующий раз обязательно повезет!", _user.ChatId, token);
 
                 return -Bid;
             }
             else if (DialerScope > 21 && UserScope <= 21)
             {
-                await InOutHandler.PrintAsync($"Отличная игра! Твой выйгрыш {Bid * 1.5}", token);
+                await InOutHandler.PrintAsync($"Отличная игра! Твой выйгрыш {Bid * 1.5}", _user.ChatId, token);
 
                 return Bid * 1.5;
             }
             else if (DialerScope > UserScope)
             {
                 await InOutHandler.PrintAsync($"К сожалению, очков у дилера {DialerScope} {GetRightDeclension(DialerScope)}.\n" +
-                    "Но не стоит расстраиваться, в следующий раз обязательно повезет!", token);
+                    "Но не стоит расстраиваться, в следующий раз обязательно повезет!", _user.ChatId, token);
 
                 return -Bid;
             }
             else if (UserScope > DialerScope)
             {
                 await InOutHandler.PrintAsync($"Отличная игра! У дилера {DialerScope} {GetRightDeclension(DialerScope)}.\n" +
-                    $"Твой выйгрыш {Bid * 1.5}", token);
+                    $"Твой выйгрыш {Bid * 1.5}", _user.ChatId, token);
 
                 return Bid * 1.5;
             }
             else
             {
-                await InOutHandler.PrintAsync("Удивительно, очков у дилера столько же сколько и у тебя! Придется перераздать", token);
+                await InOutHandler.PrintAsync("Удивительно, очков у дилера столько же сколько и у тебя! Придется перераздать", _user.ChatId, token);
                 _user.AddBalance(Bid);
                 await StartGameAsync(Bid, token);
             }
 
+            OnGameEnded?.Invoke(this, EventArgs.Empty, token);
             return 0;
         }
 
@@ -194,26 +207,27 @@ namespace Games.Games.Impl
         /// <summary>
         ///     Обработчик прихода сообщения от пользователя
         /// </summary>
-        private void OnMessageReceived(object? sender, string message)
+        private async Task OnMessageReceived(object? sender, string message, CancellationToken token = default)
         {
             if (InputValidator.CheckInput(message))
             {
-                LogicAsync("unused_input_text", CancellationToken.None).GetAwaiter().GetResult();
-                InOutHandler.PrintAsync(GetInformation(), CancellationToken.None).GetAwaiter().GetResult();
+                await LogicAsync("unused_input_text", token);
+                await InOutHandler.PrintAsync(GetInformation(), _user.ChatId, token);
 
                 if (IsGameOver())
                 {
-                    _user.AddBalance(EndGameAsync(CancellationToken.None).GetAwaiter().GetResult());
+                    _user.AddBalance(await EndGameAsync(token));
                     return;
                 }
-                InOutHandler.PrintAsync("Хочешь взять еще карту?", CancellationToken.None).GetAwaiter();
+                await InOutHandler.PrintAsync("Хочешь взять еще карту?", _user.ChatId, token);
+                OnGameUpdated?.Invoke(this, EventArgs.Empty, token);
 
                 // Вызов метода получения сообщения, нужен для консоли, в телеге просто проходит мимо
-                InOutHandler.InputAsync(CancellationToken.None).GetAwaiter();
+                await InOutHandler.InputAsync(token);
             }
             else
             {
-                _user.AddBalance(EndGameAsync(CancellationToken.None).GetAwaiter().GetResult());
+                _user.AddBalance(await EndGameAsync(token));
             }
         }
 
@@ -228,7 +242,7 @@ namespace Games.Games.Impl
         /// <summary>
         ///     Возвращает верное склонение слова
         /// </summary>
-        private string GetRightDeclension(int num)
+        private static string GetRightDeclension(int num)
         {
             switch (num)
             {

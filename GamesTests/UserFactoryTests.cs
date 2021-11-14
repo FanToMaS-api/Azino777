@@ -8,16 +8,16 @@ namespace GamesTests
         [Fact(DisplayName = "ѕроверка создани€ пользовател€ с верными св-ми")]
         public void Create_ReturnUser_CanReturnRightUser()
         {
-            var id = "01ER";
+            var id = 132;
             var nickname = "FanToMas";
-            var phone = "123456789";
             var balance = 50.2;
-            var user = UserFactory.CreateUser(id, nickname, phone, balance);
+            var chatId = 12314;
+            var user = UserFactory.CreateUser(id, chatId, nickname, balance);
 
             Assert.Equal(id, user.Id);
             Assert.Equal(nickname, user.Nickname);
-            Assert.Equal(phone, user.PhoneNumber);
             Assert.Equal(balance, user.GetBalance());
+            Assert.Equal(balance, user.ChatId);
         }
     }
 }

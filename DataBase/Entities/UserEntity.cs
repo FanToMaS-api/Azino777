@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -20,6 +21,18 @@ namespace DataBase.Entities
         public long Id { get; set; }
 
         /// <summary>
+        ///     Уникальный id в телеграмме
+        /// </summary>
+        [Column("telegram_id")]
+        public long TelegramId { get; set; }
+
+        /// <summary>
+        ///     id чата в телеграмме
+        /// </summary>
+        [Column("chat_id")]
+        public long ChatId { get; set; }
+
+        /// <summary>
         ///     Ник пользователя
         /// </summary>
         [Column("nickname")]
@@ -38,16 +51,25 @@ namespace DataBase.Entities
         public string FirstName { get; set; }
 
         /// <summary>
-        ///     Номер телефона
-        /// </summary>
-        [Column("phone_number")]
-        public string PhoneNumber { get; set; }
-
-        /// <summary>
         ///     Отражает дату последнего действия пользователя
         /// </summary>
         [Column("last_action")]
         public DateTime LastAction { get; set; }
+
+        /// <summary>
+        ///     Св-во для навигации
+        /// </summary>
+        public List<BlackjackHistoryEntity> BlackjackHistory { get; set; }
+
+        /// <summary>
+        ///     Св-во для навигации
+        /// </summary>
+        public List<RouletteHistoryEntity> RouletteHistory { get; set; }
+
+        /// <summary>
+        ///     Св-во для навигации
+        /// </summary>
+        public UserStateEntity UserState { get; set; }
 
         #endregion
 
@@ -62,11 +84,14 @@ namespace DataBase.Entities
             builder.HasKey(_ => _.Id);
 
             // Индексы
-            builder.HasIndex(_ => _.PhoneNumber)
-                .IsUnique()
-                .HasDatabaseName("IX_users_phone_number");
             builder.HasIndex(_ => _.Nickname)
                 .HasDatabaseName("IX_users_nickname");
+            builder.HasIndex(_ => _.TelegramId)
+                .IsUnique()
+                .HasDatabaseName("IX_users_telegram_id");
+            builder.HasIndex(_ => _.ChatId)
+                .IsUnique()
+                .HasDatabaseName("IX_users_chat_id");
             builder.HasIndex(_ => _.FirstName)
                 .HasDatabaseName("IX_users_firstname");
             builder.HasIndex(_ => _.LastName)

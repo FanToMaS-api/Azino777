@@ -20,12 +20,12 @@ namespace Games.User
         /// <summary>
         ///     ID пользователя в телеге
         /// </summary>
-        public string Id { get; init; }
+        public long Id { get; init; }
 
         /// <summary>
-        ///     Номер телефона
+        ///     ID чата пользователя
         /// </summary>
-        public string PhoneNumber { get; init; }
+        public long ChatId { get; set; }
 
         /// <summary>
         ///     Отражает дату последнего действия пользователя

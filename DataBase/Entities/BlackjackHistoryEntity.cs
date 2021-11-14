@@ -26,6 +26,11 @@ namespace DataBase.Entities
         public long UserId { get; set; }
 
         /// <summary>
+        ///     Сам пользователь для связи
+        /// </summary>
+        public UserEntity User { get; set; }
+
+        /// <summary>
         ///     Состояние игры
         /// </summary>
         [Column("state")]
@@ -60,6 +65,13 @@ namespace DataBase.Entities
         {
             // Ключ
             builder.HasKey(_ => _.Id);
+
+            // Связи
+            builder
+                .HasOne(_ => _.User)
+                .WithMany(_ => _.BlackjackHistory)
+                .HasForeignKey(_ => _.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Индексы
             builder.HasIndex(_ => _.UserId).HasDatabaseName("IX_blackjack_history_user_id");

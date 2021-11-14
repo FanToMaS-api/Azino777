@@ -6,17 +6,17 @@ namespace Games.UserFactory
     /// <summary>
     ///     Фабрика пользователей
     /// </summary>
-    internal class UserFactory
+    public class UserFactory
     {
         #region Public methods
 
         /// <summary>
         ///     Инициализирует пользователя бота
         /// </summary>
-        public static IUser CreateUser(string id, string nickname, string phoneNumber, double balance)
+        public static IUser CreateUser(long id, long chatId, string nickname, double balance)
         {
             var userState = new UserState();
-            return new User.Impl.User(userState, id, nickname, phoneNumber, balance);
+            return new User.Impl.User(userState, id, chatId, nickname, balance);
         }
 
         #endregion

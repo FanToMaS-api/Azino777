@@ -1,6 +1,8 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Games.Services;
+using Games.User;
 
 namespace Games.Games
 {
@@ -14,7 +16,22 @@ namespace Games.Games
         /// <summary>
         ///     Обработчик вывода сообщений в разные среды
         /// </summary>
-        InOutHandlerBase InOutHandler { get; }
+        IInOutHandler InOutHandler { get; }
+
+        /// <summary>
+        ///     Событие при обновлении статуса игры
+        /// </summary>
+        public event Func<IGame, EventArgs, CancellationToken, Task> OnGameUpdated;
+
+        /// <summary>
+        ///     Событие при завершении игры
+        /// </summary>
+        public event Func<IGame, EventArgs, CancellationToken, Task> OnGameEnded;
+
+        /// <summary>
+        ///     Пользователь бота, играющий в эту игру
+        /// </summary>
+        public IUser User { get; }
 
         #endregion
 

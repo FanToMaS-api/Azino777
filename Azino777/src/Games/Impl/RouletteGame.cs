@@ -12,11 +12,9 @@ namespace Games.Games.Impl
     /// <summary>
     ///     Игра рулетка
     /// </summary>
-    internal class RouletteGame : IGame
+    public class RouletteGame : IGame
     {
         #region Fileds
-
-        private double _coin;
 
         private readonly Random _random;
 
@@ -27,7 +25,7 @@ namespace Games.Games.Impl
         #region .ctor
 
         /// <inheritdoc cref="RouletteGame"/>
-        public RouletteGame(IUser user, InOutHandlerBase inOutHandler)
+        public RouletteGame(IUser user, IInOutHandler inOutHandler)
         {
             _user = user;
             InOutHandler = inOutHandler;
@@ -40,7 +38,21 @@ namespace Games.Games.Impl
         #region Properties
 
         /// <inheritdoc />
-        public InOutHandlerBase InOutHandler { get; }
+        public IInOutHandler InOutHandler { get; }
+
+        /// <inheritdoc />
+        public event Func<IGame, EventArgs, CancellationToken, Task> OnGameUpdated;
+
+        /// <inheritdoc />
+        public event Func<IGame, EventArgs, CancellationToken, Task> OnGameEnded;
+
+        /// <summary>
+        ///     Оставшиеся в игре монеты
+        /// </summary>
+        public double Coin { get; private set; }
+
+        /// <inheritdoc />
+        public IUser User => _user;
 
         /// <summary>
         ///     Название игры
@@ -68,29 +80,31 @@ namespace Games.Games.Impl
         /// <inheritdoc />
         public async Task StartGameAsync(double bid, CancellationToken token = default)
         {
-            await InOutHandler.PrintAsync(ToString(), token);
+            await InOutHandler.PrintAsync(ToString(), _user.ChatId, token);
 
             if (_user.GetBalance() - bid < 0)
             {
-                await InOutHandler.PrintAsync("Недостаточно денег на счете", token);
+                await InOutHandler.PrintAsync("Недостаточно денег на счете", _user.ChatId, token);
+                OnGameUpdated?.Invoke(this, EventArgs.Empty, token);
                 return;
             }
 
             _user.AddBalance(-bid);
-            _coin = bid;
+            Coin = bid;
+            OnGameUpdated?.Invoke(this, EventArgs.Empty, token);
 
-            await InOutHandler.PrintAsync($"Твои монеты: {_coin}", token);
+            await InOutHandler.PrintAsync($"Твои монеты: {Coin}", _user.ChatId, token);
 
-            await InOutHandler.PrintAsync("Хотите продолжить?", token);
+            await InOutHandler.PrintAsync("Хотите продолжить?", _user.ChatId, token);
 
             // Вызов метода получения сообщения, нужен для консоли, в телеге просто проходит мимо
-            InOutHandler.InputAsync(CancellationToken.None).GetAwaiter();
+            await InOutHandler.InputAsync(token);
         }
 
         /// <inheritdoc />
         public async Task LogicAsync(string input, CancellationToken token)
         {
-            _coin -= 10;
+            Coin -= 10;
 
             var sb = new StringBuilder();
             var curNum = new List<int>();
@@ -102,14 +116,14 @@ namespace Games.Games.Impl
                 curNum.Add(num);
             }
 
-            await InOutHandler.PrintAsync($"{sb}", token);
+            await InOutHandler.PrintAsync($"{sb}", _user.ChatId, token);
 
             var tempList = curNum.GroupBy(x => x)
                 .Select(y => y.Count())
                 .ToList();
             var max = tempList.Max();
 
-            await InOutHandler.PrintAsync("Поздравляем! Вам начислено ", token);
+            await InOutHandler.PrintAsync("Поздравляем! Вам начислено ", _user.ChatId, token);
 
             double price;
             switch (max)
@@ -117,31 +131,31 @@ namespace Games.Games.Impl
                 case 6:
                     {
                         price = 50;
-                        _coin += price;
+                        Coin += price;
                         break;
                     }
                 case 5:
                     {
                         price = 30;
-                        _coin += price;
+                        Coin += price;
                         break;
                     }
                 case 4:
                     {
                         price = 20;
-                        _coin += price;
+                        Coin += price;
                         break;
                     }
                 case 3:
                     {
                         price = 10;
-                        _coin += price;
+                        Coin += price;
                         break;
                     }
                 case 2:
                     {
                         price = 5;
-                        _coin += price;
+                        Coin += price;
                         break;
                     }
                 default:
@@ -151,22 +165,24 @@ namespace Games.Games.Impl
                     }
             }
 
-            await InOutHandler.PrintAsync($"{price} монет!", token);
+            await InOutHandler.PrintAsync($"{price} монет!", _user.ChatId, token);
+            OnGameUpdated?.Invoke(this, EventArgs.Empty, token);
         }
 
         /// <inheritdoc />
         public async Task<double> EndGameAsync(CancellationToken token)
         {
             InOutHandler.OnMessageReceived -= OnMessageReceived;
-            await InOutHandler.PrintAsync("Отличная игра! Возвращайся ещё!", token);
+            await InOutHandler.PrintAsync("Отличная игра! Возвращайся ещё!", _user.ChatId, token);
+            OnGameEnded?.Invoke(this, EventArgs.Empty, token);
 
-            return _coin;
+            return Coin;
         }
 
         /// <inheritdoc />
         public bool IsGameOver()
         {
-            return _coin - 10 < 0;
+            return Coin - 10 < 0;
         }
 
         public override string ToString()
@@ -181,27 +197,28 @@ namespace Games.Games.Impl
         /// <summary>
         ///     Обработчик получения сообщений от пользователя
         /// </summary>
-        private void OnMessageReceived(object? sender, string message)
+        private async Task OnMessageReceived(object? sender, string message, CancellationToken token)
         {
             if (InputValidator.CheckInput(message))
             {
-                LogicAsync("", CancellationToken.None).GetAwaiter();
-                InOutHandler.PrintAsync($"Твои монеты: {_coin}", CancellationToken.None).GetAwaiter();
+                await LogicAsync("", token);
+                await InOutHandler.PrintAsync($"Твои монеты: {Coin}", _user.ChatId, token);
 
                 if (IsGameOver())
                 {
-                    _user.AddBalance(EndGameAsync(CancellationToken.None).GetAwaiter().GetResult());
+                    _user.AddBalance(await EndGameAsync(token));
                     return;
                 }
 
-                InOutHandler.PrintAsync("Хотите продолжить?", CancellationToken.None).GetAwaiter();
+                await InOutHandler.PrintAsync("Хотите продолжить?", _user.ChatId, token);
+                OnGameUpdated?.Invoke(this, EventArgs.Empty, token);
 
                 // Вызов метода получения сообщения, нужен для консоли, в телеге просто проходит мимо
-                InOutHandler.InputAsync(CancellationToken.None).GetAwaiter();
+                await InOutHandler.InputAsync(token);
             }
             else
             {
-                _user.AddBalance(EndGameAsync(CancellationToken.None).GetAwaiter().GetResult());
+                _user.AddBalance(await EndGameAsync(token));
             }
         }
 

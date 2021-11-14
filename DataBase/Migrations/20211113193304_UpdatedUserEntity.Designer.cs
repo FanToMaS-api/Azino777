@@ -3,15 +3,17 @@ using System;
 using DataBase;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace DataBase.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211113193304_UpdatedUserEntity")]
+    partial class UpdatedUserEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -109,10 +111,6 @@ namespace DataBase.Migrations
                         .HasColumnName("id")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<long>("ChatId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("chat_id");
-
                     b.Property<string>("FirstName")
                         .HasColumnType("text")
                         .HasColumnName("firstname");
@@ -134,10 +132,6 @@ namespace DataBase.Migrations
                         .HasColumnName("telegram_id");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ChatId")
-                        .IsUnique()
-                        .HasDatabaseName("IX_users_chat_id");
 
                     b.HasIndex("FirstName")
                         .HasDatabaseName("IX_users_firstname");
@@ -191,48 +185,6 @@ namespace DataBase.Migrations
                         .HasDatabaseName("IX_users_state_state_type");
 
                     b.ToTable("users_state");
-                });
-
-            modelBuilder.Entity("DataBase.Entities.BlackjackHistoryEntity", b =>
-                {
-                    b.HasOne("DataBase.Entities.UserEntity", "User")
-                        .WithMany("BlackjackHistory")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("DataBase.Entities.RouletteHistoryEntity", b =>
-                {
-                    b.HasOne("DataBase.Entities.UserEntity", "User")
-                        .WithMany("RouletteHistory")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("DataBase.Entities.UserStateEntity", b =>
-                {
-                    b.HasOne("DataBase.Entities.UserEntity", "User")
-                        .WithOne("UserState")
-                        .HasForeignKey("DataBase.Entities.UserStateEntity", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("DataBase.Entities.UserEntity", b =>
-                {
-                    b.Navigation("BlackjackHistory");
-
-                    b.Navigation("RouletteHistory");
-
-                    b.Navigation("UserState");
                 });
 #pragma warning restore 612, 618
         }
