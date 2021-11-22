@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Games.DefaultTexts;
 using Games.Services;
 using Games.User;
 
@@ -91,7 +92,7 @@ namespace Games.Games.Impl
 
             if (_user.GetBalance() - Bid < 0)
             {
-                await TelegramService.PrintAsync("Недостаточно денег на счете", _user.ChatId, token);
+                await TelegramService.PrintAsync(BlackjackDefaultText.EndOfMoneyText, _user.ChatId, token);
                 OnGameEnded?.Invoke(this, EventArgs.Empty, token);
 
                 return;
@@ -114,7 +115,7 @@ namespace Games.Games.Impl
             }
 
             await TelegramService.PrintAsync(GetInformation(), _user.ChatId, token);
-            await TelegramService.PrintAsync("Хочешь взять еще карту?", _user.ChatId, token);
+            await TelegramService.PrintAsync(BlackjackDefaultText.IsNeededNewCartText, _user.ChatId, token);
         }
 
         /// <inheritdoc />
@@ -186,7 +187,7 @@ namespace Games.Games.Impl
             }
             else
             {
-                await TelegramService.PrintAsync("Удивительно, очков у дилера столько же сколько и у тебя! Придется перераздать", _user.ChatId, token);
+                await TelegramService.PrintAsync(BlackjackDefaultText.EqualScoreText, _user.ChatId, token);
                 _user.AddBalance(Bid);
                 await StartGameAsync(Bid, token);
             }
@@ -220,7 +221,7 @@ namespace Games.Games.Impl
 
                     return;
                 }
-                await TelegramService.PrintAsync("Хочешь взять еще карту?", _user.ChatId, token);
+                await TelegramService.PrintAsync(BlackjackDefaultText.IsNeededNewCartText, _user.ChatId, token);
                 OnGameUpdated?.Invoke(this, EventArgs.Empty, token);
             }
             else

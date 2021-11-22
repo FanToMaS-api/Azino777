@@ -98,12 +98,14 @@ namespace Server.GameHandlers
                 var userId = game.User.Id;
                 var user = await _dbContext.Users.UpdateAsync(userId, UpdateUserEntity, token);
                 await _dbContext.UserStates.UpdateAsync(user.UserState.Id, UpdateUserStateEntity, token);
-
-                await OnGameUpdatedAsync(game, null, token);
             }
             catch (Exception ex)
             {
                 _logger.Error(ex);
+            }
+            finally
+            {
+                await OnGameUpdatedAsync(game, null, token);
             }
 
             void UpdateUserStateEntity(UserStateEntity state)

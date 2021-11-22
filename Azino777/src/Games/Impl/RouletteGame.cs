@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Games.DefaultTexts;
 using Games.Services;
 using Games.User;
 
@@ -84,7 +85,7 @@ namespace Games.Games.Impl
 
             if (_user.GetBalance() - bid < 0)
             {
-                await TelegramService.PrintAsync("Недостаточно денег на счете", _user.ChatId, token);
+                await TelegramService.PrintAsync(RouletteDefaultText.EndOfMoneyText, _user.ChatId, token);
                 OnGameEnded?.Invoke(this, EventArgs.Empty, token);
 
                 return;
@@ -96,7 +97,7 @@ namespace Games.Games.Impl
 
             await TelegramService.PrintAsync($"Твои монеты: {Coin}", _user.ChatId, token);
 
-            await TelegramService.PrintAsync("Хотите продолжить?", _user.ChatId, token);
+            await TelegramService.PrintAsync(RouletteDefaultText.IsContinueText, _user.ChatId, token);
         }
 
         /// <inheritdoc />
@@ -171,7 +172,7 @@ namespace Games.Games.Impl
         public async Task<double> EndGameAsync(CancellationToken token)
         {
             TelegramService.OnMessageReceived -= OnMessageReceived;
-            await TelegramService.PrintAsync("Отличная игра! Возвращайся ещё!", _user.ChatId, token);
+            await TelegramService.PrintAsync(RouletteDefaultText.EndGameText, _user.ChatId, token);
 
             return Coin;
         }
@@ -209,7 +210,7 @@ namespace Games.Games.Impl
                     return;
                 }
 
-                await TelegramService.PrintAsync("Хотите продолжить?", _user.ChatId, token);
+                await TelegramService.PrintAsync(RouletteDefaultText.IsContinueText, _user.ChatId, token);
                 OnGameUpdated?.Invoke(this, EventArgs.Empty, token);
             }
             else
