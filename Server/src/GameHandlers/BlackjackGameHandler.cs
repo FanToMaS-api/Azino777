@@ -58,7 +58,7 @@ namespace Server.GameHandlers
 
             var user = Mapper.Map(userEntity, userEntity.UserState);
             var game = new BlackjackGame(user, _telegramService);
-            var bid = 10;
+            var bid = 50;
             game.OnGameUpdated += OnGameUpdatedAsync;
             game.OnGameEnded += OnGameEnded;
 
