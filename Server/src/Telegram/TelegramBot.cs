@@ -24,7 +24,7 @@ namespace Server.Telegram
 
         private readonly ITelegramDbContext _dbContext;
 
-        private readonly IInOutHandler _inOutHandler;
+        private readonly ITelegramService _telegramService;
 
         private readonly CancellationTokenSource _cancellationTokenSource;
 
@@ -38,9 +38,9 @@ namespace Server.Telegram
             _dbContext = dbContext;
             _cancellationTokenSource = new CancellationTokenSource();
             Client = new TelegramBotClient(token);
-            _inOutHandler = new TelegramInOutHandler(Client);
+            _telegramService = new TelegramService(Client);
             _logger.Info("Successful connection to bot");
-            _inOutHandler.OnMessageReceived += HandleUpdateAsync;
+            _telegramService.OnMessageReceived += HandleUpdateAsync;
         }
 
         #endregion
@@ -115,14 +115,14 @@ namespace Server.Telegram
                     }
                 case "/command5": // 21 очко
                     {
-                        var newGame = new BlackjackGameHandler(_dbContext, _inOutHandler);
+                        var newGame = new BlackjackGameHandler(_dbContext, _telegramService);
                         await newGame.StartBlackJackAsync(message.From.Id, cancellationToken);
                         break;
                     }
                 case "/command6": // рулетка
                     {
 
-                        var newGame = new RouletteGameHandler(_dbContext, _inOutHandler);
+                        var newGame = new RouletteGameHandler(_dbContext, _telegramService);
                         await newGame.StartRouletteAsync(message.From.Id, cancellationToken);
                         break;
                     }

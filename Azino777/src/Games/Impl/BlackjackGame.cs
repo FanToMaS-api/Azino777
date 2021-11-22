@@ -22,11 +22,11 @@ namespace Games.Games.Impl
         #region .ctor
 
         /// <inheritdoc cref="BlackjackGame"/>
-        public BlackjackGame(IUser user, IInOutHandler inOutHandler)
+        public BlackjackGame(IUser user, ITelegramService telegramService)
         {
             _user = user;
-            InOutHandler = inOutHandler;
-            InOutHandler.OnMessageReceived += OnMessageReceived;
+            TelegramService = telegramService;
+            TelegramService.OnMessageReceived += OnMessageReceived;
             _random = new();
         }
 
@@ -35,7 +35,7 @@ namespace Games.Games.Impl
         #region Properties
 
         /// <inheritdoc />
-        public IInOutHandler InOutHandler { get; }
+        public ITelegramService TelegramService { get; }
 
         /// <inheritdoc />
         public event Func<IGame, EventArgs, CancellationToken, Task> OnGameUpdated;
@@ -87,11 +87,11 @@ namespace Games.Games.Impl
         /// <inheritdoc />
         public async Task StartGameAsync(double bid, CancellationToken token = default)
         {
-            await InOutHandler.PrintAsync(ToString(), _user.ChatId, token);
+            await TelegramService.PrintAsync(ToString(), _user.ChatId, token);
 
             if (_user.GetBalance() - Bid < 0)
             {
-                await InOutHandler.PrintAsync("Недостаточно денег на счете", _user.ChatId, token);
+                await TelegramService.PrintAsync("Недостаточно денег на счете", _user.ChatId, token);
                 OnGameEnded?.Invoke(this, EventArgs.Empty, token);
 
                 return;
@@ -113,12 +113,8 @@ namespace Games.Games.Impl
                 return;
             }
 
-            await InOutHandler.PrintAsync(GetInformation(), _user.ChatId, token);
-            await InOutHandler.PrintAsync("Хочешь взять еще карту?", _user.ChatId, token);
-
-
-            // Вызов метода получения сообщения, нужен для консоли, в телеге просто проходит мимо
-            await InOutHandler.InputAsync(token);
+            await TelegramService.PrintAsync(GetInformation(), _user.ChatId, token);
+            await TelegramService.PrintAsync("Хочешь взять еще карту?", _user.ChatId, token);
         }
 
         /// <inheritdoc />
@@ -130,12 +126,12 @@ namespace Games.Games.Impl
             if (userNum < 11)
             {
                 UserScope += userNum;
-                await InOutHandler.PrintAsync($"Выпало {userNum} {GetRightDeclension(userNum)}", _user.ChatId, token);
+                await TelegramService.PrintAsync($"Выпало {userNum} {GetRightDeclension(userNum)}", _user.ChatId, token);
             }
             else if (userNum <= 13)
             {
                 UserScope += 10;
-                await InOutHandler.PrintAsync("Выпало 10 очков", _user.ChatId, token);
+                await TelegramService.PrintAsync("Выпало 10 очков", _user.ChatId, token);
             }
             else
             {
@@ -158,39 +154,39 @@ namespace Games.Games.Impl
         /// <inheritdoc />
         public async Task<double> EndGameAsync(CancellationToken token)
         {
-            InOutHandler.OnMessageReceived -= OnMessageReceived;
+            TelegramService.OnMessageReceived -= OnMessageReceived;
 
             if (UserScope > 21)
             {
                 DialerScope = new Random().Next(16, 22);
-                await InOutHandler.PrintAsync($"К сожалению, у дилера {DialerScope} {GetRightDeclension(DialerScope)}.\n" +
+                await TelegramService.PrintAsync($"К сожалению, у дилера {DialerScope} {GetRightDeclension(DialerScope)}.\n" +
                     "Но не стоит расстраиваться, в следующий раз обязательно повезет!", _user.ChatId, token);
 
                 return -Bid;
             }
             else if (DialerScope > 21 && UserScope <= 21)
             {
-                await InOutHandler.PrintAsync($"Отличная игра! Твой выйгрыш {Bid * 1.5}", _user.ChatId, token);
+                await TelegramService.PrintAsync($"Отличная игра! Твой выйгрыш {Bid * 1.5}", _user.ChatId, token);
 
                 return Bid * 1.5;
             }
             else if (DialerScope > UserScope)
             {
-                await InOutHandler.PrintAsync($"К сожалению, очков у дилера {DialerScope} {GetRightDeclension(DialerScope)}.\n" +
+                await TelegramService.PrintAsync($"К сожалению, очков у дилера {DialerScope} {GetRightDeclension(DialerScope)}.\n" +
                     "Но не стоит расстраиваться, в следующий раз обязательно повезет!", _user.ChatId, token);
 
                 return -Bid;
             }
             else if (UserScope > DialerScope)
             {
-                await InOutHandler.PrintAsync($"Отличная игра! У дилера {DialerScope} {GetRightDeclension(DialerScope)}.\n" +
+                await TelegramService.PrintAsync($"Отличная игра! У дилера {DialerScope} {GetRightDeclension(DialerScope)}.\n" +
                     $"Твой выйгрыш {Bid * 1.5}", _user.ChatId, token);
 
                 return Bid * 1.5;
             }
             else
             {
-                await InOutHandler.PrintAsync("Удивительно, очков у дилера столько же сколько и у тебя! Придется перераздать", _user.ChatId, token);
+                await TelegramService.PrintAsync("Удивительно, очков у дилера столько же сколько и у тебя! Придется перераздать", _user.ChatId, token);
                 _user.AddBalance(Bid);
                 await StartGameAsync(Bid, token);
             }
@@ -210,12 +206,12 @@ namespace Games.Games.Impl
         /// <summary>
         ///     Обработчик прихода сообщения от пользователя
         /// </summary>
-        private async Task OnMessageReceived(object? sender, string message, CancellationToken token = default)
+        private async Task OnMessageReceived(object sender, string message, CancellationToken token = default)
         {
             if (InputValidator.CheckInput(message))
             {
                 await LogicAsync("unused_input_text", token);
-                await InOutHandler.PrintAsync(GetInformation(), _user.ChatId, token);
+                await TelegramService.PrintAsync(GetInformation(), _user.ChatId, token);
 
                 if (IsGameOver())
                 {
@@ -224,11 +220,8 @@ namespace Games.Games.Impl
 
                     return;
                 }
-                await InOutHandler.PrintAsync("Хочешь взять еще карту?", _user.ChatId, token);
+                await TelegramService.PrintAsync("Хочешь взять еще карту?", _user.ChatId, token);
                 OnGameUpdated?.Invoke(this, EventArgs.Empty, token);
-
-                // Вызов метода получения сообщения, нужен для консоли, в телеге просто проходит мимо
-                await InOutHandler.InputAsync(token);
             }
             else
             {
