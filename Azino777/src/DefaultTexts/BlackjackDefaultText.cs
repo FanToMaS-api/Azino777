@@ -13,7 +13,7 @@
         /// <summary>
         ///     Предложение взять еще карту
         /// </summary>
-        public readonly static string IsNeededNewCartText = "Хочешь взять еще карту?";
+        public readonly static string IsNeededNewCardText = "Хочешь взять еще карту?";
 
         /// <summary>
         ///     Сообщение о равенстве счетов игрока и дилера

@@ -115,7 +115,7 @@ namespace Games.Games.Impl
             }
 
             await TelegramService.PrintAsync(GetInformation(), _user.ChatId, token);
-            await TelegramService.PrintAsync(BlackjackDefaultText.IsNeededNewCartText, _user.ChatId, token);
+            await TelegramService.PrintAsync(BlackjackDefaultText.IsNeededNewCardText, _user.ChatId, token);
         }
 
         /// <inheritdoc />
@@ -221,7 +221,7 @@ namespace Games.Games.Impl
 
                     return;
                 }
-                await TelegramService.PrintAsync(BlackjackDefaultText.IsNeededNewCartText, _user.ChatId, token);
+                await TelegramService.PrintAsync(BlackjackDefaultText.IsNeededNewCardText, _user.ChatId, token);
                 OnGameUpdated?.Invoke(this, EventArgs.Empty, token);
             }
             else
