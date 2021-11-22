@@ -7,7 +7,7 @@ namespace Games.Services
     /// <summary>
     ///     Базовый класс для вывода текстовых сообщений
     /// </summary>
-    public interface IInOutHandler
+    public interface ITelegramService
     {
         #region Properties
 
@@ -24,11 +24,6 @@ namespace Games.Services
         ///     Выводит сообщение
         /// </summary>
         public Task PrintAsync(string message, long chatId, CancellationToken token);
-
-        /// <summary>
-        ///     Получает ввод пользователя
-        /// </summary>
-        public Task InputAsync(CancellationToken token);
 
         #endregion
     }

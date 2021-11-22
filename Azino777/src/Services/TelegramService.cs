@@ -12,7 +12,7 @@ namespace Games.Services
     /// <summary>
     ///     Отвечает за ввод и вывод данных в telegram
     /// </summary>
-    public class TelegramInOutHandler : IInOutHandler
+    public class TelegramService : ITelegramService
     {
         #region Fields
 
@@ -24,8 +24,8 @@ namespace Games.Services
 
         #region .ctor
 
-        /// <inheritdoc cref="TelegramInOutHandler"/>
-        public TelegramInOutHandler(ITelegramBotClient client, CancellationToken token = default)
+        /// <inheritdoc cref="TelegramService"/>
+        public TelegramService(ITelegramBotClient client, CancellationToken token = default)
         {
             _client = client;
             var updateHandler = new DefaultUpdateHandler(
@@ -55,9 +55,6 @@ namespace Games.Services
             await _client.SendTextMessageAsync(chatId, message, cancellationToken: token);
         }
 
-        /// <inheritdoc />
-        public async Task InputAsync(CancellationToken token) { }
-
         #endregion
 
         #region Private methods
@@ -65,18 +62,20 @@ namespace Games.Services
         /// <summary>
         ///     Обработчик событий обновлений чата
         /// </summary>
-        private async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+        private Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
             if (update.Message is { } message)
             {
                 OnMessageReceived?.Invoke(message, message.Text, cancellationToken);
             }
+
+            return Task.CompletedTask;
         }
 
         /// <summary>
         ///     Обработчик ошибок
         /// </summary>
-        private async Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
+        private Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
         {
             _logger.Error(exception, exception.Message);
             throw new Exception(exception.ToString());

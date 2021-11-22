@@ -23,17 +23,17 @@ namespace Server.GameHandlers
 
         private readonly ITelegramDbContext _dbContext;
 
-        private readonly IInOutHandler _inOutHandler;
+        private readonly ITelegramService _telegramService;
 
         #endregion
 
         #region .ctor
 
         /// <inheritdoc cref="RouletteGameHandler"/>
-        public RouletteGameHandler(ITelegramDbContext dbContext, IInOutHandler inOutHandler)
+        public RouletteGameHandler(ITelegramDbContext dbContext, ITelegramService telegramService)
         {
             _dbContext = dbContext;
-            _inOutHandler = inOutHandler;
+            _telegramService = telegramService;
         }
 
         #endregion
@@ -57,7 +57,7 @@ namespace Server.GameHandlers
             }
 
             var user = Mapper.Map(userEntity, userEntity.UserState);
-            var game = new RouletteGame(user, _inOutHandler);
+            var game = new RouletteGame(user, _telegramService);
             var bid = 10;
             game.OnGameUpdated += OnGameUpdatedAsync;
             game.OnGameEnded += OnGameEnded;
@@ -98,11 +98,12 @@ namespace Server.GameHandlers
                 var userId = game.User.Id;
                 var user = await _dbContext.Users.UpdateAsync(userId, UpdateUserEntity, token);
                 await _dbContext.UserStates.UpdateAsync(user.UserState.Id, UpdateUserStateEntity, token);
+
+                await OnGameUpdatedAsync(game, null, token);
             }
             catch (Exception ex)
             {
                 _logger.Error(ex);
-                return;
             }
 
             void UpdateUserStateEntity(UserStateEntity state)
@@ -110,8 +111,6 @@ namespace Server.GameHandlers
                 state.Balance = game.User.GetBalance();
                 state.UserStateType = UserStateType.Active;
             }
-
-            await OnGameUpdatedAsync(game, null, token);
         }
 
         /// <summary>

@@ -25,11 +25,11 @@ namespace Games.Games.Impl
         #region .ctor
 
         /// <inheritdoc cref="RouletteGame"/>
-        public RouletteGame(IUser user, IInOutHandler inOutHandler)
+        public RouletteGame(IUser user, ITelegramService telegramService)
         {
             _user = user;
-            InOutHandler = inOutHandler;
-            InOutHandler.OnMessageReceived += OnMessageReceived;
+            TelegramService = telegramService;
+            TelegramService.OnMessageReceived += OnMessageReceived;
             _random = new();
         }
 
@@ -38,7 +38,7 @@ namespace Games.Games.Impl
         #region Properties
 
         /// <inheritdoc />
-        public IInOutHandler InOutHandler { get; }
+        public ITelegramService TelegramService { get; }
 
         /// <inheritdoc />
         public event Func<IGame, EventArgs, CancellationToken, Task> OnGameUpdated;
@@ -80,11 +80,11 @@ namespace Games.Games.Impl
         /// <inheritdoc />
         public async Task StartGameAsync(double bid, CancellationToken token = default)
         {
-            await InOutHandler.PrintAsync(ToString(), _user.ChatId, token);
+            await TelegramService.PrintAsync(ToString(), _user.ChatId, token);
 
             if (_user.GetBalance() - bid < 0)
             {
-                await InOutHandler.PrintAsync("Недостаточно денег на счете", _user.ChatId, token);
+                await TelegramService.PrintAsync("Недостаточно денег на счете", _user.ChatId, token);
                 OnGameEnded?.Invoke(this, EventArgs.Empty, token);
 
                 return;
@@ -94,12 +94,9 @@ namespace Games.Games.Impl
             Coin = bid;
             OnGameUpdated?.Invoke(this, EventArgs.Empty, token);
 
-            await InOutHandler.PrintAsync($"Твои монеты: {Coin}", _user.ChatId, token);
+            await TelegramService.PrintAsync($"Твои монеты: {Coin}", _user.ChatId, token);
 
-            await InOutHandler.PrintAsync("Хотите продолжить?", _user.ChatId, token);
-
-            // Вызов метода получения сообщения, нужен для консоли, в телеге просто проходит мимо
-            await InOutHandler.InputAsync(token);
+            await TelegramService.PrintAsync("Хотите продолжить?", _user.ChatId, token);
         }
 
         /// <inheritdoc />
@@ -117,14 +114,14 @@ namespace Games.Games.Impl
                 curNum.Add(num);
             }
 
-            await InOutHandler.PrintAsync($"{sb}", _user.ChatId, token);
+            await TelegramService.PrintAsync($"{sb}", _user.ChatId, token);
 
             var tempList = curNum.GroupBy(x => x)
                 .Select(y => y.Count())
                 .ToList();
             var max = tempList.Max();
 
-            await InOutHandler.PrintAsync("Поздравляем! Вам начислено ", _user.ChatId, token);
+            await TelegramService.PrintAsync("Поздравляем! Вам начислено ", _user.ChatId, token);
 
             double price;
             switch (max)
@@ -166,15 +163,15 @@ namespace Games.Games.Impl
                     }
             }
 
-            await InOutHandler.PrintAsync($"{price} монет!", _user.ChatId, token);
+            await TelegramService.PrintAsync($"{price} монет!", _user.ChatId, token);
             OnGameUpdated?.Invoke(this, EventArgs.Empty, token);
         }
 
         /// <inheritdoc />
         public async Task<double> EndGameAsync(CancellationToken token)
         {
-            InOutHandler.OnMessageReceived -= OnMessageReceived;
-            await InOutHandler.PrintAsync("Отличная игра! Возвращайся ещё!", _user.ChatId, token);
+            TelegramService.OnMessageReceived -= OnMessageReceived;
+            await TelegramService.PrintAsync("Отличная игра! Возвращайся ещё!", _user.ChatId, token);
 
             return Coin;
         }
@@ -197,12 +194,12 @@ namespace Games.Games.Impl
         /// <summary>
         ///     Обработчик получения сообщений от пользователя
         /// </summary>
-        private async Task OnMessageReceived(object? sender, string message, CancellationToken token)
+        private async Task OnMessageReceived(object sender, string message, CancellationToken token)
         {
             if (InputValidator.CheckInput(message))
             {
                 await LogicAsync("", token);
-                await InOutHandler.PrintAsync($"Твои монеты: {Coin}", _user.ChatId, token);
+                await TelegramService.PrintAsync($"Твои монеты: {Coin}", _user.ChatId, token);
 
                 if (IsGameOver())
                 {
@@ -212,11 +209,8 @@ namespace Games.Games.Impl
                     return;
                 }
 
-                await InOutHandler.PrintAsync("Хотите продолжить?", _user.ChatId, token);
+                await TelegramService.PrintAsync("Хотите продолжить?", _user.ChatId, token);
                 OnGameUpdated?.Invoke(this, EventArgs.Empty, token);
-
-                // Вызов метода получения сообщения, нужен для консоли, в телеге просто проходит мимо
-                await InOutHandler.InputAsync(token);
             }
             else
             {

@@ -16,7 +16,7 @@ namespace Games.Games
         /// <summary>
         ///     Обработчик вывода сообщений в разные среды
         /// </summary>
-        IInOutHandler InOutHandler { get; }
+        ITelegramService TelegramService { get; }
 
         /// <summary>
         ///     Событие при обновлении статуса игры

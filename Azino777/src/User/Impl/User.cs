@@ -69,20 +69,6 @@ namespace Games.User.Impl
             State.AddBalance(value);
         }
 
-        /// <inheritdoc />
-        public string GetUserInfo()
-        {
-            LastAction = DateTime.Now;
-            var info = $"Ваш баланс: {State.Balance}\n" +
-                       $"Ваш статус: {State.UserStateType}";
-
-            return info;
-        }
-
-        #endregion
-
-        #region Private methods
-
         #endregion
     }
 }

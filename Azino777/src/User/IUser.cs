@@ -46,11 +46,6 @@ namespace Games.User
         /// </summary>
         public void AddBalance(double value);
 
-        /// <summary>
-        ///     Возвращает сводную информацию о пользователе
-        /// </summary>
-        public string GetUserInfo();
-
         #endregion
     }
 }
