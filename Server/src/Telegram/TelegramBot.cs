@@ -62,6 +62,7 @@ namespace Server.Telegram
         private async Task HandleUpdateAsync(object @object, string text, CancellationToken cancellationToken = default)
         {
             var message = (Message)@object;
+            cancellationToken = _cancellationTokenSource.Token;
             if (message is null)
             {
                 _logger.Error(new NullReferenceException(nameof(message)));
@@ -69,7 +70,6 @@ namespace Server.Telegram
             }
 
             // TODO: Добавить ставку в игру
-            // TODO: разобраться почему IsOn не переходит в IsOver
             try
             {
                 if (!_dbContext.Users.CreateQuery().Any(_ => _.TelegramId == message.From.Id))
@@ -200,6 +200,7 @@ namespace Server.Telegram
 
         #region Implementation IDisposable
 
+        /// <inheritdoc />
         public void Dispose()
         {
             _cancellationTokenSource.Dispose();
