@@ -46,8 +46,9 @@ namespace Games.User.Impl
         /// <inheritdoc />
         public DateTime LastAction {
             get => _lastAction;
-            set {
-                State.SetUserStateType(UserStateType.Inactive);
+            set
+            {
+                State.SetUserStateType(UserStateType.Active);
                 _lastAction = value;
             }
         }
