@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using DataBase;
 using DataBase.Entities;
 using DataBase.Models;
 using DataBase.Services;
+using DataBase.Services.Impl;
 using Games.Games;
 using Games.Games.Impl;
 using Games.Services;
@@ -21,8 +23,6 @@ namespace Server.GameHandlers
 
         private readonly static Logger _logger = LogManager.GetCurrentClassLogger();
 
-        private readonly ITelegramDbContext _dbContext;
-
         private readonly ITelegramService _telegramService;
 
         #endregion
@@ -30,9 +30,8 @@ namespace Server.GameHandlers
         #region .ctor
 
         /// <inheritdoc cref="BlackjackGameHandler"/>
-        public BlackjackGameHandler(ITelegramDbContext dbContext, ITelegramService telegramService)
+        public BlackjackGameHandler(ITelegramService telegramService)
         {
-            _dbContext = dbContext;
             _telegramService = telegramService;
         }
 
@@ -43,12 +42,12 @@ namespace Server.GameHandlers
         /// <summary>
         ///     Создает новую игру в блэкджек для пользователя
         /// </summary>
-        public async Task StartBlackJackAsync(long userId, CancellationToken cancellationToken)
+        public async Task StartBlackJackAsync(ITelegramDbContext dbContext, long userId, CancellationToken cancellationToken)
         {
             UserEntity userEntity;
             try
             {
-                userEntity = await _dbContext.Users.GetAsync(userId, cancellationToken);
+                userEntity = await dbContext.Users.GetAsync(userId, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -64,7 +63,7 @@ namespace Server.GameHandlers
 
             try
             {
-                await _dbContext.BlackjackHistory.CreateAsync(CreateBlackjackHistoryRecord, cancellationToken);
+                await dbContext.BlackjackHistory.CreateAsync(CreateBlackjackHistoryRecord, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -95,11 +94,16 @@ namespace Server.GameHandlers
             game.OnGameEnded -= OnGameEnded;
             game.OnGameUpdated -= OnGameUpdatedAsync;
 
+            await using var dbContext = new AppDbContextFactory().CreateDbContext(Array.Empty<string>());
+            using var database = new TelegramDbContext(dbContext);
+
             try
             {
                 var userId = game.User.Id;
-                var user = await _dbContext.Users.UpdateAsync(userId, UpdateUserEntity, token);
-                await _dbContext.UserStates.UpdateAsync(user.UserState.Id, UpdateUserStateEntity, token);
+                var user = await database.Users.UpdateAsync(userId, UpdateUserEntity, token);
+
+                var userState = await database.UserStates.GetAsync(userId, token);
+                userState = await database.UserStates.UpdateAsync(userState.Id, UpdateUserStateEntity, token);
             }
             catch (Exception ex)
             {
@@ -132,13 +136,16 @@ namespace Server.GameHandlers
         {
             if (sender is BlackjackGame blackjackGame)
             {
+                await using var dbContext = new AppDbContextFactory().CreateDbContext(Array.Empty<string>());
+                using var database = new TelegramDbContext(dbContext);
+
                 try
                 {
-                    var user = await _dbContext.Users.UpdateAsync(blackjackGame.User.Id, UpdateUserEntity, token);
-                    var record = await _dbContext.BlackjackHistory.GetAsync(user.Id, token) ??
+                    var user = await database.Users.UpdateAsync(blackjackGame.User.Id, UpdateUserEntity, token);
+                    var record = await database.BlackjackHistory.GetAsync(user.Id, token) ??
                                  throw new NullReferenceException($"BlackjackHistory record is empty for user with id: {user.TelegramId}");
 
-                    await _dbContext.BlackjackHistory.UpdateAsync(record.Id, UpdateRecord, token);
+                    await database.BlackjackHistory.UpdateAsync(record.Id, UpdateRecord, token);
                 }
                 catch (Exception ex)
                 {
