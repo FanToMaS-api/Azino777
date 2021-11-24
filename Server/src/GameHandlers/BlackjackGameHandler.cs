@@ -56,7 +56,7 @@ namespace Server.GameHandlers
             }
 
             var user = Mapper.Map(userEntity, userEntity.UserState);
-            var game = new BlackjackGame(user, _telegramService);
+            IGame game = new BlackjackGame(user, _telegramService);
             var bid = 50;
             game.OnGameUpdated += OnGameUpdatedAsync;
             game.OnGameEnded += OnGameEnded;
@@ -100,8 +100,6 @@ namespace Server.GameHandlers
             try
             {
                 var userId = game.User.Id;
-                var user = await database.Users.UpdateAsync(userId, UpdateUserEntity, token);
-
                 var userState = await database.UserStates.GetAsync(userId, token);
                 userState = await database.UserStates.UpdateAsync(userState.Id, UpdateUserStateEntity, token);
             }
@@ -142,10 +140,7 @@ namespace Server.GameHandlers
                 try
                 {
                     var user = await database.Users.UpdateAsync(blackjackGame.User.Id, UpdateUserEntity, token);
-                    var record = await database.BlackjackHistory.GetAsync(user.Id, token) ??
-                                 throw new NullReferenceException($"BlackjackHistory record is empty for user with id: {user.TelegramId}");
-
-                    await database.BlackjackHistory.UpdateAsync(record.Id, UpdateRecord, token);
+                    await database.BlackjackHistory.UpdateAsync(user.Id, UpdateRecord, token);
                 }
                 catch (Exception ex)
                 {

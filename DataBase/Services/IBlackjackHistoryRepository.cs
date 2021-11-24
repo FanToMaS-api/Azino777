@@ -29,6 +29,6 @@ namespace DataBase.Services
         /// <summary>
         ///     Изменить запись в истории игр в блэкджэк
         /// </summary>
-        Task<BlackjackHistoryEntity> UpdateAsync(long id, Action<BlackjackHistoryEntity> action, CancellationToken cancellationToken = default);
+        Task<BlackjackHistoryEntity> UpdateAsync(long userId, Action<BlackjackHistoryEntity> action, CancellationToken cancellationToken = default);
     }
 }

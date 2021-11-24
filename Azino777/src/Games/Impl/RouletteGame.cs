@@ -86,6 +86,7 @@ namespace Games.Games.Impl
             if (_user.GetBalance() - bid < 0)
             {
                 await TelegramService.PrintAsync(RouletteDefaultText.EndOfMoneyText, _user.ChatId, token);
+                TelegramService.OnMessageReceived -= OnMessageReceived;
                 OnGameEnded?.Invoke(this, EventArgs.Empty, token);
 
                 return;

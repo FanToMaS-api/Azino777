@@ -14,6 +14,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 
 // TODO: Добавить ставку в игры (BackLog) => подумать как реализовать
+// TODO: Добавить проверки на статус пользователя (Banned, Active, Inactive)
 namespace Server.Telegram
 {
     /// <summary>
@@ -94,7 +95,7 @@ namespace Server.Telegram
                 user.ChatId = message.Chat.Id;
                 user.FirstName = message.From.FirstName;
                 user.LastAction = DateTime.Now;
-                user.UserState = new UserStateEntity 
+                user.UserState = new UserStateEntity
                 {
                     Balance = 200,
                     UserId = user.TelegramId,

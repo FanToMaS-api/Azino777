@@ -90,9 +90,10 @@ namespace Games.Games.Impl
         {
             await TelegramService.PrintAsync(ToString(), _user.ChatId, token);
 
-            if (_user.GetBalance() - Bid < 0)
+            if (_user.GetBalance() - bid < 0)
             {
                 await TelegramService.PrintAsync(BlackjackDefaultText.EndOfMoneyText, _user.ChatId, token);
+                TelegramService.OnMessageReceived -= OnMessageReceived;
                 OnGameEnded?.Invoke(this, EventArgs.Empty, token);
 
                 return;

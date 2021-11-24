@@ -29,6 +29,6 @@ namespace DataBase.Services
         /// <summary>
         ///     Изменить запись в истории игр в австралийскую рулетку
         /// </summary>
-        Task<RouletteHistoryEntity> UpdateAsync(long id, Action<RouletteHistoryEntity> action, CancellationToken cancellationToken = default);
+        Task<RouletteHistoryEntity> UpdateAsync(long userId, Action<RouletteHistoryEntity> action, CancellationToken cancellationToken = default);
     }
 }
