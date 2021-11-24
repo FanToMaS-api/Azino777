@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DataBase.Entities;
+using DataBase.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataBase.Services.Impl
@@ -66,14 +67,14 @@ namespace DataBase.Services.Impl
         }
 
         /// <inheritdoc />
-        public async Task<RouletteHistoryEntity> UpdateAsync(long id, Action<RouletteHistoryEntity> action, CancellationToken cancellationToken = default)
+        public async Task<RouletteHistoryEntity> UpdateAsync(long userId, Action<RouletteHistoryEntity> action, CancellationToken cancellationToken = default)
         {
             var historyRecord = await _dbContext.RouletteHistory
-                .Where(_ => _.Id == id)
+                .Where(_ => _.UserId == userId && _.GameState == GameStateType.IsOn)
                 .FirstOrDefaultAsync(cancellationToken);
             if (historyRecord == null)
             {
-                throw new Exception($"Cannot find roulette record with id: {id}");
+                throw new Exception($"Cannot find roulette record with userId: {userId}");
             }
 
             action(historyRecord);

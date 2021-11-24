@@ -56,7 +56,7 @@ namespace Server.GameHandlers
             }
 
             var user = Mapper.Map(userEntity, userEntity.UserState);
-            var game = new RouletteGame(user, _telegramService);
+            IGame game = new RouletteGame(user, _telegramService);
             var bid = 50;
             game.OnGameUpdated += OnGameUpdatedAsync;
             game.OnGameEnded += OnGameEnded;
