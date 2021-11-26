@@ -98,8 +98,6 @@ namespace Server.GameHandlers
             try
             {
                 var userId = game.User.Id;
-                var user = await database.Users.UpdateAsync(userId, UpdateUserEntity, token);
-
                 var userState = await database.UserStates.GetAsync(userId, token);
                 userState = await database.UserStates.UpdateAsync(userState.Id, UpdateUserStateEntity, token);
             }
@@ -140,10 +138,7 @@ namespace Server.GameHandlers
                 try
                 {
                     var user = await database.Users.UpdateAsync(rouletteGame.User.Id, UpdateUserEntity, token);
-                    var record = await database.RouletteHistory.GetAsync(user.Id, token) ??
-                                 throw new NullReferenceException($"RouletteHistory record is empty for user with id: {user.TelegramId}");
-
-                    await database.RouletteHistory.UpdateAsync(record.Id, UpdateRecord, token);
+                    await database.RouletteHistory.UpdateAsync(user.Id, UpdateRecord, token);
                 }
                 catch (Exception ex)
                 {

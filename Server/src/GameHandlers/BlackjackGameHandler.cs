@@ -44,6 +44,7 @@ namespace Server.GameHandlers
         /// </summary>
         public async Task StartBlackJackAsync(ITelegramDbContext dbContext, long userId, CancellationToken cancellationToken)
         {
+            // TODO: Добавить проверку на активную игру, и если игра активна, новую не начинать
             UserEntity userEntity;
             try
             {

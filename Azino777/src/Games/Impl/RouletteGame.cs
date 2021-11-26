@@ -30,7 +30,6 @@ namespace Games.Games.Impl
         {
             _user = user;
             TelegramService = telegramService;
-            TelegramService.OnMessageReceived += OnMessageReceived;
             _random = new();
         }
 
@@ -64,7 +63,7 @@ namespace Games.Games.Impl
         ///      Описание игры
         /// </summary>
         public static string Description =>
-            "Испытай удачу! Собери 6 одинаковых цифр выйграй джекпот!";
+            "Испытай удачу! Собери 6 одинаковых цифр выйграй джекпот - 5000 монет!";
 
         /// <summary>
         ///     Правила игры
@@ -81,6 +80,8 @@ namespace Games.Games.Impl
         /// <inheritdoc />
         public async Task StartGameAsync(double bid, CancellationToken token = default)
         {
+            Coin = bid;
+            TelegramService.OnMessageReceived += OnMessageReceived;
             await TelegramService.PrintAsync(ToString(), _user.ChatId, token);
 
             if (_user.GetBalance() - bid < 0)
@@ -92,8 +93,8 @@ namespace Games.Games.Impl
                 return;
             }
 
-            _user.AddBalance(-bid);
-            Coin = bid;
+            _user.AddBalance(-Coin);
+
             OnGameUpdated?.Invoke(this, EventArgs.Empty, token);
 
             await TelegramService.PrintAsync($"Твои монеты: {Coin}", _user.ChatId, token);
@@ -130,25 +131,25 @@ namespace Games.Games.Impl
             {
                 case 6:
                     {
-                        price = 50;
+                        price = 5000;
                         Coin += price;
                         break;
                     }
                 case 5:
                     {
-                        price = 30;
+                        price = 3000;
                         Coin += price;
                         break;
                     }
                 case 4:
                     {
-                        price = 20;
+                        price = 500;
                         Coin += price;
                         break;
                     }
                 case 3:
                     {
-                        price = 10;
+                        price = 15;
                         Coin += price;
                         break;
                     }
