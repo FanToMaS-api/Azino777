@@ -9,6 +9,7 @@ using DataBase.Services.Impl;
 using Games.Games;
 using Games.Games.Impl;
 using Games.Services;
+using Microsoft.EntityFrameworkCore;
 using NLog;
 using Server.Mappers;
 
@@ -48,6 +49,15 @@ namespace Server.GameHandlers
             try
             {
                 userEntity = await dbContext.Users.GetAsync(userId, cancellationToken);
+
+                var activeGame = await dbContext.RouletteHistory
+                 .CreateQuery()
+                 .FirstOrDefaultAsync(_ => _.UserId == userEntity.Id && _.GameState == GameStateType.IsOn, cancellationToken);
+                if (activeGame is not null)
+                {
+                    return;
+                }
+
             }
             catch (Exception ex)
             {
@@ -92,14 +102,10 @@ namespace Server.GameHandlers
             game.OnGameEnded -= OnGameEnded;
             game.OnGameUpdated -= OnGameUpdatedAsync;
 
-            await using var dbContext = new AppDbContextFactory().CreateDbContext(Array.Empty<string>());
-            using var database = new TelegramDbContext(dbContext);
-
+            using var database = TelegramDbContextFactory.Create();
             try
             {
                 var userId = game.User.Id;
-                var user = await database.Users.UpdateAsync(userId, UpdateUserEntity, token);
-
                 var userState = await database.UserStates.GetAsync(userId, token);
                 userState = await database.UserStates.UpdateAsync(userState.Id, UpdateUserStateEntity, token);
             }
@@ -134,16 +140,11 @@ namespace Server.GameHandlers
         {
             if (sender is RouletteGame rouletteGame)
             {
-                await using var dbContext = new AppDbContextFactory().CreateDbContext(Array.Empty<string>());
-                using var database = new TelegramDbContext(dbContext);
-
+                using var database = TelegramDbContextFactory.Create();
                 try
                 {
                     var user = await database.Users.UpdateAsync(rouletteGame.User.Id, UpdateUserEntity, token);
-                    var record = await database.RouletteHistory.GetAsync(user.Id, token) ??
-                                 throw new NullReferenceException($"RouletteHistory record is empty for user with id: {user.TelegramId}");
-
-                    await database.RouletteHistory.UpdateAsync(record.Id, UpdateRecord, token);
+                    await database.RouletteHistory.UpdateAsync(user.Id, UpdateRecord, token);
                 }
                 catch (Exception ex)
                 {

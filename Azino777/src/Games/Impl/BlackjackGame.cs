@@ -27,7 +27,6 @@ namespace Games.Games.Impl
         {
             _user = user;
             TelegramService = telegramService;
-            TelegramService.OnMessageReceived += OnMessageReceived;
             _random = new();
         }
 
@@ -65,7 +64,7 @@ namespace Games.Games.Impl
         /// <summary>
         ///     Название игры
         /// </summary>
-        public string Name => "21 очко";
+        public static string Name => "21 очко";
 
         /// <summary>
         ///      Описание игры
@@ -88,6 +87,8 @@ namespace Games.Games.Impl
         /// <inheritdoc />
         public async Task StartGameAsync(double bid, CancellationToken token = default)
         {
+            Bid = bid;
+            TelegramService.OnMessageReceived += OnMessageReceived;
             await TelegramService.PrintAsync(ToString(), _user.ChatId, token);
 
             if (_user.GetBalance() - bid < 0)
@@ -99,19 +100,14 @@ namespace Games.Games.Impl
                 return;
             }
 
-            _user.AddBalance(-bid);
-            Bid = bid;
-
-            // Первоначальная настройка
-            UserScope = _random.Next(1, 10) + _random.Next(1, 11);
-            DialerScope = _random.Next(1, 5) + _random.Next(1, 5) + _random.Next(1, 5) + _random.Next(1, 6);
-
+            SetFirstCardDeal();
             if (DialerScope == 21)
             {
-                DialerScope = 0;
-                _user.AddBalance(await EndGameAsync(token));
+                await TelegramService.PrintAsync(GetInformation(), _user.ChatId, token);
 
+                _user.AddBalance(await EndGameAsync(token));
                 OnGameEnded?.Invoke(this, EventArgs.Empty, token);
+
                 return;
             }
 
@@ -122,25 +118,35 @@ namespace Games.Games.Impl
         /// <inheritdoc />
         public async Task LogicAsync(string input, CancellationToken token)
         {
-            var userNum = _random.Next(1, 14);
-            var dealerNum = _random.Next(1, 7);
+            // 15 чтобы игра не была простой
+            // (шанс выпадения туза при такой расстановке равен вероятности при игре с 52 картами)
+            var userNum = _random.Next(5, 15);
 
+            var dealerNum = _random.Next(1, 12);
             if (userNum < 11)
             {
                 UserScope += userNum;
                 await TelegramService.PrintAsync($"Выпало {userNum} {GetRightDeclension(userNum)}", _user.ChatId, token);
             }
-            else if (userNum <= 13)
+            else if (userNum == 11)
             {
-                UserScope += 10;
-                await TelegramService.PrintAsync("Выпало 10 очков", _user.ChatId, token);
-            }
-            else
-            {
+                // у туза значение 1 или 11 (11 пока общая сумма не больше 21, далее 1)
                 if (UserScope + DialerScope > 21)
                 {
                     UserScope += 1;
+                    await TelegramService.PrintAsync($"Выпало 1 очко", _user.ChatId, token);
                 }
+                else
+                {
+                    UserScope += 11;
+                    await TelegramService.PrintAsync("Выпало 11 очков", _user.ChatId, token);
+                }
+            }
+            else
+            {
+                userNum = _random.Next(8, 10);
+                UserScope += userNum;
+                await TelegramService.PrintAsync($"Выпало {userNum} {GetRightDeclension(userNum)}", _user.ChatId, token);
             }
 
             DialerScope += dealerNum;
@@ -168,9 +174,10 @@ namespace Games.Games.Impl
             }
             else if (DialerScope > 21 && UserScope <= 21)
             {
-                await TelegramService.PrintAsync($"Отличная игра! Твой выйгрыш {Bid * 1.5}", _user.ChatId, token);
+                var prize = Math.Ceiling(Bid / 2);
+                await TelegramService.PrintAsync($"Отличная игра! Твой выйгрыш {prize}", _user.ChatId, token);
 
-                return Bid * 1.5;
+                return prize;
             }
             else if (DialerScope > UserScope)
             {
@@ -181,10 +188,11 @@ namespace Games.Games.Impl
             }
             else if (UserScope > DialerScope)
             {
+                var prize = Math.Ceiling(Bid / 2);
                 await TelegramService.PrintAsync($"Отличная игра! У дилера {DialerScope} {GetRightDeclension(DialerScope)}.\n" +
-                    $"Твой выйгрыш {Bid * 1.5}", _user.ChatId, token);
+                    $"Твой выйгрыш {prize}", _user.ChatId, token);
 
-                return Bid * 1.5;
+                return prize;
             }
             else
             {
@@ -204,6 +212,15 @@ namespace Games.Games.Impl
         #endregion
 
         #region Private methods
+
+        /// <summary>
+        ///     Создает первую раздачу
+        /// </summary>
+        private void SetFirstCardDeal()
+        {
+            UserScope = _random.Next(1, 6) + _random.Next(1, 6) + _random.Next(1, 6) + _random.Next(1, 7);
+            DialerScope = _random.Next(1, 6) + _random.Next(1, 6) + _random.Next(1, 6) + _random.Next(1, 7);
+        }
 
         /// <summary>
         ///     Обработчик прихода сообщения от пользователя
