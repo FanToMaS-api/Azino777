@@ -9,6 +9,7 @@ using DataBase.Services;
 using Games.Services;
 using NLog;
 using Server.GameHandlers;
+using Server.GameHandlers.Impl;
 using Server.Helpers;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -42,8 +43,8 @@ namespace Server.Telegram
             _cancellationTokenSource = new CancellationTokenSource();
             Client = new TelegramBotClient(token);
             _telegramService = new TelegramService(Client);
-            _logger.Info("Successful connection to bot");
             _telegramService.OnMessageReceived += HandleUpdateAsync;
+            _logger.Info("Successful connection to bot");
         }
 
         #endregion
@@ -149,14 +150,15 @@ namespace Server.Telegram
                 case "/command5": // 21 очко
                     {
                         var newGame = new BlackjackGameHandler(_telegramService);
-                        await newGame.StartBlackJackAsync(database, message.From.Id, cancellationToken);
+                        await Client.SendTextMessageAsync(message.Chat, DefaultText.InputBid, cancellationToken: cancellationToken);
+                        var gameHelper = new GameHelper(_telegramService, newGame);
                         break;
                     }
                 case "/command6": // рулетка
                     {
-
                         var newGame = new RouletteGameHandler(_telegramService);
-                        await newGame.StartRouletteAsync(database, message.From.Id, cancellationToken);
+                        await Client.SendTextMessageAsync(message.Chat, DefaultText.InputBid, cancellationToken: cancellationToken);
+                        var gameHelper = new GameHelper(_telegramService, newGame);
                         break;
                     }
             }

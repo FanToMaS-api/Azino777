@@ -5,7 +5,6 @@ using DataBase;
 using DataBase.Entities;
 using DataBase.Models;
 using DataBase.Services;
-using DataBase.Services.Impl;
 using Games.Games;
 using Games.Games.Impl;
 using Games.Services;
@@ -13,12 +12,12 @@ using Microsoft.EntityFrameworkCore;
 using NLog;
 using Server.Mappers;
 
-namespace Server.GameHandlers
+namespace Server.GameHandlers.Impl
 {
     /// <summary>
     ///     Обработчик для игры в Австралийскую рулетку
     /// </summary>
-    internal class RouletteGameHandler
+    internal class RouletteGameHandler : IGameHandler
     {
         #region Fields
 
@@ -40,10 +39,8 @@ namespace Server.GameHandlers
 
         #region Public methods
 
-        /// <summary>
-        ///     Создает новую игру в австралийскую рулетку для пользователя
-        /// </summary>
-        public async Task StartRouletteAsync(ITelegramDbContext dbContext, long userId, CancellationToken cancellationToken)
+        /// <inheritdoc />
+        public async Task StartGameAsync(ITelegramDbContext dbContext, long userId, double bid, CancellationToken cancellationToken)
         {
             UserEntity userEntity;
             try
@@ -67,7 +64,6 @@ namespace Server.GameHandlers
 
             var user = Mapper.Map(userEntity, userEntity.UserState);
             IGame game = new RouletteGame(user, _telegramService);
-            var bid = 50;
             game.OnGameUpdated += OnGameUpdatedAsync;
             game.OnGameEnded += OnGameEnded;
 
