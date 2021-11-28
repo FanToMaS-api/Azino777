@@ -6,10 +6,10 @@ using DataBase;
 using DataBase.Entities;
 using DataBase.Models;
 using DataBase.Services;
-using DataBase.Services.Impl;
 using Games.Services;
 using NLog;
 using Server.GameHandlers;
+using Server.Helpers;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
@@ -72,9 +72,7 @@ namespace Server.Telegram
                 return;
             }
 
-            await using var dbContext = new AppDbContextFactory().CreateDbContext(Array.Empty<string>());
-            using var database = new TelegramDbContext(dbContext);
-
+            using var database = TelegramDbContextFactory.Create();
             try
             {
                 if (!database.Users.CreateQuery().Any(_ => _.TelegramId == message.From.Id))

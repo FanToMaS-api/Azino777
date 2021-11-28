@@ -1,4 +1,4 @@
-﻿namespace Server.Telegram
+﻿namespace Server.Helpers
 {
     /// <summary>
     ///     Стандартные тексты для ответов пользователям

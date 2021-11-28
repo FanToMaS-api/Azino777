@@ -57,7 +57,7 @@ namespace Games.Games.Impl
         /// <summary>
         ///     Название игры
         /// </summary>
-        public string Name => "Австралийская Рулетка";
+        public static string Name => "Австралийская Рулетка";
 
         /// <summary>
         ///      Описание игры

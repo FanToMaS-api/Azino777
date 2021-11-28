@@ -64,7 +64,7 @@ namespace Games.Games.Impl
         /// <summary>
         ///     Название игры
         /// </summary>
-        public string Name => "21 очко";
+        public static string Name => "21 очко";
 
         /// <summary>
         ///      Описание игры
