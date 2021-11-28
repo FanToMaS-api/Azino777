@@ -8,15 +8,15 @@ using DataBase.Models;
 using DataBase.Services;
 using Games.Services;
 using NLog;
-using Server.GameHandlers;
+using Server.GameHandlers.Impl;
 using Server.Helpers;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
-// TODO: Добавить ставку в игры (BackLog) => подумать как реализовать
 // TODO: Добавить проверки на статус пользователя (Banned, Active, Inactive)
-// TODO: добавить сервис который раз в день будет всех пользоватлей переводить в неактивные, если они не писали боту, также добавить лимит по смс в минуту,
-// TODO: при превышении лимита отправлять в бан + добавить причины бана
+// TODO: добавить сервис который раз в день будет всех пользоватлей переводить в неактивные,
+//          если они не писали боту, также добавить лимит по смс в минуту,
+//          при превышении лимита отправлять в бан + добавить причины бана
 namespace Server.Telegram
 {
     /// <summary>
