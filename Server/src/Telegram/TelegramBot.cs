@@ -73,6 +73,13 @@ namespace Server.Telegram
             }
 
             using var database = TelegramDbContextFactory.Create();
+
+            if ((await database.Users.GetAsync(message.From.Id, cancellationToken)).UserState.UserStateType == UserStateType.Banned)
+            {
+                await Client.SendTextMessageAsync(message.Chat, DefaultText.BannedAccountText, cancellationToken: cancellationToken);
+                return;
+            }
+
             try
             {
                 if (!database.Users.CreateQuery().Any(_ => _.TelegramId == message.From.Id))
@@ -95,8 +102,7 @@ namespace Server.Telegram
                 user.ChatId = message.Chat.Id;
                 user.FirstName = message.From.FirstName;
                 user.LastAction = DateTime.Now;
-                user.UserState = new UserStateEntity
-                {
+                user.UserState = new UserStateEntity {
                     Balance = 200,
                     UserId = user.TelegramId,
                     UserStateType = UserStateType.Active,
