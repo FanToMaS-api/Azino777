@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DataBase;
@@ -9,6 +10,7 @@ using DataBase.Services.Impl;
 using Games.Games;
 using Games.Games.Impl;
 using Games.Services;
+using Microsoft.EntityFrameworkCore;
 using NLog;
 using Server.Mappers;
 
@@ -49,6 +51,14 @@ namespace Server.GameHandlers
             try
             {
                 userEntity = await dbContext.Users.GetAsync(userId, cancellationToken);
+
+                var activeGame = await dbContext.BlackjackHistory
+                   .CreateQuery()
+                   .FirstOrDefaultAsync(_ => _.UserId == userEntity.Id && _.GameState == GameStateType.IsOn, cancellationToken);
+                if (activeGame is not null)
+                {
+                    return;
+                }
             }
             catch (Exception ex)
             {
