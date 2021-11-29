@@ -49,7 +49,7 @@
         /// <summary>
         ///     Сообщение о неверном вводе ставки
         /// </summary>
-        public static string ErrorInputBid = "Ставка не принята, введите еще раз";
+        public static string ErrorInputBid = "Ставка не принята, игра отменена";
 
         /// <summary>
         ///     Сообщение о выводе денежных средств пользователю
