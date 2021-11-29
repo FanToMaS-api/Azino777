@@ -7,6 +7,7 @@ using DataBase.Entities;
 using DataBase.Models;
 using DataBase.Services;
 using Games.Services;
+using Microsoft.EntityFrameworkCore;
 using NLog;
 using Server.GameHandlers.Impl;
 using Server.Helpers;
@@ -26,7 +27,7 @@ namespace Server.Telegram
     {
         #region Fields
 
-        private readonly static Logger _logger = LogManager.GetCurrentClassLogger();
+        private readonly static Logger Log = LogManager.GetCurrentClassLogger();
 
         private readonly ITelegramService _telegramService;
 
@@ -43,7 +44,15 @@ namespace Server.Telegram
             Client = new TelegramBotClient(token);
             _telegramService = new TelegramService(Client);
             _telegramService.OnMessageReceived += HandleUpdateAsync;
-            _logger.Info("Successful connection to bot");
+            Log.Info("Successful connection to bot");
+
+            ApplyMigrations();
+
+            using var database = TelegramDbContextFactory.Create();
+            foreach (var user in database.Users.CreateQuery())
+            {
+                Log.Debug($"{user.FirstName}\n");
+            }
         }
 
         #endregion
@@ -60,6 +69,20 @@ namespace Server.Telegram
         #region Private methods
 
         /// <summary>
+        ///     Применяет миграции
+        /// </summary>
+        private void ApplyMigrations()
+        {
+            Log.Info("Applying database migrations...");
+
+            using var database = new AppDbContextFactory().CreateDbContext(Array.Empty<string>());
+
+            database.Database.Migrate();
+
+            Log.Info("Database migrations successfully applied");
+        }
+
+        /// <summary>
         ///     Обработчик событий обновлений чата
         /// </summary>
         private async Task HandleUpdateAsync(object @object, string text, CancellationToken cancellationToken = default)
@@ -68,7 +91,7 @@ namespace Server.Telegram
             cancellationToken = _cancellationTokenSource.Token;
             if (message is null)
             {
-                _logger.Error(new NullReferenceException(nameof(message)));
+                Log.Error(new NullReferenceException(nameof(message)));
                 return;
             }
 
@@ -89,7 +112,7 @@ namespace Server.Telegram
             }
             catch (Exception ex)
             {
-                _logger.Error(ex);
+                Log.Error(ex);
             }
 
             await HandleUserActionAsync(database, text, message, cancellationToken);
@@ -131,19 +154,19 @@ namespace Server.Telegram
                 case "/command2": // help
                     {
                         await Client.SendTextMessageAsync(message.Chat, DefaultText.HelpText, cancellationToken: cancellationToken);
-                        _logger.Info($"Пользователь с id: {message.From.Id} обратился в поддержку");
+                        Log.Info($"Пользователь с id: {message.From.Id} обратился в поддержку");
                         break;
                     }
                 case "/command3": // пополнение средств
                     {
                         await AddCoinAsync(database, message, cancellationToken);
-                        _logger.Info($"Пользователь с id: {message.From.Id} запросил пополнение средств");
+                        Log.Info($"Пользователь с id: {message.From.Id} запросил пополнение средств");
                         break;
                     }
                 case "/command4": // снятие средств
                     {
                         await Client.SendTextMessageAsync(message.Chat, DefaultText.WithdrawFunds, cancellationToken: cancellationToken);
-                        _logger.Info($"Пользователь с id: {message.From.Id} запросил вывод средств");
+                        Log.Info($"Пользователь с id: {message.From.Id} запросил вывод средств");
                         break;
                     }
                 case "/command5": // 21 очко
@@ -209,7 +232,7 @@ namespace Server.Telegram
             }
             catch (Exception ex)
             {
-                _logger.Error(ex);
+                Log.Error(ex);
             }
 
             return DefaultText.ServerErrorText;

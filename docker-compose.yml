@@ -1,0 +1,30 @@
+version: '3.3'
+
+services:
+  server:
+    depends_on:
+      - postgres
+    container_name: server_container
+    restart: always
+    image: server_image:1
+    env_file:
+      - server.env
+    ports:
+      - "5454:5432"
+  # Объединяет контейнеры в одну сеть
+    networks:
+      - azino_network
+
+  postgres:
+    image: postgres:13
+    container_name: server_postgres
+    restart: always
+    env_file:
+      - postgres.env
+    ports:
+      - "5432:5432"
+    networks:
+      - azino_network
+          
+networks:
+  azino_network: {}
