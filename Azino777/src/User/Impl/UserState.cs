@@ -14,9 +14,6 @@ namespace Games.User.Impl
         public double Balance { get; private set; }
 
         /// <inheritdoc />
-        public IGame Game { get; private set; }
-
-        /// <inheritdoc />
         public UserStateType UserStateType { get; private set; }
 
         #endregion
@@ -27,12 +24,6 @@ namespace Games.User.Impl
         public void AddBalance(double value)
         {
             Balance += value;
-        }
-
-        /// <inheritdoc />
-        public void SetGame(IGame game)
-        {
-            Game = game;
         }
 
         /// <inheritdoc />

@@ -16,11 +16,6 @@ namespace Games.User
         double Balance { get; }
 
         /// <summary>
-        ///     Текущая игра
-        /// </summary>
-        IGame Game { get; }
-
-        /// <summary>
         ///     Текущее состояние пользователя
         /// </summary>
         UserStateType UserStateType { get; }
@@ -33,11 +28,6 @@ namespace Games.User
         ///     Пополняет баланс пользователя
         /// </summary>
         public void AddBalance(double value);
-
-        /// <summary>
-        ///     Устанавливает игру для пользователя
-        /// </summary>
-        public void SetGame(IGame game);
 
         /// <summary>
         ///     Устанавливает статус пользователя
