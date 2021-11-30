@@ -66,8 +66,7 @@ namespace Games.Services
         {
             if (update.Message is { } message)
             {
-                var text = message.Text;
-                OnMessageReceived?.Invoke(message, text, cancellationToken);
+                OnMessageReceived?.Invoke(message, message.Text, cancellationToken);
             }
 
             return Task.CompletedTask;
