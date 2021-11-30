@@ -47,12 +47,6 @@ namespace Server.Telegram
             Log.Info("Successful connection to bot");
 
             ApplyMigrations();
-
-            using var database = TelegramDbContextFactory.Create();
-            foreach (var user in database.Users.CreateQuery())
-            {
-                Log.Debug($"{user.FirstName}\n");
-            }
         }
 
         #endregion
@@ -97,18 +91,18 @@ namespace Server.Telegram
 
             using var database = TelegramDbContextFactory.Create();
 
-            if ((await database.Users.GetAsync(message.From.Id, cancellationToken)).UserState.UserStateType == UserStateType.Banned)
-            {
-                await Client.SendTextMessageAsync(message.Chat, DefaultText.BannedAccountText, cancellationToken: cancellationToken);
-                return;
-            }
-
             try
             {
                 if (!database.Users.CreateQuery().Any(_ => _.TelegramId == message.From.Id))
                 {
                     await database.Users.CreateAsync(CreateUserEntity, cancellationToken);
                 }
+
+                if ((await database.Users.GetAsync(message.From.Id, cancellationToken)).UserState.UserStateType == UserStateType.Banned)
+                {
+                    await Client.SendTextMessageAsync(message.Chat, DefaultText.BannedAccountText, cancellationToken: cancellationToken);
+                    return;
+                }             
             }
             catch (Exception ex)
             {

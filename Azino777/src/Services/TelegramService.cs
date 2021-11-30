@@ -18,7 +18,7 @@ namespace Games.Services
 
         private readonly ITelegramBotClient _client;
 
-        private readonly static Logger _logger = LogManager.GetCurrentClassLogger();
+        private readonly static Logger Log = LogManager.GetCurrentClassLogger();
 
         #endregion
 
@@ -66,7 +66,8 @@ namespace Games.Services
         {
             if (update.Message is { } message)
             {
-                OnMessageReceived?.Invoke(message, message.Text, cancellationToken);
+                var text = message.Text;
+                OnMessageReceived?.Invoke(message, text, cancellationToken);
             }
 
             return Task.CompletedTask;
@@ -77,7 +78,7 @@ namespace Games.Services
         /// </summary>
         private Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
         {
-            _logger.Error(exception, exception.Message);
+            Log.Error(exception, exception.Message);
             throw new Exception(exception.ToString());
         }
 
