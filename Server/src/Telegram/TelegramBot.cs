@@ -7,17 +7,17 @@ using DataBase.Entities;
 using DataBase.Models;
 using DataBase.Services;
 using Games.Services;
+using Microsoft.EntityFrameworkCore;
 using NLog;
-using Server.GameHandlers;
 using Server.GameHandlers.Impl;
 using Server.Helpers;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
-// TODO: Добавить ставку в игры (BackLog) => подумать как реализовать
 // TODO: Добавить проверки на статус пользователя (Banned, Active, Inactive)
-// TODO: добавить сервис который раз в день будет всех пользоватлей переводить в неактивные, если они не писали боту, также добавить лимит по смс в минуту,
-// TODO: при превышении лимита отправлять в бан + добавить причины бана
+// TODO: добавить сервис который раз в день будет всех пользоватлей переводить в неактивные,
+//          если они не писали боту, также добавить лимит по смс в минуту,
+//          при превышении лимита отправлять в бан + добавить причины бана
 namespace Server.Telegram
 {
     /// <summary>
@@ -27,7 +27,7 @@ namespace Server.Telegram
     {
         #region Fields
 
-        private readonly static Logger _logger = LogManager.GetCurrentClassLogger();
+        private readonly static Logger Log = LogManager.GetCurrentClassLogger();
 
         private readonly ITelegramService _telegramService;
 
@@ -44,7 +44,9 @@ namespace Server.Telegram
             Client = new TelegramBotClient(token);
             _telegramService = new TelegramService(Client);
             _telegramService.OnMessageReceived += HandleUpdateAsync;
-            _logger.Info("Successful connection to bot");
+            Log.Info("Successful connection to bot");
+
+            ApplyMigrations();
         }
 
         #endregion
@@ -61,6 +63,20 @@ namespace Server.Telegram
         #region Private methods
 
         /// <summary>
+        ///     Применяет миграции
+        /// </summary>
+        private void ApplyMigrations()
+        {
+            Log.Info("Applying database migrations...");
+
+            using var database = new AppDbContextFactory().CreateDbContext(Array.Empty<string>());
+
+            database.Database.Migrate();
+
+            Log.Info("Database migrations successfully applied");
+        }
+
+        /// <summary>
         ///     Обработчик событий обновлений чата
         /// </summary>
         private async Task HandleUpdateAsync(object @object, string text, CancellationToken cancellationToken = default)
@@ -69,17 +85,11 @@ namespace Server.Telegram
             cancellationToken = _cancellationTokenSource.Token;
             if (message is null)
             {
-                _logger.Error(new NullReferenceException(nameof(message)));
+                Log.Error(new NullReferenceException(nameof(message)));
                 return;
             }
 
             using var database = TelegramDbContextFactory.Create();
-
-            if ((await database.Users.GetAsync(message.From.Id, cancellationToken)).UserState.UserStateType == UserStateType.Banned)
-            {
-                await Client.SendTextMessageAsync(message.Chat, DefaultText.BannedAccountText, cancellationToken: cancellationToken);
-                return;
-            }
 
             try
             {
@@ -87,10 +97,16 @@ namespace Server.Telegram
                 {
                     await database.Users.CreateAsync(CreateUserEntity, cancellationToken);
                 }
+
+                if ((await database.Users.GetAsync(message.From.Id, cancellationToken)).UserState.UserStateType == UserStateType.Banned)
+                {
+                    await Client.SendTextMessageAsync(message.Chat, DefaultText.BannedAccountText, cancellationToken: cancellationToken);
+                    return;
+                }             
             }
             catch (Exception ex)
             {
-                _logger.Error(ex);
+                Log.Error(ex);
             }
 
             await HandleUserActionAsync(database, text, message, cancellationToken);
@@ -132,19 +148,19 @@ namespace Server.Telegram
                 case "/command2": // help
                     {
                         await Client.SendTextMessageAsync(message.Chat, DefaultText.HelpText, cancellationToken: cancellationToken);
-                        _logger.Info($"Пользователь с id: {message.From.Id} обратился в поддержку");
+                        Log.Info($"Пользователь с id: {message.From.Id} обратился в поддержку");
                         break;
                     }
                 case "/command3": // пополнение средств
                     {
                         await AddCoinAsync(database, message, cancellationToken);
-                        _logger.Info($"Пользователь с id: {message.From.Id} запросил пополнение средств");
+                        Log.Info($"Пользователь с id: {message.From.Id} запросил пополнение средств");
                         break;
                     }
                 case "/command4": // снятие средств
                     {
                         await Client.SendTextMessageAsync(message.Chat, DefaultText.WithdrawFunds, cancellationToken: cancellationToken);
-                        _logger.Info($"Пользователь с id: {message.From.Id} запросил вывод средств");
+                        Log.Info($"Пользователь с id: {message.From.Id} запросил вывод средств");
                         break;
                     }
                 case "/command5": // 21 очко
@@ -210,7 +226,7 @@ namespace Server.Telegram
             }
             catch (Exception ex)
             {
-                _logger.Error(ex);
+                Log.Error(ex);
             }
 
             return DefaultText.ServerErrorText;
