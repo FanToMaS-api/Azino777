@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Storage;
 
-namespace DataBase.Services
+namespace DataBase.Repositories
 {
     /// <summary>
     ///     Контекст базы данных
@@ -14,6 +14,9 @@ namespace DataBase.Services
 
         /// <inheritdoc cref="IBlackjackHistoryRepository"/>
         public IBlackjackHistoryRepository BlackjackHistory { get; }
+
+        /// <inheritdoc cref="IReferralLinkRepository"/>
+        public IReferralLinkRepository ReferralLinks { get; }
 
         /// <inheritdoc cref="IRouletteHistoryRepository"/>
         public IRouletteHistoryRepository RouletteHistory { get; }
@@ -27,7 +30,7 @@ namespace DataBase.Services
         #endregion
 
         #region Public methods
-    
+
         /// <summary>
         ///     Начать транзакцию
         /// </summary>

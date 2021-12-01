@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DataBase.Entities;
 
-namespace DataBase.Services
+namespace DataBase.Repositories
 {
     /// <summary>
     ///     Репозиторий историй игр в австралийскую рулетку

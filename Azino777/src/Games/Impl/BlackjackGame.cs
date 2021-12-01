@@ -197,7 +197,6 @@ namespace Games.Games.Impl
             else
             {
                 await TelegramService.PrintAsync(BlackjackDefaultText.EqualScoreText, _user.ChatId, token);
-                _user.AddBalance(Bid);
                 await StartGameAsync(Bid, token);
             }
 

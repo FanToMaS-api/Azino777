@@ -41,7 +41,7 @@ namespace Server.Helpers
         {
             var message = (Message)@object;
 
-            if (double.TryParse(text, out var bid))
+            if (double.TryParse(text, out var bid) && bid >= 10)
             {
                 using var database = TelegramDbContextFactory.Create();
                 await _gameHandler.StartGameAsync(database, message.From.Id, bid, cancellationToken);

@@ -5,8 +5,9 @@ using System.Threading.Tasks;
 using DataBase.Entities;
 using DataBase.Models;
 using Microsoft.EntityFrameworkCore;
+using NLog;
 
-namespace DataBase.Services.Impl
+namespace DataBase.Repositories.Impl
 {
     /// <summary>
     ///     Репозиторий историй игр в австралийскую рулетку
@@ -14,6 +15,8 @@ namespace DataBase.Services.Impl
     internal class RouletteHistoryRepository : IRouletteHistoryRepository
     {
         #region Fields
+
+        private readonly static Logger Log = LogManager.GetCurrentClassLogger();
 
         private readonly AppDbContext _dbContext;
 
@@ -32,10 +35,7 @@ namespace DataBase.Services.Impl
         #region Public methods
 
         /// <inheritdoc />
-        public IQueryable<RouletteHistoryEntity> CreateQuery()
-        {
-            return _dbContext.RouletteHistory;
-        }
+        public IQueryable<RouletteHistoryEntity> CreateQuery() => _dbContext.RouletteHistory.AsQueryable();
 
         /// <inheritdoc />
         public async Task<RouletteHistoryEntity> GetAsync(long userId, CancellationToken cancellationToken = default)
@@ -45,7 +45,7 @@ namespace DataBase.Services.Impl
                 .FirstOrDefaultAsync(cancellationToken);
             if (blackjack is null)
             {
-                throw new NullReferenceException($"Cannot find roulette's record for user with id: {userId}");
+                Log.Error($"Cannot find roulette's record for user with id: {userId}");
             }
 
             return blackjack;
@@ -74,7 +74,8 @@ namespace DataBase.Services.Impl
                 .FirstOrDefaultAsync(cancellationToken);
             if (historyRecord == null)
             {
-                throw new Exception($"Cannot find roulette record with userId: {userId}");
+                Log.Error($"Cannot find roulette's record for user with id: {userId}");
+                return null;
             }
 
             action(historyRecord);

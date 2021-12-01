@@ -5,13 +5,14 @@ using System.Threading.Tasks;
 using DataBase;
 using DataBase.Entities;
 using DataBase.Models;
-using DataBase.Services;
+using DataBase.Repositories;
 using Games.Services;
 using Microsoft.EntityFrameworkCore;
 using NLog;
 using Server.GameHandlers.Impl;
 using Server.Helpers;
 using Telegram.Bot;
+using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 
 // TODO: Добавить проверки на статус пользователя (Banned, Active, Inactive)
@@ -65,7 +66,7 @@ namespace Server.Telegram
         /// <summary>
         ///     Применяет миграции
         /// </summary>
-        private void ApplyMigrations()
+        private static void ApplyMigrations()
         {
             Log.Info("Applying database migrations...");
 
@@ -93,23 +94,46 @@ namespace Server.Telegram
 
             try
             {
+                // TODO: добавить баннер для защиты от спама
+                // TODO: добавить баф для пользователя чей реф ссылкой пользуются => по 1 монете за каждую выйгранную рефералом игру
                 if (!database.Users.CreateQuery().Any(_ => _.TelegramId == message.From.Id))
                 {
-                    await database.Users.CreateAsync(CreateUserEntity, cancellationToken);
+                    await StartFunctionAsync(database, message, cancellationToken);
+                    var user = await database.Users.CreateAsync(CreateUserEntity, cancellationToken);
+
+                    await Client.SendTextMessageAsync(message.Chat, DefaultText.InputReferralLink, cancellationToken: cancellationToken);
+                    var referralLinklHelper = new ReferralLinkHelper(_telegramService);
+
+                    return;
                 }
 
                 if ((await database.Users.GetAsync(message.From.Id, cancellationToken)).UserState.UserStateType == UserStateType.Banned)
                 {
                     await Client.SendTextMessageAsync(message.Chat, DefaultText.BannedAccountText, cancellationToken: cancellationToken);
                     return;
-                }             
+                }
+
+                await HandleUserActionAsync(database, text, message, cancellationToken);
+            }
+            catch (ApiRequestException apiEx)
+            {
+                if (IsUserBlockedBot(apiEx))
+                {
+                    var user = await database.Users.GetAsync(message.From.Id, cancellationToken);
+                    await database.UserStates.UpdateAsync(
+                        user.UserState.Id,
+                        _ => { _.UserStateType = UserStateType.BlockedBot; },
+                        cancellationToken);
+
+                    return;
+                }
+
+                Log.Error(apiEx);
             }
             catch (Exception ex)
             {
                 Log.Error(ex);
             }
-
-            await HandleUserActionAsync(database, text, message, cancellationToken);
 
             void CreateUserEntity(UserEntity user)
             {
@@ -119,10 +143,16 @@ namespace Server.Telegram
                 user.ChatId = message.Chat.Id;
                 user.FirstName = message.From.FirstName;
                 user.LastAction = DateTime.Now;
-                user.UserState = new UserStateEntity {
+                user.UserState = new UserStateEntity
+                {
                     Balance = 200,
                     UserId = user.TelegramId,
                     UserStateType = UserStateType.Active,
+                };
+                user.UserReferralLink = new ReferralLinkEntity
+                {
+                    UserId = user.TelegramId,
+                    ReferralLink = user.TelegramId.ToString()
                 };
             }
         }
@@ -207,6 +237,7 @@ namespace Server.Telegram
             static void UpdateState(UserStateEntity stateEntity)
             {
                 stateEntity.Balance += 50;
+                stateEntity.UserStateType = UserStateType.Active;
             }
 
             var info = "Ваш баланс успешно пополнен!\n";
@@ -217,12 +248,13 @@ namespace Server.Telegram
         /// <summary>
         ///     Возвращает информацию о профиле пользователя
         /// </summary>
-        private async Task<string> GetProfileInfoAsync(ITelegramDbContext database, long userId, CancellationToken cancellationToken)
+        private static async Task<string> GetProfileInfoAsync(ITelegramDbContext database, long userId, CancellationToken cancellationToken)
         {
             try
             {
                 var user = await database.Users.GetAsync(userId, cancellationToken);
-                return $"Ваш баланс: {user.UserState.Balance}\nВаш статус: {user.UserState.UserStateType}";
+                return $"Ваш баланс: {user.UserState.Balance}\nВаш статус: {user.UserState.UserStateType}" +
+                    $"\nВаша реферальная ссылка: {user.UserReferralLink.ReferralLink}";
             }
             catch (Exception ex)
             {
@@ -231,6 +263,11 @@ namespace Server.Telegram
 
             return DefaultText.ServerErrorText;
         }
+
+        /// <summary>
+        ///     Проверяет заблокировал ли пользователь бота
+        /// </summary>
+        private bool IsUserBlockedBot(ApiRequestException ex) => ex.Message == "Forbidden: bot was blocked by the user";
 
         #endregion
 

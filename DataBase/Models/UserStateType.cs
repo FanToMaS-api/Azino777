@@ -11,6 +11,11 @@
         Active,
 
         /// <summary>
+        ///     Заблокировал бота
+        /// </summary>
+        BlockedBot,
+
+        /// <summary>
         ///     Неактивный
         /// </summary>
         Inactive,

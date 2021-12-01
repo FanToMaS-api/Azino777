@@ -50,21 +50,28 @@ namespace DataBase.Entities
         /// <summary>
         ///     Настройка
         /// </summary>
-        public static void Setup(EntityTypeBuilder<RouletteHistoryEntity> builder)
+        public static void SetupModelBuilder(ModelBuilder modelBuilder)
         {
             // Ключ
-            builder.HasKey(_ => _.Id);
+            modelBuilder.Entity<RouletteHistoryEntity>().HasKey(_ => _.Id);
 
             // Связи
-            builder
+            modelBuilder.Entity<RouletteHistoryEntity>()
                 .HasOne(_ => _.User)
                 .WithMany(_ => _.RouletteHistory)
                 .HasForeignKey(_ => _.UserId);
 
             // Индексы
-            builder.HasIndex(_ => _.UserId).HasDatabaseName("IX_roulette_history_user_id");
-            builder.HasIndex(_ => _.GameState).HasDatabaseName("IX_roulette_history_state");
-            builder.HasIndex(_ => _.Coin).HasDatabaseName("IX_roulette_history_coin");
+            modelBuilder.Entity<RouletteHistoryEntity>().HasIndex(_ => _.UserId).HasDatabaseName("IX_roulette_history_user_id");
+            modelBuilder.Entity<RouletteHistoryEntity>().HasIndex(_ => _.GameState).HasDatabaseName("IX_roulette_history_state");
+            modelBuilder.Entity<RouletteHistoryEntity>().HasIndex(_ => _.Coin).HasDatabaseName("IX_roulette_history_coin");
+
+            // конвертеры
+            modelBuilder.Entity<RouletteHistoryEntity>()
+               .Property(_ => _.GameState)
+               .HasConversion(
+                   v => v.ToString(),
+                   v => (GameStateType)Enum.Parse(typeof(GameStateType), v));
         }
 
         #endregion

@@ -3,10 +3,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DataBase.Entities;
-using DataBase.Models;
 using Microsoft.EntityFrameworkCore;
+using NLog;
 
-namespace DataBase.Services.Impl
+namespace DataBase.Repositories.Impl
 {
     /// <summary>
     ///     Репозиторий пользователей бота
@@ -14,6 +14,8 @@ namespace DataBase.Services.Impl
     internal class UserRepository : IUserRepository
     {
         #region Fields
+
+        private readonly static Logger Log = LogManager.GetCurrentClassLogger();
 
         private readonly AppDbContext _dbContext;
 
@@ -32,22 +34,16 @@ namespace DataBase.Services.Impl
         #region Public methods
 
         /// <inheritdoc />
-        public IQueryable<UserEntity> CreateQuery()
-        {
-            return _dbContext.Users;
-        }
+        public IQueryable<UserEntity> CreateQuery() => _dbContext.Users.AsQueryable();
 
         /// <inheritdoc />
         public async Task<UserEntity> GetAsync(long id, CancellationToken cancellationToken = default)
         {
             var user = await _dbContext.Users
                 .Include(_ => _.UserState)
+                .Include(_ => _.UserReferralLink)
                 .Where(_ => _.TelegramId == id)
                 .FirstOrDefaultAsync(cancellationToken);
-            if (user is null)
-            {
-                throw new Exception($"Cannot find user with id: {id}");
-            }
 
             return user;
         }
@@ -64,7 +60,8 @@ namespace DataBase.Services.Impl
 
             if (conflictingUser != null)
             {
-                throw new Exception("User with this id is already exist");
+                Log.Error("User with this id is already exist");
+                return user;
             }
 
             await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
@@ -80,22 +77,21 @@ namespace DataBase.Services.Impl
         /// <inheritdoc />
         public async Task<UserEntity> UpdateAsync(long id, Action<UserEntity> action, CancellationToken cancellationToken = default)
         {
-            var user = await _dbContext.Users
-                .Where(_ => _.Id == id)
-                .FirstOrDefaultAsync(cancellationToken);
-            if (user == null)
+            var user = await GetAsync(id, cancellationToken);
+            if (user is null)
             {
-                throw new Exception($"Cannot find user with id: {id}");
+                return user;
             }
 
             action(user);
 
             var conflictingUser = await _dbContext.Users
-                .Where(_ => _.TelegramId == user.TelegramId && _.Id != id)
+                .Where(_ => _.TelegramId == id && _.Id != user.Id)
                 .FirstOrDefaultAsync(cancellationToken);
             if (conflictingUser != null)
             {
-                throw new Exception("User with this id is already exist");
+                Log.Error("User with this id is already exist");
+                return user;
             }
 
             await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);

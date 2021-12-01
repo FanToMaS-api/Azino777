@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using DataBase.Services;
+using DataBase.Repositories;
 
 namespace Server.GameHandlers
 {

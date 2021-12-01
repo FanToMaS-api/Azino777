@@ -1,6 +1,4 @@
-﻿using System;
-using DataBase.Entities;
-using DataBase.Models;
+﻿using DataBase.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Npgsql.NameTranslation;
@@ -12,12 +10,27 @@ namespace DataBase
     /// </summary>
     public class AppDbContext : DbContext
     {
+        #region .ctor
+
+        /// <summary>
+        ///     Инициализация контекста базы данных
+        /// </summary>
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+        { }
+
+        #endregion
+
         #region Properties
 
         /// <summary>
         ///     Пользователи бота
         /// </summary>
         public DbSet<UserEntity> Users { get; set; }
+
+        /// <summary>
+        ///     Таблица реферальных ссылок
+        /// </summary>
+        public DbSet<ReferralLinkEntity> ReferralLinks { get; set; }
 
         /// <summary>
         ///     Состояния пользователей
@@ -33,16 +46,6 @@ namespace DataBase
         ///     История игр в рулетку
         /// </summary>
         public DbSet<RouletteHistoryEntity> RouletteHistory { get; set; }
-
-        #endregion
-
-        #region .ctor
-
-        /// <summary>
-        ///     Инициализация контекста базы данных
-        /// </summary>
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
-        { }
 
         #endregion
 
@@ -62,30 +65,12 @@ namespace DataBase
                 }
             }
 
-            // Преобразование значений
-            modelBuilder.Entity<BlackjackHistoryEntity>()
-                .Property(_ => _.GameState)
-                .HasConversion(
-                    v => v.ToString(),
-                    v => (GameStateType)Enum.Parse(typeof(GameStateType), v));
-
-            modelBuilder.Entity<RouletteHistoryEntity>()
-                .Property(_ => _.GameState)
-                .HasConversion(
-                    v => v.ToString(),
-                    v => (GameStateType)Enum.Parse(typeof(GameStateType), v));
-
-            modelBuilder.Entity<UserStateEntity>()
-                .Property(_ => _.UserStateType)
-                .HasConversion(
-                    v => v.ToString(),
-                    v => (UserStateType)Enum.Parse(typeof(UserStateType), v));
-
             // Setup
             UserEntity.Setup(modelBuilder.Entity<UserEntity>());
-            UserStateEntity.Setup(modelBuilder.Entity<UserStateEntity>());
-            BlackjackHistoryEntity.Setup(modelBuilder.Entity<BlackjackHistoryEntity>());
-            RouletteHistoryEntity.Setup(modelBuilder.Entity<RouletteHistoryEntity>());
+            ReferralLinkEntity.Setup(modelBuilder.Entity<ReferralLinkEntity>());
+            UserStateEntity.SetupModelBuilder(modelBuilder);
+            BlackjackHistoryEntity.SetupModelBuilder(modelBuilder);
+            RouletteHistoryEntity.SetupModelBuilder(modelBuilder);
         }
 
         #endregion
