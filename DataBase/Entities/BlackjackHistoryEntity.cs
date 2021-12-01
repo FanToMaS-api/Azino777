@@ -1,7 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using DataBase.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace DataBase.Entities
 {
@@ -61,23 +61,30 @@ namespace DataBase.Entities
         /// <summary>
         ///     Настройка
         /// </summary>
-        public static void Setup(EntityTypeBuilder<BlackjackHistoryEntity> builder)
+        public static void SetupModelBuilder(ModelBuilder modelBuilder)
         {
             // Ключ
-            builder.HasKey(_ => _.Id);
+            modelBuilder.Entity<BlackjackHistoryEntity>().HasKey(_ => _.Id);
 
             // Связи
-            builder
+            modelBuilder.Entity<BlackjackHistoryEntity>()
                 .HasOne(_ => _.User)
                 .WithMany(_ => _.BlackjackHistory)
                 .HasForeignKey(_ => _.UserId);
 
             // Индексы
-            builder.HasIndex(_ => _.UserId).HasDatabaseName("IX_blackjack_history_user_id");
-            builder.HasIndex(_ => _.GameState).HasDatabaseName("IX_blackjack_history_state");
-            builder.HasIndex(_ => _.DialerScope).HasDatabaseName("IX_blackjack_history_dialer_scope");
-            builder.HasIndex(_ => _.UserScope).HasDatabaseName("IX_blackjack_history_user_scope");
-            builder.HasIndex(_ => _.Bid).HasDatabaseName("IX_blackjack_history_bid");
+            modelBuilder.Entity<BlackjackHistoryEntity>().HasIndex(_ => _.UserId).HasDatabaseName("IX_blackjack_history_user_id");
+            modelBuilder.Entity<BlackjackHistoryEntity>().HasIndex(_ => _.GameState).HasDatabaseName("IX_blackjack_history_state");
+            modelBuilder.Entity<BlackjackHistoryEntity>().HasIndex(_ => _.DialerScope).HasDatabaseName("IX_blackjack_history_dialer_scope");
+            modelBuilder.Entity<BlackjackHistoryEntity>().HasIndex(_ => _.UserScope).HasDatabaseName("IX_blackjack_history_user_scope");
+            modelBuilder.Entity<BlackjackHistoryEntity>().HasIndex(_ => _.Bid).HasDatabaseName("IX_blackjack_history_bid");
+
+            // конвертеры
+            modelBuilder.Entity<BlackjackHistoryEntity>()
+              .Property(_ => _.GameState)
+              .HasConversion(
+                  v => v.ToString(),
+                  v => (GameStateType)Enum.Parse(typeof(GameStateType), v));
         }
 
         #endregion

@@ -1,5 +1,5 @@
 ﻿using System;
-using DataBase.Services.Impl;
+using DataBase.Repositories.Impl;
 
 namespace DataBase
 {

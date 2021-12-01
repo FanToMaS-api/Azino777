@@ -1,5 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using DataBase.Models;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -42,6 +44,13 @@ namespace DataBase.Entities
         [Column("state_type")]
         public UserStateType UserStateType { get; set; }
 
+        /// <summary>
+        ///     Причина бана
+        /// </summary>
+        [CanBeNull]
+        [Column("ban_reason")]
+        public BanReasonType BanReason { get; set; }
+
         #endregion
 
         #region Setup
@@ -49,26 +58,36 @@ namespace DataBase.Entities
         /// <summary>
         ///     Настройка
         /// </summary>
-        public static void Setup(EntityTypeBuilder<UserStateEntity> builder)
+        public static void SetupModelBuilder(ModelBuilder modelBuilder)
         {
             // Ключ
-            builder.HasKey(_ => _.Id);
+            modelBuilder.Entity<UserStateEntity>().HasKey(_ => _.Id);
 
             // Связи
-            builder
+            modelBuilder.Entity<UserStateEntity>()
                 .HasOne(_ => _.User)
                 .WithOne(_ => _.UserState)
                 .HasForeignKey<UserStateEntity>(_ => _.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Индексы
-            builder.HasIndex(_ => _.UserId)
-                .IsUnique()
-                .HasDatabaseName("IX_users_state_user_id");
-            builder.HasIndex(_ => _.UserStateType)
-                .HasDatabaseName("IX_users_state_state_type");
-            builder.HasIndex(_ => _.Balance)
-                .HasDatabaseName("IX_users_state_balance");
+            modelBuilder.Entity<UserStateEntity>().HasIndex(_ => _.UserId).IsUnique().HasDatabaseName("IX_users_state_user_id");
+            modelBuilder.Entity<UserStateEntity>().HasIndex(_ => _.UserStateType).HasDatabaseName("IX_users_state_state_type");
+            modelBuilder.Entity<UserStateEntity>().HasIndex(_ => _.Balance).HasDatabaseName("IX_users_state_balance");
+            modelBuilder.Entity<UserStateEntity>().HasIndex(_ => _.BanReason).HasDatabaseName("IX_users_state_ban_reason");
+
+            // конвертеры
+            modelBuilder.Entity<UserStateEntity>()
+                .Property(_ => _.UserStateType)
+                .HasConversion(
+                    v => v.ToString(),
+                    v => (UserStateType)Enum.Parse(typeof(UserStateType), v));
+
+            modelBuilder.Entity<UserStateEntity>()
+                .Property(_ => _.BanReason)
+                .HasConversion(
+                    v => v.ToString(),
+                    v => (BanReasonType)Enum.Parse(typeof(BanReasonType), v));
         }
 
         #endregion

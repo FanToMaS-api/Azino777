@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -57,6 +58,13 @@ namespace DataBase.Entities
         public DateTime LastAction { get; set; }
 
         /// <summary>
+        ///     Реферальная ссылка, по которой пришел пользователь
+        /// </summary>
+        [CanBeNull]
+        [Column("referral_link")]
+        public string ReferralLink { get; set; }
+
+        /// <summary>
         ///     Св-во для навигации
         /// </summary>
         public List<BlackjackHistoryEntity> BlackjackHistory { get; set; }
@@ -71,6 +79,11 @@ namespace DataBase.Entities
         /// </summary>
         public UserStateEntity UserState { get; set; }
 
+        /// <summary>
+        ///     Собственная реферальная ссылка пользователя
+        /// </summary>
+        public ReferralLinkEntity UserReferralLink { get; set; }
+
         #endregion
 
         #region Setup
@@ -84,20 +97,13 @@ namespace DataBase.Entities
             builder.HasKey(_ => _.Id);
 
             // Индексы
-            builder.HasIndex(_ => _.Nickname)
-                .HasDatabaseName("IX_users_nickname");
-            builder.HasIndex(_ => _.TelegramId)
-                .IsUnique()
-                .HasDatabaseName("IX_users_telegram_id");
-            builder.HasIndex(_ => _.ChatId)
-                .IsUnique()
-                .HasDatabaseName("IX_users_chat_id");
-            builder.HasIndex(_ => _.FirstName)
-                .HasDatabaseName("IX_users_firstname");
-            builder.HasIndex(_ => _.LastName)
-                .HasDatabaseName("IX_users_lastname");
-            builder.HasIndex(_ => _.LastAction)
-                .HasDatabaseName("IX_users_last_action");
+            builder.HasIndex(_ => _.Nickname).HasDatabaseName("IX_users_nickname");
+            builder.HasIndex(_ => _.TelegramId).IsUnique().HasDatabaseName("IX_users_telegram_id");
+            builder.HasIndex(_ => _.ChatId).IsUnique().HasDatabaseName("IX_users_chat_id");
+            builder.HasIndex(_ => _.FirstName).HasDatabaseName("IX_users_firstname");
+            builder.HasIndex(_ => _.LastName).HasDatabaseName("IX_users_lastname");
+            builder.HasIndex(_ => _.LastAction).HasDatabaseName("IX_users_last_action");
+            builder.HasIndex(_ => _.ReferralLink).HasDatabaseName("IX_users_referral_link");
         }
 
         #endregion

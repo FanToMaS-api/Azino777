@@ -4,8 +4,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using DataBase.Entities;
 using Microsoft.EntityFrameworkCore;
+using NLog;
 
-namespace DataBase.Services.Impl
+namespace DataBase.Repositories.Impl
 {
     /// <summary>
     ///     Репозиторий состояний пользователя
@@ -13,6 +14,8 @@ namespace DataBase.Services.Impl
     internal class UserStateRepository : IUserStateRepository
     {
         #region Fields
+
+        private readonly static Logger Log = LogManager.GetCurrentClassLogger();
 
         private readonly AppDbContext _dbContext;
 
@@ -31,10 +34,7 @@ namespace DataBase.Services.Impl
         #region Public methods
 
         /// <inheritdoc />
-        public IQueryable<UserStateEntity> CreateQuery()
-        {
-            return _dbContext.UsersStates;
-        }
+        public IQueryable<UserStateEntity> CreateQuery() => _dbContext.UsersStates.AsQueryable();
 
         /// <inheritdoc />
         public async Task<UserStateEntity> GetAsync(long userId, CancellationToken cancellationToken = default)
@@ -44,7 +44,7 @@ namespace DataBase.Services.Impl
                 .FirstOrDefaultAsync(cancellationToken);
             if (userState is null)
             {
-                throw new NullReferenceException($"Cannot find state of user with id: {userId}");
+                Log.Error($"Cannot find state of user with id: {userId}");
             }
 
             return userState;
@@ -61,7 +61,8 @@ namespace DataBase.Services.Impl
                 .FirstOrDefaultAsync(cancellationToken);
             if (conflictState is not null)
             {
-                throw new Exception("Cannot add user state, because it already exists");
+                Log.Error("Cannot add user state, because it already exists");
+                return userState;
             }
 
             await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
@@ -81,17 +82,19 @@ namespace DataBase.Services.Impl
                 .FirstOrDefaultAsync(cancellationToken);
             if (userState == null)
             {
-                throw new Exception($"Cannot find userState with id: {id}");
+                Log.Error($"Cannot find userState with id: {id}");
+                return null;
             }
 
             action(userState);
 
-            var conflictingUser = await _dbContext.UsersStates
+            var conflictingState = await _dbContext.UsersStates
                 .Where(_ => _.UserId == userState.UserId && _.Id != id)
                 .FirstOrDefaultAsync(cancellationToken);
-            if (conflictingUser != null)
+            if (conflictingState != null)
             {
-                throw new Exception($"State for user with id: {userState.UserId} is already exist");
+                Log.Error("Cannot add user state, because it already exists");
+                return userState;
             }
 
             await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);

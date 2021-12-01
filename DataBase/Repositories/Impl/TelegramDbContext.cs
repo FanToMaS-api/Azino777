@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Storage;
 using NLog;
 
-namespace DataBase.Services.Impl
+namespace DataBase.Repositories.Impl
 {
     /// <summary>
     ///     Контекст базы данных
@@ -17,6 +17,8 @@ namespace DataBase.Services.Impl
         private readonly AppDbContext _dbContext;
 
         private IBlackjackHistoryRepository _blackjackHistory;
+
+        private IReferralLinkRepository _referralLinks;
 
         private IRouletteHistoryRepository _rouletteHistory;
 
@@ -41,6 +43,9 @@ namespace DataBase.Services.Impl
         #endregion
 
         #region Properties
+
+        /// <inheritdoc />
+        public IReferralLinkRepository ReferralLinks => _referralLinks ??= new ReferralLinkRepository(_dbContext);
 
         /// <inheritdoc />
         public IBlackjackHistoryRepository BlackjackHistory => _blackjackHistory ??= new BlackjackHistoryRepository(_dbContext);
