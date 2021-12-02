@@ -18,9 +18,14 @@ namespace Games.User
         public string Nickname { get; init; }
 
         /// <summary>
-        ///     ID пользователя в телеге
+        ///     ID пользователя в бд
         /// </summary>
         public long Id { get; init; }
+
+        /// <summary>
+        ///     ID пользователя в телеге
+        /// </summary>
+        public long TelegramId { get; init; }
 
         /// <summary>
         ///     ID чата пользователя

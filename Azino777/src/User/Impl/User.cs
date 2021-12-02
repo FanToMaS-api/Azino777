@@ -17,11 +17,12 @@ namespace Games.User.Impl
         #region .ctor
 
         /// <inheritdoc cref="User"/>
-        public User(IUserState state, long id, long chatId, string nickname, double balance)
+        public User(IUserState state, long id, long telegramId, long chatId, string nickname, double balance)
         {
             State = state;
             Nickname = nickname;
             Id = id;
+            TelegramId = telegramId;
             _lastAction = DateTime.Now;
             ChatId = chatId;
             state.AddBalance(balance);
@@ -39,6 +40,9 @@ namespace Games.User.Impl
 
         /// <inheritdoc />
         public long Id { get; init; }
+
+        /// <inheritdoc />
+        public long TelegramId { get; init; }
 
         /// <inheritdoc />
         public long ChatId { get; set; }
