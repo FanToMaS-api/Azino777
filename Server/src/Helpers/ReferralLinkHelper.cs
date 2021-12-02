@@ -19,14 +19,17 @@ namespace Server.Helpers
 
         private readonly ITelegramService _telegramService;
 
+        private readonly long _userId;
+
         #endregion
 
         #region .ctor
 
         /// <inheritdoc cref="ReferralLinkHelper"/>
-        public ReferralLinkHelper(ITelegramService telegramService)
+        public ReferralLinkHelper(ITelegramService telegramService, long userId)
         {
             _telegramService = telegramService;
+            _userId = userId;
             _telegramService.OnMessageReceived += OnLinkRecieved;
         }
 
@@ -40,6 +43,11 @@ namespace Server.Helpers
         private async Task OnLinkRecieved(object @object, string link, CancellationToken cancellationToken = default)
         {
             var message = (Message)@object;
+            if (_userId != message.From.Id) // если получили сообщение не от того пользователя
+            {
+                return;
+            }
+
             using var database = TelegramDbContextFactory.Create();
 
             if (await IsValidLinkAsync(database, link, cancellationToken))

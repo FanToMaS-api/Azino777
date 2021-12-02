@@ -21,7 +21,5 @@ services:
     env_file:
       - server.env
 
-
-
 volumes:
   pg_data:

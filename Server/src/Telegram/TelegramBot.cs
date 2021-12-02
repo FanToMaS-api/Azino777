@@ -96,18 +96,19 @@ namespace Server.Telegram
             {
                 // TODO: добавить баннер для защиты от спама
                 // TODO: добавить баф для пользователя чей реф ссылкой пользуются => по 1 монете за каждую выйгранную рефералом игру
-                if (!database.Users.CreateQuery().Any(_ => _.TelegramId == message.From.Id))
+                var userId = message.From.Id;
+                if (!database.Users.CreateQuery().Any(_ => _.TelegramId == userId))
                 {
                     await StartFunctionAsync(database, message, cancellationToken);
                     var user = await database.Users.CreateAsync(CreateUserEntity, cancellationToken);
 
                     await Client.SendTextMessageAsync(message.Chat, DefaultText.InputReferralLink, cancellationToken: cancellationToken);
-                    var referralLinklHelper = new ReferralLinkHelper(_telegramService);
+                    var referralLinklHelper = new ReferralLinkHelper(_telegramService, userId);
 
                     return;
                 }
 
-                if ((await database.Users.GetAsync(message.From.Id, cancellationToken)).UserState.UserStateType == UserStateType.Banned)
+                if ((await database.Users.GetAsync(userId, cancellationToken)).UserState.UserStateType == UserStateType.Banned)
                 {
                     await Client.SendTextMessageAsync(message.Chat, DefaultText.BannedAccountText, cancellationToken: cancellationToken);
                     return;
@@ -162,6 +163,7 @@ namespace Server.Telegram
         /// </summary>
         private async Task HandleUserActionAsync(ITelegramDbContext database, string text, Message message, CancellationToken cancellationToken)
         {
+            var userId = message.From.Id;
             switch (text.ToLower())
             {
                 case "/start":
@@ -171,40 +173,40 @@ namespace Server.Telegram
                     }
                 case "/command1": // Профиль пользователя
                     {
-                        var info = await GetProfileInfoAsync(database, message.From.Id, cancellationToken);
+                        var info = await GetProfileInfoAsync(database, userId, cancellationToken);
                         await Client.SendTextMessageAsync(message.Chat, info, cancellationToken: cancellationToken);
                         break;
                     }
                 case "/command2": // help
                     {
                         await Client.SendTextMessageAsync(message.Chat, DefaultText.HelpText, cancellationToken: cancellationToken);
-                        Log.Info($"Пользователь с id: {message.From.Id} обратился в поддержку");
+                        Log.Info($"Пользователь с id: {userId} обратился в поддержку");
                         break;
                     }
                 case "/command3": // пополнение средств
                     {
                         await AddCoinAsync(database, message, cancellationToken);
-                        Log.Info($"Пользователь с id: {message.From.Id} запросил пополнение средств");
+                        Log.Info($"Пользователь с id: {userId} запросил пополнение средств");
                         break;
                     }
                 case "/command4": // снятие средств
                     {
                         await Client.SendTextMessageAsync(message.Chat, DefaultText.WithdrawFunds, cancellationToken: cancellationToken);
-                        Log.Info($"Пользователь с id: {message.From.Id} запросил вывод средств");
+                        Log.Info($"Пользователь с id: {userId} запросил вывод средств");
                         break;
                     }
                 case "/command5": // 21 очко
                     {
                         var newGame = new BlackjackGameHandler(_telegramService);
                         await Client.SendTextMessageAsync(message.Chat, DefaultText.InputBid, cancellationToken: cancellationToken);
-                        var gameHelper = new GameHelper(_telegramService, newGame);
+                        var gameHelper = new GameHelper(_telegramService, newGame, userId);
                         break;
                     }
                 case "/command6": // рулетка
                     {
                         var newGame = new RouletteGameHandler(_telegramService);
                         await Client.SendTextMessageAsync(message.Chat, DefaultText.InputBid, cancellationToken: cancellationToken);
-                        var gameHelper = new GameHelper(_telegramService, newGame);
+                        var gameHelper = new GameHelper(_telegramService, newGame, userId);
                         break;
                     }
             }
