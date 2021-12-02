@@ -139,7 +139,7 @@ namespace Server.GameHandlers.Impl
                 using var database = TelegramDbContextFactory.Create();
                 try
                 {
-                    var user = await database.Users.UpdateAsync(rouletteGame.User.Id, UpdateUserEntity, token);
+                    var user = await database.Users.UpdateAsync(rouletteGame.User.TelegramId, UpdateUserEntity, token);
                     await database.RouletteHistory.UpdateAsync(user.Id, UpdateRecord, token);
                 }
                 catch (Exception ex)

@@ -17,7 +17,6 @@ bin/
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
-
 # Node artifact files
 node_modules/
 dist/

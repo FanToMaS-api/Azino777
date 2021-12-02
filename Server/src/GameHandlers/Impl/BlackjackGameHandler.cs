@@ -141,7 +141,7 @@ namespace Server.GameHandlers.Impl
 
                 try
                 {
-                    var user = await database.Users.UpdateAsync(blackjackGame.User.Id, UpdateUserEntity, token);
+                    var user = await database.Users.UpdateAsync(blackjackGame.User.TelegramId, UpdateUserEntity, token);
                     await database.BlackjackHistory.UpdateAsync(user.Id, UpdateRecord, token);
                 }
                 catch (Exception ex)

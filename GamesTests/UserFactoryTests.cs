@@ -12,7 +12,7 @@ namespace GamesTests
             var nickname = "FanToMas";
             var balance = 50.2;
             var chatId = 12314;
-            var user = UserFactory.CreateUser(id, chatId, nickname, balance);
+            var user = UserFactory.CreateUser(id, id, chatId, nickname, balance);
 
             Assert.Equal(id, user.Id);
             Assert.Equal(nickname, user.Nickname);
