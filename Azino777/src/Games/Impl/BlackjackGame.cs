@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Games.DefaultTexts;
 using Games.Services;
 using Games.User;
+using Telegram.Bot.Types;
 
 namespace Games.Games.Impl
 {
@@ -226,6 +227,11 @@ namespace Games.Games.Impl
         /// </summary>
         private async Task OnMessageReceived(object sender, string message, CancellationToken token = default)
         {
+            if (_user.TelegramId != (sender as Message).From.Id)
+            {
+                return;
+            }
+
             if (InputValidator.CheckInput(message))
             {
                 await LogicAsync("unused_input_text", token);
