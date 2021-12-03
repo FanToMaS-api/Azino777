@@ -24,10 +24,10 @@ namespace Games.Games.Impl
         #region .ctor
 
         /// <inheritdoc cref="BlackjackGame"/>
-        public BlackjackGame(IUser user, ITelegramService telegramService)
+        public BlackjackGame(IUser user, IMessageService telegramService)
         {
             _user = user;
-            TelegramService = telegramService;
+            MessageService = telegramService;
             _random = new();
         }
 
@@ -36,7 +36,7 @@ namespace Games.Games.Impl
         #region Properties
 
         /// <inheritdoc />
-        public ITelegramService TelegramService { get; }
+        public IMessageService MessageService { get; }
 
         /// <inheritdoc />
         public event Func<IGame, EventArgs, CancellationToken, Task> OnGameUpdated;
@@ -89,13 +89,13 @@ namespace Games.Games.Impl
         public async Task StartGameAsync(double bid, CancellationToken token = default)
         {
             Bid = bid;
-            TelegramService.OnMessageReceived += OnMessageReceived;
-            await TelegramService.PrintAsync(ToString(), _user.ChatId, token);
+            MessageService.OnMessageReceived += OnMessageReceived;
+            await MessageService.SendAsync(ToString(), _user.ChatId, token);
 
             if (_user.GetBalance() - bid < 0)
             {
-                await TelegramService.PrintAsync(BlackjackDefaultText.EndOfMoneyText, _user.ChatId, token);
-                TelegramService.OnMessageReceived -= OnMessageReceived;
+                await MessageService.SendAsync(BlackjackDefaultText.EndOfMoneyText, _user.ChatId, token);
+                MessageService.OnMessageReceived -= OnMessageReceived;
                 OnGameEnded?.Invoke(this, EventArgs.Empty, token);
 
                 return;
@@ -104,7 +104,7 @@ namespace Games.Games.Impl
             SetFirstCardDeal();
             if (DialerScope == 21)
             {
-                await TelegramService.PrintAsync(GetInformation(), _user.ChatId, token);
+                await MessageService.SendAsync(GetInformation(), _user.ChatId, token);
 
                 _user.AddBalance(await EndGameAsync(token));
                 OnGameEnded?.Invoke(this, EventArgs.Empty, token);
@@ -112,8 +112,8 @@ namespace Games.Games.Impl
                 return;
             }
 
-            await TelegramService.PrintAsync(GetInformation(), _user.ChatId, token);
-            await TelegramService.PrintAsync(BlackjackDefaultText.IsNeededNewCardText, _user.ChatId, token);
+            await MessageService.SendAsync(GetInformation(), _user.ChatId, token);
+            await MessageService.SendAsync(BlackjackDefaultText.IsNeededNewCardText, _user.ChatId, token);
         }
 
         /// <inheritdoc />
@@ -127,7 +127,7 @@ namespace Games.Games.Impl
             if (userNum < 11)
             {
                 UserScope += userNum;
-                await TelegramService.PrintAsync($"Выпало {userNum} {GetRightDeclension(userNum)}", _user.ChatId, token);
+                await MessageService.SendAsync($"Выпало {userNum} {GetRightDeclension(userNum)}", _user.ChatId, token);
             }
             else if (userNum == 11)
             {
@@ -135,19 +135,19 @@ namespace Games.Games.Impl
                 if (UserScope + DialerScope > 21)
                 {
                     UserScope += 1;
-                    await TelegramService.PrintAsync($"Выпало 1 очко", _user.ChatId, token);
+                    await MessageService.SendAsync($"Выпало 1 очко", _user.ChatId, token);
                 }
                 else
                 {
                     UserScope += 11;
-                    await TelegramService.PrintAsync("Выпало 11 очков", _user.ChatId, token);
+                    await MessageService.SendAsync("Выпало 11 очков", _user.ChatId, token);
                 }
             }
             else
             {
                 userNum = _random.Next(8, 10);
                 UserScope += userNum;
-                await TelegramService.PrintAsync($"Выпало {userNum} {GetRightDeclension(userNum)}", _user.ChatId, token);
+                await MessageService.SendAsync($"Выпало {userNum} {GetRightDeclension(userNum)}", _user.ChatId, token);
             }
 
             DialerScope += dealerNum;
@@ -163,12 +163,12 @@ namespace Games.Games.Impl
         /// <inheritdoc />
         public async Task<double> EndGameAsync(CancellationToken token)
         {
-            TelegramService.OnMessageReceived -= OnMessageReceived;
+            MessageService.OnMessageReceived -= OnMessageReceived;
 
             if (UserScope > 21)
             {
                 DialerScope = new Random().Next(16, 22);
-                await TelegramService.PrintAsync($"К сожалению, у дилера {DialerScope} {GetRightDeclension(DialerScope)}.\n" +
+                await MessageService.SendAsync($"К сожалению, у дилера {DialerScope} {GetRightDeclension(DialerScope)}.\n" +
                     "Но не стоит расстраиваться, в следующий раз обязательно повезет!", _user.ChatId, token);
 
                 return -Bid;
@@ -176,13 +176,13 @@ namespace Games.Games.Impl
             else if (DialerScope > 21 && UserScope <= 21)
             {
                 var prize = Math.Ceiling(Bid / 2);
-                await TelegramService.PrintAsync($"Отличная игра! Твой выйгрыш {prize}", _user.ChatId, token);
+                await MessageService.SendAsync($"Отличная игра! Твой выйгрыш {prize}", _user.ChatId, token);
 
                 return prize;
             }
             else if (DialerScope > UserScope)
             {
-                await TelegramService.PrintAsync($"К сожалению, очков у дилера {DialerScope} {GetRightDeclension(DialerScope)}.\n" +
+                await MessageService.SendAsync($"К сожалению, очков у дилера {DialerScope} {GetRightDeclension(DialerScope)}.\n" +
                     "Но не стоит расстраиваться, в следующий раз обязательно повезет!", _user.ChatId, token);
 
                 return -Bid;
@@ -190,14 +190,14 @@ namespace Games.Games.Impl
             else if (UserScope > DialerScope)
             {
                 var prize = Math.Ceiling(Bid / 2);
-                await TelegramService.PrintAsync($"Отличная игра! У дилера {DialerScope} {GetRightDeclension(DialerScope)}.\n" +
+                await MessageService.SendAsync($"Отличная игра! У дилера {DialerScope} {GetRightDeclension(DialerScope)}.\n" +
                     $"Твой выйгрыш {prize}", _user.ChatId, token);
 
                 return prize;
             }
             else
             {
-                await TelegramService.PrintAsync(BlackjackDefaultText.EqualScoreText, _user.ChatId, token);
+                await MessageService.SendAsync(BlackjackDefaultText.EqualScoreText, _user.ChatId, token);
                 await StartGameAsync(Bid, token);
             }
 
@@ -235,7 +235,7 @@ namespace Games.Games.Impl
             if (InputValidator.CheckInput(message))
             {
                 await LogicAsync("unused_input_text", token);
-                await TelegramService.PrintAsync(GetInformation(), _user.ChatId, token);
+                await MessageService.SendAsync(GetInformation(), _user.ChatId, token);
 
                 if (IsGameOver())
                 {
@@ -244,7 +244,7 @@ namespace Games.Games.Impl
 
                     return;
                 }
-                await TelegramService.PrintAsync(BlackjackDefaultText.IsNeededNewCardText, _user.ChatId, token);
+                await MessageService.SendAsync(BlackjackDefaultText.IsNeededNewCardText, _user.ChatId, token);
                 OnGameUpdated?.Invoke(this, EventArgs.Empty, token);
             }
             else

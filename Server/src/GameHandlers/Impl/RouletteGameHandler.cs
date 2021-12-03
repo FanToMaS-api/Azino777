@@ -23,14 +23,14 @@ namespace Server.GameHandlers.Impl
 
         private readonly static Logger _logger = LogManager.GetCurrentClassLogger();
 
-        private readonly ITelegramService _telegramService;
+        private readonly IMessageService _telegramService;
 
         #endregion
 
         #region .ctor
 
         /// <inheritdoc cref="RouletteGameHandler"/>
-        public RouletteGameHandler(ITelegramService telegramService)
+        public RouletteGameHandler(IMessageService telegramService)
         {
             _telegramService = telegramService;
         }

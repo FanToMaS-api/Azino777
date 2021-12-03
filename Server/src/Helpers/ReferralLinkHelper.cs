@@ -1,9 +1,7 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using DataBase;
 using DataBase.Entities;
-using DataBase.Models;
 using DataBase.Repositories;
 using Games.Services;
 using Telegram.Bot.Types;
@@ -17,7 +15,7 @@ namespace Server.Helpers
     {
         #region Fields
 
-        private readonly ITelegramService _telegramService;
+        private readonly IMessageService _messageService;
 
         private readonly long _userId;
 
@@ -26,11 +24,11 @@ namespace Server.Helpers
         #region .ctor
 
         /// <inheritdoc cref="ReferralLinkHelper"/>
-        public ReferralLinkHelper(ITelegramService telegramService, long userId)
+        public ReferralLinkHelper(IMessageService messageService, long userId)
         {
-            _telegramService = telegramService;
+            _messageService = messageService;
             _userId = userId;
-            _telegramService.OnMessageReceived += OnLinkRecieved;
+            _messageService.OnMessageReceived += OnLinkRecieved;
         }
 
         #endregion
@@ -55,7 +53,7 @@ namespace Server.Helpers
                 await database.Users.UpdateAsync(message.From.Id, UpdateUserEntity, cancellationToken);
             }
 
-            _telegramService.OnMessageReceived -= OnLinkRecieved;
+            _messageService.OnMessageReceived -= OnLinkRecieved;
 
             void UpdateUserEntity(UserEntity user)
             {

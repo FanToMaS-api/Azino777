@@ -13,7 +13,7 @@ namespace DataBase
         {
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
             optionsBuilder.UseNpgsql(
-                "Host=postgres;Port=5432;Database=Azino;Username=postgres;Password=0000"
+                "Host=localhost;Port=5432;Database=Azino;Username=postgres;Password=0000"
                 );
 
             return new AppDbContext(optionsBuilder.Options);

@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Telegram.Bot.Types;
 
 namespace Games.Services
 {
     /// <summary>
-    ///     Базовый класс для вывода текстовых сообщений
+    ///     Базовый интерфейс для вывода текстовых сообщений
     /// </summary>
-    public interface ITelegramService
+    public interface IMessageService
     {
         #region Properties
 
@@ -23,7 +24,12 @@ namespace Games.Services
         /// <summary>
         ///     Выводит сообщение
         /// </summary>
-        public Task PrintAsync(string message, long chatId, CancellationToken token);
+        Task SendAsync(string message, long chatId, CancellationToken token);
+
+        /// <summary>
+        ///     Обработчик событий обновлений чата
+        /// </summary>
+        Task HandleUpdateAsync(Message message, string text, CancellationToken cancellationToken);
 
         #endregion
     }
