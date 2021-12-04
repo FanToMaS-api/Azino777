@@ -46,8 +46,13 @@ namespace Games.Services
         }
 
         /// <inheritdoc />
-        public async Task HandleUpdateAsync(Message message, string text, CancellationToken cancellationToken) =>
-            await OnMessageReceived?.Invoke(message, message.Text, cancellationToken);
+        public async Task HandleUpdateAsync(Message message, string text, CancellationToken cancellationToken)
+        {
+            if (OnMessageReceived != null)
+            {
+                await OnMessageReceived?.Invoke(message, message.Text, cancellationToken);
+            }
+        }
 
         #endregion
     }
