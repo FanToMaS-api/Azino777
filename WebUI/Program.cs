@@ -1,6 +1,7 @@
 using System;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using NLog;
 using NLog.Web;
 
@@ -8,18 +9,23 @@ namespace WebUI
 {
     public class Program
     {
+        #region Fields
+
+        private static NLog.Logger Log;
+
+        #endregion
+
         public static void Main(string[] args)
         {
-            var logger = LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
+            Log = LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
 
             try
             {
                 CreateHostBuilder(args).Build().Run();
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                logger.Error(exception, "Stopped program because of exception");
-                throw;
+                Log.Fatal(ex, "Application startup has failed");
             }
             finally
             {
@@ -32,6 +38,7 @@ namespace WebUI
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                });
+
+                }).UseNLog();
     }
 }

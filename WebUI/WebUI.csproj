@@ -16,4 +16,8 @@
     <ProjectReference Include="..\Server\Server.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Components\" />
+  </ItemGroup>
+
 </Project>
