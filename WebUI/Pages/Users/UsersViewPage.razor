@@ -1,0 +1,55 @@
+﻿@page "/users"
+@using DataBase.Entities
+
+<div class="container p-3">
+    <div class="row pt-4">
+        <div class="col-6">
+            <h2 class="text-primary">Пользователи бота</h2>
+        </div>
+    </div>
+
+    <br /><br />
+
+    @{
+        if (@_users.Any())
+        {
+            <table class="table table-bordered table-striped text-sm-center" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Index</th>
+                        <th>Телеграмм ID</th>
+                        <th>Чат ID</th>
+                        <th>Имя</th>
+                        <th>Фамилия</th>
+                        <th>Ник</th>
+                        <th>Последнее действие</th>
+                        <th>Реферальная сслыка</th>
+                        <th>Своя реферальная сслыка</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (var i = 0; i < @_users.Count; i++)
+                    {
+                        <tr>
+                            <td>@(i+1)</td>
+                            <td>@_users[i].TelegramId</td>
+                            <td>@_users[i].ChatId</td>
+                            <td>@_users[i].FirstName</td>
+                            <td>@_users[i].LastName</td>
+                            <td>@_users[i].Nickname</td>
+                            <td>@_users[i].LastAction.ToString("F")</td>
+                            <td>@_users[i].ReferralLink</td>
+                            <td>@_users[i].UserReferralLink?.ReferralLink</td>
+                            <td></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p> No user exists </p>
+        }
+    }
+</div>

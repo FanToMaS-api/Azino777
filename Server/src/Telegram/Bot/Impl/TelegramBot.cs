@@ -42,13 +42,6 @@ namespace Server.Telegram.Bot.Impl
 
         #endregion
 
-        #region Properties
-
-        /// <inheritdoc />
-        public event Func<object, string, CancellationToken, Task> OnMessageReceived;
-
-        #endregion
-
         #region Public methods
 
         /// <inheritdoc />
