@@ -7,11 +7,9 @@ using DataBase.Entities;
 using DataBase.Models;
 using DataBase.Repositories;
 using Games.Services;
-using Microsoft.EntityFrameworkCore;
 using NLog;
 using Server.GameHandlers.Impl;
 using Server.Helpers;
-using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 

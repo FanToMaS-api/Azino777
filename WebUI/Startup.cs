@@ -1,8 +1,11 @@
+using System;
+using DataBase;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Server.Telegram.Impl;
 using Server.Telegram.Service;
 using WebUI.Data;
 
@@ -24,11 +27,12 @@ namespace WebUI
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddSingleton<WeatherForecastService>();
-            services.AddSingleton<ITelegramService>();
+            services.AddTelegramService(Configuration);
+            services.UsePostgresDatabase(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
         {
             if (env.IsDevelopment())
             {
@@ -51,6 +55,9 @@ namespace WebUI
                 endpoints.MapBlazorHub();
                 endpoints.MapFallbackToPage("/_Host");
             });
+
+            serviceProvider.ApplyMigrations();
+            serviceProvider.InitializeTelegramService();
         }
     }
 }

@@ -2,9 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using DataBase;
 using Games.Services;
-using Microsoft.EntityFrameworkCore;
 using NLog;
 using Server.Telegram.Bot;
 using Server.Telegram.Bot.Impl;
@@ -19,7 +17,7 @@ namespace Server.Telegram.Impl
     /// <summary>
     ///     Сервис управляющий работой бота
     /// </summary>
-    internal class TelegramService : ITelegramService
+    public class TelegramService : ITelegramService
     {
         #region Fields
 
@@ -45,6 +43,7 @@ namespace Server.Telegram.Impl
         public TelegramService(string token)
         {
             _token = token;
+            _client = new TelegramBotClient(_token);
         }
 
         #endregion
@@ -64,14 +63,10 @@ namespace Server.Telegram.Impl
         public void Initialize()
         {
             _cancellationTokenSource = new CancellationTokenSource();
-            _client = new TelegramBotClient(_token);
             _messageService = new MessageService(_client);
-
             _bot = new TelegramBot(_messageService);
             OnMessageReceived += _bot.HandleUpdateAsync;
             OnMessageReceived += _messageService.HandleUpdateAsync;
-
-            ApplyMigrations();
 
             var receiverOptions = new ReceiverOptions
             {
@@ -118,24 +113,6 @@ namespace Server.Telegram.Impl
             Dispose();
             Initialize();
             await StartAsync();
-        }
-
-        #endregion
-
-        #region Private methods
-
-        /// <summary>
-        ///     Применяет миграции
-        /// </summary>
-        private static void ApplyMigrations()
-        {
-            Log.Info("Applying database migrations...");
-
-            using var database = new AppDbContextFactory().CreateDbContext(Array.Empty<string>());
-
-            database.Database.Migrate();
-
-            Log.Info("Database migrations successfully applied");
         }
 
         #endregion
