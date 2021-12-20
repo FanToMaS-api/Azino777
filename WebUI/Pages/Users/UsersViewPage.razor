@@ -23,8 +23,8 @@
                         <th>Фамилия</th>
                         <th>Ник</th>
                         <th>Последнее действие</th>
-                        <th>Реферальная сслыка</th>
-                        <th>Своя реферальная сслыка</th>
+                        <th>Реферальная ссылка</th>
+                        <th>Состояние</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -40,8 +40,16 @@
                             <td>@_users[i].Nickname</td>
                             <td>@_users[i].LastAction.ToString("F")</td>
                             <td>@_users[i].ReferralLink</td>
-                            <td>@_users[i].UserReferralLink?.ReferralLink</td>
-                            <td></td>
+                            <td>
+                                <a class="btn btn-sm bg-success mt-2 text-white" @onclick="@(async () => await ShowEditUserStateModalAsync(_users[i - 1].UserState))">
+                                    <i class="fa fa-sm fa-fw fa-eye" />
+                                </a>
+                            </td>
+                            <td>
+                                <a class="btn btn-sm bg-danger mt-2 text-white" @onclick="@(async () => await DeleteUserAsync(_users[i - 1]))">
+                                    <i class="fa fa-sm fa-fw fa-trash" />
+                                </a>
+                            </td>
                         </tr>
                     }
                 </tbody>
@@ -53,3 +61,4 @@
         }
     }
 </div>
+<EditUserStateModal @ref="@_editUserStateModal" />

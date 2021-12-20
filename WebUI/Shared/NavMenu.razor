@@ -1,37 +1,6 @@
-﻿<div class="top-row pl-4 navbar navbar-dark">
-    <a class="navbar-brand" href="">WebUI</a>
-    <button class="navbar-toggler" @onclick="ToggleNavMenu">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-</div>
-
-<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
-    <ul class="nav flex-column">
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Home
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="users">
-                <span class="oi fa fa-users" aria-hidden="true"></span> Пользователи
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="fetchdata">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
-            </NavLink>
-        </li>
-    </ul>
-</div>
-
-@code {
-    private bool collapseNavMenu = true;
-
-    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-
-    private void ToggleNavMenu()
-    {
-        collapseNavMenu = !collapseNavMenu;
-    }
-}
+﻿<SidebarNavigation Class="mr-5 mt-4" Style="list-style-type: none;">
+    <SidebarLabel class="text-white-50 mb-2">Навигация</SidebarLabel>
+    <SidebarLink To="/users" Class="nav-item text-white">
+        <i class="fa fa-sm fa-fw mr-2 fa-users" aria-hidden="true"></i>Пользователи
+    </SidebarLink>
+</SidebarNavigation>

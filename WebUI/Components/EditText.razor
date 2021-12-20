@@ -1,0 +1,80 @@
+﻿@using System.Diagnostics.CodeAnalysis
+@inherits InputBase<string>
+@code {
+
+    /// <summary>
+    ///     Название элемента
+    /// </summary>
+    [Parameter]
+    public string Name { get; set; }
+
+    /// <summary>
+    ///     Использовать обертку
+    /// </summary>
+    [Parameter]
+    public bool UseWrapper { get; set; } = true;
+
+    /// <summary>
+    ///     Подсказка к элементу
+    /// </summary>
+    [Parameter]
+    public string Help { get; set; }
+
+    /// <summary>
+    ///     Подсказка к элементу
+    /// </summary>
+    [Parameter]
+    public bool WrapText { get; set; } = false;
+
+    private string _value;
+
+    /// <summary>
+    ///     Св-во, через которое происходит обработка текстового поля
+    /// </summary>
+    public string ValueStr
+    {
+        get => _value;
+        set => SetValue(value).Wait();
+    }
+
+    /// <summary>
+    ///     Перегрузка метода инициализации
+    /// </summary>
+    protected override Task OnInitializedAsync()
+    {
+        ValueStr = Value;
+        return base.OnInitializedAsync();
+    }
+
+    /// <summary>
+    ///     Устанавливает значение
+    /// </summary>
+    private async Task SetValue(string value)
+    {
+        _value = value;
+        Value = value;
+        await ValueChanged.InvokeAsync(ValueStr);
+    }
+
+    protected override bool TryParseValueFromString(string value, [MaybeNullWhen(false)] out string result, [NotNullWhen(false)] out string validationErrorMessage)
+    {
+        result = value;
+        validationErrorMessage = null;
+        return true;
+    }
+
+    // TODO: Подумать над общим контекстом редактирования данных
+}
+
+@{
+    var errors = EditContext.GetValidationMessages(FieldIdentifier).ToArray();
+    var isInvalid = errors.Any();
+}
+
+<div class="form-group row @(isInvalid ? " invalid" : "")">
+    <div class="form-inline">
+        <label for="@Name" class="form-label">@Name</label>
+        <input type="text" class="form-control small @(WrapText? "text-wrap" : "text-nowrap") @(isInvalid ? "is-invalid" : "")" aria-describedby="Help">
+        <div id="Help" class="form-text">@Help</div>
+    </div>
+</div>

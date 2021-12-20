@@ -1,12 +1,15 @@
 using System;
+using Blazorise;
+using Blazorise.Bootstrap;
+using Blazorise.Icons.FontAwesome;
 using DataBase;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Server.Telegram.Service;
-using WebUI.Data;
 
 namespace WebUI
 {
@@ -24,8 +27,23 @@ namespace WebUI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorPages();
-            services.AddServerSideBlazor();
-            services.AddSingleton<WeatherForecastService>();
+
+            // configure Blazorise
+            var blazor = services.AddServerSideBlazor();
+            blazor.AddCircuitOptions(o => o.DetailedErrors = true);
+            blazor.AddHubOptions(o => o.MaximumReceiveMessageSize = 10 * 1024 * 1024 /* 10 Mb */);
+
+            services.Configure<RazorPagesOptions>(options => options.RootDirectory = "/Pages");
+
+            services.AddBlazorise(
+                    options =>
+                    {
+                        options.ChangeTextOnKeyPress = true;
+                    }
+                )
+                .AddBootstrapProviders()
+                .AddFontAwesomeIcons();
+
             services.UsePostgresDatabase(Configuration);
             services.AddTelegramService(Configuration);
         }

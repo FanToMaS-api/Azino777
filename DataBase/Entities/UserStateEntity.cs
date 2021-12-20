@@ -81,13 +81,13 @@ namespace DataBase.Entities
                 .Property(_ => _.UserStateType)
                 .HasConversion(
                     v => v.ToString(),
-                    v => (UserStateType)Enum.Parse(typeof(UserStateType), v));
+                    v => string.IsNullOrEmpty(v) ? UserStateType.Banned : (UserStateType)Enum.Parse(typeof(UserStateType), v));
 
             modelBuilder.Entity<UserStateEntity>()
                 .Property(_ => _.BanReason)
                 .HasConversion(
                     v => v.ToString(),
-                    v => (BanReasonType)Enum.Parse(typeof(BanReasonType), v));
+                    v => string.IsNullOrEmpty(v) ? BanReasonType.Common : (BanReasonType)Enum.Parse(typeof(BanReasonType), v));
         }
 
         #endregion

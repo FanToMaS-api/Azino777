@@ -11,7 +11,7 @@ namespace WebUI
     {
         #region Fields
 
-        private static NLog.Logger Log;
+        private static Logger Log;
 
         #endregion
 
