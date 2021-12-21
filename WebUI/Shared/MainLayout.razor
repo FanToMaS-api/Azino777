@@ -1,0 +1,21 @@
+﻿@inherits LayoutComponentBase
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <div class="main">
+        <div class="top-row">
+            <div class="btn-group pt-2 align-text-right group">
+                <input type="button" class="btn w-100 btn-outline-success" @onclick="@(async () => await StartAsync())" value="Запустить">
+                <input type="button" class="btn w-100 btn-outline-warning" @onclick="@Stop" value="Остановить">
+                <input type="button" class="btn w-100 btn-outline-danger" @onclick="@(async () => await RestartAsync())" value="Рестарт">
+            </div>
+        </div>
+
+        <div class="content px-4">
+            @Body
+        </div>
+    </div>
+</div>

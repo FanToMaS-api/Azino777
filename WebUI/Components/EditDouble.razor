@@ -1,0 +1,62 @@
+﻿@inherits InputBase<double>
+
+@code {
+
+    /// <summary>
+    ///     Имя параметра
+    /// </summary>
+    [Parameter]
+    public string Name { get; set; }
+
+    private string _value;
+
+    /// <summary>
+    ///     Значение параметра
+    /// </summary>
+    [Parameter]
+    public string ValueStr
+    {
+        get => _value;
+        set => SetValue(value);
+    }
+
+    protected override void OnInitialized()
+    {
+        ValueStr = Value.ToString();
+        base.OnInitialized();
+    }
+
+    /// <summary>
+    ///     Устанавливает значение
+    /// </summary>
+    public void SetValue(string value)
+    {
+        if (double.TryParse(value, out var res))
+        {
+            _value = value;
+            Value = res;
+            ValueChanged.InvokeAsync(Value);
+        }
+    }
+
+    protected override bool TryParseValueFromString(string value, out double result, out string validationErrorMessage)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+@{
+    var errors = EditContext.GetValidationMessages(FieldIdentifier).ToArray();
+    var isInvalid = errors.Any();
+}
+
+<div class="container-fluid @(isInvalid ? " invalid" : "")">
+    <div class="row mr-1 mt-1">
+        <div class="col">
+            <input type="button" disabled class="btn btn-light text-nowrap text-black font-weight-bold" value="@Name:" readonly>
+        </div>
+        <div class="col">
+            <input type="text" class="form-control form-control-sm text-nowrap" @bind-value="@ValueStr">
+        </div>
+    </div>
+</div>

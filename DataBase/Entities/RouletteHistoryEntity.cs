@@ -71,7 +71,7 @@ namespace DataBase.Entities
                .Property(_ => _.GameState)
                .HasConversion(
                    v => v.ToString(),
-                   v => (GameStateType)Enum.Parse(typeof(GameStateType), v));
+                   v => string.IsNullOrEmpty(v) ? GameStateType.IsOver : (GameStateType)Enum.Parse(typeof(GameStateType), v));
         }
 
         #endregion

@@ -1,0 +1,19 @@
+﻿@using WebUI.Helpers
+<Modal @ref="@_modalRef">
+    <ModalContent>
+        <ModalHeader>
+            <h4 class="modal-title">Состояние пользователя</h4>
+            <CloseButton Class="btn-sm" Clicked=@(() => Close()) />
+        </ModalHeader>
+        <ModalBody>
+            <Field>
+                <TextView Name="Баланс" Value="@_model.Balance.ToString()" />
+                <TextView Name="Состояние" Value="@_model.UserStateType.Display()" />
+                <TextView Name="Причина бана" Value="@_model.BanReason.Display()" />
+            </Field>
+        </ModalBody>
+        <ModalFooter>
+            <button type="button" class="btn width-100 btn-outline-secondary" @onclick="@Close">Выход</button>
+        </ModalFooter>
+    </ModalContent>
+</Modal>

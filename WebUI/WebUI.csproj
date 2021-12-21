@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <UserSecretsId>a02eb0aa-c5b2-45ab-8cc6-b3beb3d605a7</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
+    <PackageReference Include="Blazorise" Version="0.9.5.3" />
+    <PackageReference Include="Blazorise.Bootstrap" Version="0.9.5.3" />
+    <PackageReference Include="Blazorise.Components" Version="0.9.5.3" />
+    <PackageReference Include="Blazorise.Icons.FontAwesome" Version="0.9.5.3" />
+    <PackageReference Include="Blazorise.Icons.Material" Version="0.9.5.3" />
+    <PackageReference Include="Blazorise.Sidebar" Version="0.9.5.3" />
+    <PackageReference Include="Blazorise.Snackbar" Version="0.9.5.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="5.0.13" />
+    <PackageReference Include="Microsoft.AspNetCore.Razor.Runtime" Version="2.2.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.14.0" />
+    <PackageReference Include="NLog.Web.AspNetCore" Version="4.14.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DataBase\DataBase.csproj" />
+    <ProjectReference Include="..\Server\Server.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\lib\" />
+  </ItemGroup>
+
+</Project>

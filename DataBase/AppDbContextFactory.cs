@@ -12,9 +12,7 @@ namespace DataBase
         public AppDbContext CreateDbContext(string[] args)
         {
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
-            optionsBuilder.UseNpgsql(
-                "Host=postgres;Port=5432;Database=Azino;Username=postgres;Password=0000"
-                );
+            optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=Azino;Username=postgres;Password=0000");
 
             return new AppDbContext(optionsBuilder.Options);
         }

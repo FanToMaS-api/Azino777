@@ -17,6 +17,11 @@ namespace DataBase.Repositories
         IQueryable<UserEntity> CreateQuery();
 
         /// <summary>
+        ///     Удалить пользователя
+        /// </summary>
+        void Remove(UserEntity entity);
+
+        /// <summary>
         ///     Получить пользователя по его id
         /// </summary>
         Task<UserEntity> GetAsync(long id, CancellationToken cancellationToken = default);

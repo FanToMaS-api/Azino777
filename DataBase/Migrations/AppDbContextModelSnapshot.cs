@@ -208,7 +208,6 @@ namespace DataBase.Migrations
                         .HasColumnName("balance");
 
                     b.Property<string>("BanReason")
-                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("ban_reason");
 

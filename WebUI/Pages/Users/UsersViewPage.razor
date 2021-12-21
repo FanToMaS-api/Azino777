@@ -1,0 +1,69 @@
+﻿@page "/users"
+@using DataBase.Entities
+
+<div class="container p-3">
+    <div class="row pt-4">
+        <div class="col-6">
+            <h2 class="text-primary">Пользователи бота</h2>
+        </div>
+    </div>
+
+    <br /><br />
+
+    @{
+        if (@_users.Any())
+        {
+            <table class="table table-bordered table-striped text-sm-center" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Index</th>
+                        <th>Телеграмм ID</th>
+                        <th>Чат ID</th>
+                        <th>Имя</th>
+                        <th>Фамилия</th>
+                        <th>Ник</th>
+                        <th>Последнее действие</th>
+                        <th>Реферальная ссылка</th>
+                        <th>Состояние</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (var i = 0; i < @_users.Count; i++)
+                    {
+                        var user = _users[i];
+                        <tr>
+                            <td>@(i+1)</td>
+                            <td>@user.TelegramId</td>
+                            <td>@user.ChatId</td>
+                            <td>@user.FirstName</td>
+                            <td>@user.LastName</td>
+                            <td>@user.Nickname</td>
+                            <td>@user.LastAction.ToString("F")</td>
+                            <td>@user.ReferralLink</td>
+                            <td>
+                                <a class="btn btn-sm bg-success mt-2 text-white" @onclick="@(() => ShowUserStateViewModal(user.UserState))">
+                                    <i class="fa fa-sm fa-fw fa-eye" />
+                                </a>
+                            </td>
+                            <td>
+                                <a class="btn btn-sm btn-primary mt-2 text-white" @onclick="@(() => Edit(user.UserState))">
+                                    <i class="fa fa-sm fa-fw fa-user-edit" />
+                                </a>
+                                <a class="btn btn-sm btn-danger mt-2 text-white" @onclick="@(async () => await DeleteUserAsync(user))">
+                                    <i class="fa fa-sm fa-fw fa-trash" />
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p> No user exists </p>
+        }
+    }
+</div>
+<UserStateViewModal @ref="@_userStateViewModal" />
+<EditUserStateModal @ref="_editUserStateModal" />

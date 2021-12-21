@@ -1,0 +1,25 @@
+﻿@code {
+
+    /// <summary>
+    ///     Имя параметра
+    /// </summary>
+    [Parameter]
+    public string Name { get; set; }
+
+    /// <summary>
+    ///     Значение параметра
+    /// </summary>
+    [Parameter]
+    public string Value { get; set; }
+}
+
+<div class="container-fluid">
+    <div class="row mr-1 mt-1">
+        <div class="col">
+            <input type="button" disabled class="btn btn-light text-nowrap text-black font-weight-bold" value="@Name:" readonly>
+        </div>
+        <div class="col">
+            <input type="text" class="form-control form-control-sm text-nowrap" value="@Value" readonly>
+        </div>
+    </div>
+</div>

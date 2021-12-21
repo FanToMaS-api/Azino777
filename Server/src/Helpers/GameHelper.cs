@@ -14,7 +14,7 @@ namespace Server.Helpers
     {
         #region Fields
 
-        private readonly ITelegramService _telegramService;
+        private readonly IMessageService _messageService;
 
         private readonly IGameHandler _gameHandler;
 
@@ -25,12 +25,12 @@ namespace Server.Helpers
         #region .ctor
 
         /// <inheritdoc cref="GameHelper"/>
-        public GameHelper(ITelegramService telegramService, IGameHandler gameHandler, long userId)
+        public GameHelper(IMessageService messageService, IGameHandler gameHandler, long userId)
         {
-            _telegramService = telegramService;
+            _messageService = messageService;
             _gameHandler = gameHandler;
             _userId = userId;
-            _telegramService.OnMessageReceived += OnBidRecieved;
+            _messageService.OnMessageReceived += OnBidRecieved;
         }
 
         #endregion
@@ -55,10 +55,10 @@ namespace Server.Helpers
             }
             else
             {
-                await _telegramService.PrintAsync(DefaultText.ErrorInputBid, message.Chat.Id, cancellationToken);
+                await _messageService.SendAsync(DefaultText.ErrorInputBid, message.Chat.Id, cancellationToken);
             }
 
-            _telegramService.OnMessageReceived -= OnBidRecieved;
+            _messageService.OnMessageReceived -= OnBidRecieved;
         }
 
         #endregion

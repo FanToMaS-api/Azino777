@@ -23,14 +23,14 @@ namespace Server.GameHandlers.Impl
 
         private readonly static Logger _logger = LogManager.GetCurrentClassLogger();
 
-        private readonly ITelegramService _telegramService;
+        private readonly IMessageService _telegramService;
 
         #endregion
 
         #region .ctor
 
         /// <inheritdoc cref="BlackjackGameHandler"/>
-        public BlackjackGameHandler(ITelegramService telegramService)
+        public BlackjackGameHandler(IMessageService telegramService)
         {
             _telegramService = telegramService;
         }
@@ -123,7 +123,7 @@ namespace Server.GameHandlers.Impl
         }
 
         /// <summary>
-        ///     ОБновляет дату последнего действия пользователя
+        ///     Обновляет дату последнего действия пользователя
         /// </summary>
         private static void UpdateUserEntity(UserEntity user)
         {

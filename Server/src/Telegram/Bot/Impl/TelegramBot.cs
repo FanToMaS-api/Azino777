@@ -7,11 +7,9 @@ using DataBase.Entities;
 using DataBase.Models;
 using DataBase.Repositories;
 using Games.Services;
-using Microsoft.EntityFrameworkCore;
 using NLog;
 using Server.GameHandlers.Impl;
 using Server.Helpers;
-using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 
@@ -19,71 +17,36 @@ using Telegram.Bot.Types;
 // TODO: добавить сервис который раз в день будет всех пользоватлей переводить в неактивные,
 //          если они не писали боту, также добавить лимит по смс в минуту,
 //          при превышении лимита отправлять в бан + добавить причины бана
-namespace Server.Telegram
+namespace Server.Telegram.Bot.Impl
 {
     /// <summary>
     ///     Модель телеграм бота
     /// </summary>
-    internal class TelegramBot : IDisposable
+    internal class TelegramBot : ITelegramBot
     {
         #region Fields
 
         private readonly static Logger Log = LogManager.GetCurrentClassLogger();
 
-        private readonly ITelegramService _telegramService;
-
-        private readonly CancellationTokenSource _cancellationTokenSource;
+        private readonly IMessageService _messageService;
 
         #endregion
 
         #region .ctor
 
         /// <inheritdoc cref="TelegramBot"/>
-        public TelegramBot(string token)
+        public TelegramBot(IMessageService messageService)
         {
-            _cancellationTokenSource = new CancellationTokenSource();
-            Client = new TelegramBotClient(token);
-            _telegramService = new TelegramService(Client);
-            _telegramService.OnMessageReceived += HandleUpdateAsync;
-            Log.Info("Successful connection to bot");
-
-            ApplyMigrations();
+            _messageService = messageService;
         }
 
         #endregion
 
-        #region Properties
+        #region Public methods
 
-        /// <summary>
-        ///     Клиент телеграм бота
-        /// </summary>
-        public TelegramBotClient Client { get; }
-
-        #endregion
-
-        #region Private methods
-
-        /// <summary>
-        ///     Применяет миграции
-        /// </summary>
-        private static void ApplyMigrations()
+        /// <inheritdoc />
+        public async Task HandleUpdateAsync(Message message, string text, CancellationToken cancellationToken)
         {
-            Log.Info("Applying database migrations...");
-
-            using var database = new AppDbContextFactory().CreateDbContext(Array.Empty<string>());
-
-            database.Database.Migrate();
-
-            Log.Info("Database migrations successfully applied");
-        }
-
-        /// <summary>
-        ///     Обработчик событий обновлений чата
-        /// </summary>
-        private async Task HandleUpdateAsync(object @object, string text, CancellationToken cancellationToken = default)
-        {
-            var message = (Message)@object;
-            cancellationToken = _cancellationTokenSource.Token;
             if (message is null)
             {
                 Log.Error(new NullReferenceException(nameof(message)));
@@ -97,20 +60,21 @@ namespace Server.Telegram
                 // TODO: добавить баннер для защиты от спама
                 // TODO: добавить баф для пользователя чей реф ссылкой пользуются => по 1 монете за каждую выйгранную рефералом игру
                 var userId = message.From.Id;
+                var chatId = message.Chat.Id;
                 if (!database.Users.CreateQuery().Any(_ => _.TelegramId == userId))
                 {
                     await StartFunctionAsync(database, message, cancellationToken);
                     var user = await database.Users.CreateAsync(CreateUserEntity, cancellationToken);
 
-                    await Client.SendTextMessageAsync(message.Chat, DefaultText.InputReferralLink, cancellationToken: cancellationToken);
-                    var referralLinklHelper = new ReferralLinkHelper(_telegramService, userId);
+                    await _messageService.SendAsync(DefaultText.InputReferralLink, chatId, cancellationToken);
+                    var referralLinklHelper = new ReferralLinkHelper(_messageService, userId);
 
                     return;
                 }
 
                 if ((await database.Users.GetAsync(userId, cancellationToken)).UserState.UserStateType == UserStateType.Banned)
                 {
-                    await Client.SendTextMessageAsync(message.Chat, DefaultText.BannedAccountText, cancellationToken: cancellationToken);
+                    await _messageService.SendAsync(DefaultText.BannedAccountText, chatId, cancellationToken);
                     return;
                 }
 
@@ -158,12 +122,17 @@ namespace Server.Telegram
             }
         }
 
+        #endregion
+
+        #region Private methods
+
         /// <summary>
         ///     Обрабатывает команду пользователя
         /// </summary>
         private async Task HandleUserActionAsync(ITelegramDbContext database, string text, Message message, CancellationToken cancellationToken)
         {
             var userId = message.From.Id;
+            var chatId = message.Chat.Id;
             switch (text.ToLower())
             {
                 case "/start":
@@ -174,12 +143,12 @@ namespace Server.Telegram
                 case "/command1": // Профиль пользователя
                     {
                         var info = await GetProfileInfoAsync(database, userId, cancellationToken);
-                        await Client.SendTextMessageAsync(message.Chat, info, cancellationToken: cancellationToken);
+                        await _messageService.SendAsync(info, chatId, cancellationToken);
                         break;
                     }
                 case "/command2": // help
                     {
-                        await Client.SendTextMessageAsync(message.Chat, DefaultText.HelpText, cancellationToken: cancellationToken);
+                        await _messageService.SendAsync(DefaultText.HelpText, chatId, cancellationToken);
                         Log.Info($"Пользователь с id: {userId} обратился в поддержку");
                         break;
                     }
@@ -191,25 +160,35 @@ namespace Server.Telegram
                     }
                 case "/command4": // снятие средств
                     {
-                        await Client.SendTextMessageAsync(message.Chat, DefaultText.WithdrawFunds, cancellationToken: cancellationToken);
+                        await _messageService.SendAsync(DefaultText.WithdrawFunds, chatId, cancellationToken);
                         Log.Info($"Пользователь с id: {userId} запросил вывод средств");
                         break;
                     }
                 case "/command5": // 21 очко
                     {
-                        var newGame = new BlackjackGameHandler(_telegramService);
-                        await Client.SendTextMessageAsync(message.Chat, DefaultText.InputBid, cancellationToken: cancellationToken);
-                        var gameHelper = new GameHelper(_telegramService, newGame, userId);
+                        var newGame = new BlackjackGameHandler(_messageService);
+                        await _messageService.SendAsync(DefaultText.InputBid, chatId, cancellationToken);
+                        var gameHelper = new GameHelper(_messageService, newGame, userId);
                         break;
                     }
                 case "/command6": // рулетка
                     {
-                        var newGame = new RouletteGameHandler(_telegramService);
-                        await Client.SendTextMessageAsync(message.Chat, DefaultText.InputBid, cancellationToken: cancellationToken);
-                        var gameHelper = new GameHelper(_telegramService, newGame, userId);
+                        var newGame = new RouletteGameHandler(_messageService);
+                        await _messageService.SendAsync(DefaultText.InputBid, chatId, cancellationToken);
+                        var gameHelper = new GameHelper(_messageService, newGame, userId);
                         break;
                     }
             }
+
+            await database.Users.UpdateAsync(userId, UpdateUserEntity, cancellationToken);
+        }
+
+        /// <summary>
+        ///     Обновляет дату последнего действия пользователя
+        /// </summary>
+        private static void UpdateUserEntity(UserEntity user)
+        {
+            user.LastAction = DateTime.Now;
         }
 
         /// <summary>
@@ -217,13 +196,14 @@ namespace Server.Telegram
         /// </summary>
         private async Task StartFunctionAsync(ITelegramDbContext database, Message message, CancellationToken cancellationToken)
         {
+            var chatId = message.Chat.Id;
             if (database.Users.CreateQuery().Any(_ => _.TelegramId == message.From.Id))
             {
-                await Client.SendTextMessageAsync(message.Chat, DefaultText.HelloText, cancellationToken: cancellationToken);
+                await _messageService.SendAsync(DefaultText.HelloText, chatId, cancellationToken);
             }
             else
             {
-                await Client.SendTextMessageAsync(message.Chat, DefaultText.FirstHelloText, cancellationToken: cancellationToken);
+                await _messageService.SendAsync(DefaultText.FirstHelloText, chatId, cancellationToken);
             }
         }
 
@@ -232,7 +212,8 @@ namespace Server.Telegram
         /// </summary>
         private async Task AddCoinAsync(ITelegramDbContext database, Message message, CancellationToken cancellationToken)
         {
-            var user = await database.Users.GetAsync(message.From.Id, cancellationToken);
+            var userId = message.From.Id;
+            var user = await database.Users.GetAsync(userId, cancellationToken);
 
             await database.UserStates.UpdateAsync(user.UserState.Id, UpdateState, cancellationToken);
 
@@ -243,14 +224,14 @@ namespace Server.Telegram
             }
 
             var info = "Ваш баланс успешно пополнен!\n";
-            info += await GetProfileInfoAsync(database, message.From.Id, cancellationToken);
-            await Client.SendTextMessageAsync(message.Chat, info, cancellationToken: cancellationToken);
+            info += await GetProfileInfoAsync(database, userId, cancellationToken);
+            await _messageService.SendAsync(info, message.Chat.Id, cancellationToken);
         }
 
         /// <summary>
         ///     Возвращает информацию о профиле пользователя
         /// </summary>
-        private static async Task<string> GetProfileInfoAsync(ITelegramDbContext database, long userId, CancellationToken cancellationToken)
+        private async static Task<string> GetProfileInfoAsync(ITelegramDbContext database, long userId, CancellationToken cancellationToken)
         {
             try
             {
@@ -269,17 +250,7 @@ namespace Server.Telegram
         /// <summary>
         ///     Проверяет заблокировал ли пользователь бота
         /// </summary>
-        private bool IsUserBlockedBot(ApiRequestException ex) => ex.Message == "Forbidden: bot was blocked by the user";
-
-        #endregion
-
-        #region Implementation IDisposable
-
-        /// <inheritdoc />
-        public void Dispose()
-        {
-            _cancellationTokenSource.Dispose();
-        }
+        private static bool IsUserBlockedBot(ApiRequestException ex) => ex.Message == "Forbidden: bot was blocked by the user";
 
         #endregion
     }
