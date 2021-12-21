@@ -28,8 +28,7 @@ namespace Server.Telegram.Service
         {
             var token = configuration.GetSection(TelegramToken).Value;
 
-            services.AddSingleton<ITelegramService>(
-                _ => new TelegramService(token));
+            services.AddSingleton<ITelegramService>(_ => new TelegramService(token));
         }
 
         /// <summary>

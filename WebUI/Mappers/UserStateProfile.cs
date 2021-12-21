@@ -18,7 +18,6 @@ namespace WebUI.Mappers
             CreateMap<UserStateEntity, EditUserStateModel>();
         }
 
-
         #endregion
     }
 }

@@ -17,7 +17,6 @@ namespace WebUI.Pages.Users
     /// </summary>
     public partial class UsersViewPage
     {
-
         #region Injects
 
         /// <inheritdoc cref="IServiceScopeFactory" />

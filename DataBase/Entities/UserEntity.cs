@@ -26,14 +26,12 @@ namespace DataBase.Entities
         ///     Уникальный id в телеграмме
         /// </summary>
         [Column("telegram_id")]
-        [DisplayName("Telegram Id")]
         public long TelegramId { get; set; }
 
         /// <summary>
         ///     id чата в телеграмме
         /// </summary>
         [Column("chat_id")]
-        [DisplayName("Chat Id")]
         public long ChatId { get; set; }
 
         /// <summary>
@@ -46,21 +44,18 @@ namespace DataBase.Entities
         ///     Фамилия пользователя
         /// </summary>
         [Column("lastname")]
-        [DisplayName("Last Name")]
         public string LastName { get; set; }
 
         /// <summary>
         ///     Имя пользователя
         /// </summary>
         [Column("firstname")]
-        [DisplayName("First Name")]
         public string FirstName { get; set; }
 
         /// <summary>
         ///     Отражает дату последнего действия пользователя
         /// </summary>
         [Column("last_action")]
-        [DisplayName("Last Action")]
         public DateTime LastAction { get; set; }
 
         /// <summary>
@@ -68,7 +63,6 @@ namespace DataBase.Entities
         /// </summary>
         [CanBeNull]
         [Column("referral_link")]
-        [DisplayName("Referral Link")]
         public string ReferralLink { get; set; }
 
         /// <summary>
@@ -89,7 +83,6 @@ namespace DataBase.Entities
         /// <summary>
         ///     Собственная реферальная ссылка пользователя
         /// </summary>
-        [DisplayName("Own Referral Link")]
         public ReferralLinkEntity UserReferralLink { get; set; }
 
         #endregion
