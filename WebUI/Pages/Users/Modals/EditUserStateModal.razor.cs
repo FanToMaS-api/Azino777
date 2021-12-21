@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using AutoMapper;
 using Blazorise;
 using DataBase.Entities;
 using DataBase.Repositories;
@@ -20,13 +21,17 @@ namespace WebUI.Pages.Users.Modals
         [Inject]
         private IServiceScopeFactory Scope { get; set; }
 
+        /// <inheritdoc cref="IMapper" />
+        [Inject]
+        private IMapper Mapper { get; set; }
+
         #endregion
 
         #region Fields
 
         private Modal _modalRef;
-        private EditUserStateModel _model;
-        private UserStateEntity _state = new();
+
+        private EditUserStateModel _model = new();
 
         #endregion
 
@@ -37,10 +42,8 @@ namespace WebUI.Pages.Users.Modals
         /// </summary>
         public async Task ShowModalAync(UserStateEntity userState)
         {
-            // TODO: AutoMapper, Display()
-            // _modalRef = userState;
-            _state = userState;
-            _modalRef.Show();
+            _model = Mapper.Map<EditUserStateModel>(userState);
+            await _modalRef.Show();
         }
 
         #endregion

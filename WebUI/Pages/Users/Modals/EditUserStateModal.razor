@@ -1,14 +1,11 @@
-﻿<Modal @ref="@_modalRef">
+﻿@using WebUI.Helpers
+<Modal @ref="@_modalRef">
     <ModalHeader>
         <ModalTitle Class="text-black-50">Состояние пользователя</ModalTitle>
         <CloseButton Class="btn-sm" Clicked=@(() => Close()) />
     </ModalHeader>
     <ModalBody>
-        <Div Class="input-group-text">
-             <label  class="form-label">@_state.Balance</label>
-             <label  class="form-label">@_state.UserStateType</label>
-             <label  class="form-label">@_state.BanReason</label>
-        </Div>
+
     </ModalBody>
     <ModalFooter>
 

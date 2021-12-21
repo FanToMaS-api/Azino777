@@ -1,4 +1,5 @@
 using System;
+using AutoMapper;
 using Blazorise;
 using Blazorise.Bootstrap;
 using Blazorise.Icons.FontAwesome;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Server.Telegram.Service;
+using WebUI.Mappers;
 
 namespace WebUI
 {
@@ -43,6 +45,15 @@ namespace WebUI
                 )
                 .AddBootstrapProviders()
                 .AddFontAwesomeIcons();
+
+            // Auto Mapper Configurations
+            var mappingConfig = new MapperConfiguration(mc =>
+            {
+                mc.AddProfile(new UserStateProfile());
+            });
+
+            var mapper = mappingConfig.CreateMapper();
+            services.AddSingleton(mapper);
 
             services.UsePostgresDatabase(Configuration);
             services.AddTelegramService(Configuration);
