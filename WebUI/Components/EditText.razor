@@ -74,8 +74,12 @@
 
 <div class="form-group row @(isInvalid ? " invalid" : "")">
     <div class="form-inline">
-        <label for="@Name" class="form-label">@Name</label>
-        <input type="text" class="form-control small @(WrapText? "text-wrap" : "text-nowrap") @(isInvalid ? "is-invalid" : "")" aria-describedby="Help">
-        <div id="Help" class="form-text">@Help</div>
+        <p>
+            <label class="form-label">
+                @Name
+                <input type="text" class="form-control small @(WrapText? "text-wrap" : "text-nowrap") @(isInvalid ? "is-invalid" : "")" aria-describedby="Help">
+            </label>
+            <div id="Help" class="form-text">@Help</div>
+        </p>
     </div>
 </div>

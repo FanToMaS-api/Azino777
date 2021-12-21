@@ -41,12 +41,12 @@
                             <td>@_users[i].LastAction.ToString("F")</td>
                             <td>@_users[i].ReferralLink</td>
                             <td>
-                                <a class="btn btn-sm bg-success mt-2 text-white" @onclick="@(async () => await ShowEditUserStateModalAsync(_users[i - 1].UserState))">
+                                <a class="btn btn-sm bg-success mt-2 text-white" @onclick="@(() => ShowUserStateViewModal(_users[i - 1].UserState))">
                                     <i class="fa fa-sm fa-fw fa-eye" />
                                 </a>
                             </td>
                             <td>
-                                <a class="btn btn-sm bg-danger mt-2 text-white" @onclick="@(async () => await DeleteUserAsync(_users[i - 1]))">
+                                <a class="btn btn-sm btn-danger mt-2 text-white" @onclick="@(async () => await DeleteUserAsync(_users[i - 1]))">
                                     <i class="fa fa-sm fa-fw fa-trash" />
                                 </a>
                             </td>
@@ -61,4 +61,4 @@
         }
     }
 </div>
-<EditUserStateModal @ref="@_editUserStateModal" />
+<UserStateViewModal @ref="@_userStateViewModal" />

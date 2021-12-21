@@ -9,9 +9,9 @@ using WebUI.Pages.Users.Models;
 namespace WebUI.Pages.Users.Modals
 {
     /// <summary>
-    ///     Модалка для редактирования состояния пользователя
+    ///     Модалка для отображения состояния пользователя
     /// </summary>
-    public partial class EditUserStateModal
+    public partial class UserStateViewModal
     {
         #region Injects
 
@@ -29,7 +29,9 @@ namespace WebUI.Pages.Users.Modals
 
         private Modal _modalRef;
 
-        private EditUserStateModel _model = new();
+        private UserStateEntity _model = new();
+
+        private EditUserStateModal _editUserStateModal;
 
         #endregion
 
@@ -40,7 +42,7 @@ namespace WebUI.Pages.Users.Modals
         /// </summary>
         public void ShowModal(UserStateEntity userState)
         {
-            _model = Mapper.Map<EditUserStateModel>(userState);
+            _model = userState;
             _modalRef.Show();
         }
 
@@ -51,9 +53,10 @@ namespace WebUI.Pages.Users.Modals
         /// <summary>
         ///     Сохраняет изменения
         /// </summary>
-        private void HandleValidSubmit()
+        private void Edit()
         {
-            
+            Close();
+            _editUserStateModal.ShowModal(_model);
         }
 
         /// <summary>

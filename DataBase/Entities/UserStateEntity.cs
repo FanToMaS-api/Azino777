@@ -49,7 +49,7 @@ namespace DataBase.Entities
         /// </summary>
         [CanBeNull]
         [Column("ban_reason")]
-        public BanReasonType BanReason { get; set; }
+        public BanReasonType? BanReason { get; set; }
 
         #endregion
 
@@ -87,7 +87,7 @@ namespace DataBase.Entities
                 .Property(_ => _.BanReason)
                 .HasConversion(
                     v => v.ToString(),
-                    v => string.IsNullOrEmpty(v) ? BanReasonType.Common : (BanReasonType)Enum.Parse(typeof(BanReasonType), v));
+                    v => string.IsNullOrEmpty(v) ? null : (BanReasonType)Enum.Parse(typeof(BanReasonType), v));
         }
 
         #endregion

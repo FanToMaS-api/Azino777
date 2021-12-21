@@ -32,7 +32,7 @@ namespace WebUI.Pages.Users
 
         private List<UserEntity> _users = new();
 
-        private EditUserStateModal _editUserStateModal;
+        private UserStateViewModal _userStateViewModal;
 
         #endregion
 
@@ -74,9 +74,9 @@ namespace WebUI.Pages.Users
         /// <summary>
         ///     Открывает модальное окно показа и изменения состояния пользователя
         /// </summary>
-        private async Task ShowEditUserStateModalAsync(UserStateEntity userState)
+        private void ShowUserStateViewModal(UserStateEntity userState)
         {
-            await _editUserStateModal.ShowModalAync(userState);
+            _userStateViewModal.ShowModal(userState);
         }
 
         /// <summary>
