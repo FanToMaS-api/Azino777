@@ -8,6 +8,11 @@ namespace WebUI.Pages.Users.Models
     public class EditUserStateModel
     {
         /// <summary>
+        ///     Уникальный id состояния
+        /// </summary>
+        public long Id { get; set; }
+
+        /// <summary>
         ///     Баланс пользователя
         /// </summary>
         public double Balance { get; set; }

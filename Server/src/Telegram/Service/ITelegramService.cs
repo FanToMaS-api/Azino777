@@ -9,6 +9,11 @@ namespace Server.Telegram.Service
     public interface ITelegramService : IDisposable
     {
         /// <summary>
+        ///     Текущее состояние сервиса
+        /// </summary>
+        ServiceStatusType Status { get; }
+
+        /// <summary>
         ///     Инициализирует бота
         /// </summary>
         void Initialize();

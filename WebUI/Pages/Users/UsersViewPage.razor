@@ -46,6 +46,9 @@
                                 </a>
                             </td>
                             <td>
+                                <a class="btn btn-sm btn-primary mt-2 text-white" @onclick="@(() => Edit(_users[i - 1].UserState))">
+                                    <i class="fa fa-sm fa-fw fa-user-edit" />
+                                </a>
                                 <a class="btn btn-sm btn-danger mt-2 text-white" @onclick="@(async () => await DeleteUserAsync(_users[i - 1]))">
                                     <i class="fa fa-sm fa-fw fa-trash" />
                                 </a>
@@ -62,3 +65,4 @@
     }
 </div>
 <UserStateViewModal @ref="@_userStateViewModal" />
+<EditUserStateModal @ref="_editUserStateModal" />

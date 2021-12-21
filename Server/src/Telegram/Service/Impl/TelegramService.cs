@@ -55,6 +55,9 @@ namespace Server.Telegram.Impl
         /// </summary>
         private event Func<Message, string, CancellationToken, Task> OnMessageReceived;
 
+        /// <inheritdoc />
+        public ServiceStatusType Status { get; private set; }
+
         #endregion
 
         #region Public methods
@@ -62,34 +65,42 @@ namespace Server.Telegram.Impl
         /// <inheritdoc />
         public void Initialize()
         {
-            _cancellationTokenSource = new CancellationTokenSource();
             _messageService = new MessageService(_client);
             _bot = new TelegramBot(_messageService);
-            OnMessageReceived += _bot.HandleUpdateAsync;
-            OnMessageReceived += _messageService.HandleUpdateAsync;
-
-            var receiverOptions = new ReceiverOptions
-            {
-                AllowedUpdates = new[] { UpdateType.Message }
-            };
-            _updateReceiver = new QueuedUpdateReceiver(_client, receiverOptions);
         }
 
         /// <inheritdoc />
         public async Task StartAsync()
         {
+            if (Status == ServiceStatusType.Running)
+            {
+                Log.Warn("Сancel start: the service is already running");
+                return;
+            }
+
+            _cancellationTokenSource = new CancellationTokenSource();
+            OnMessageReceived += _bot.HandleUpdateAsync;
+            OnMessageReceived += _messageService.HandleUpdateAsync;
+            var receiverOptions = new ReceiverOptions
+            {
+                AllowedUpdates = new[] { UpdateType.Message }
+            };
+            _updateReceiver = new QueuedUpdateReceiver(_client, receiverOptions);
+
+            Status = ServiceStatusType.Running;
+
             try
             {
+                Log.Info("Successful connection to bot");
+
                 await foreach (var update in _updateReceiver.WithCancellation(_cancellationTokenSource.Token))
                 {
                     await OnMessageReceived?.Invoke(update.Message, update.Message.Text, _cancellationTokenSource.Token);
                 }
-
-                Log.Info("Successful connection to bot");
             }
             catch (OperationCanceledException exception)
             {
-                // TODO: Проверить попадает ли сюда поток при отмене
+                Log.Warn("The service was stopped by token cancellation");
             }
             catch (Exception ex)
             {
@@ -101,17 +112,33 @@ namespace Server.Telegram.Impl
         /// <inheritdoc />
         public void Stop()
         {
+            if (Status == ServiceStatusType.Stopped)
+            {
+                Log.Warn("Сancel stop: the service has already been stopped");
+                return;
+            }
+
             _cancellationTokenSource.Cancel();
             OnMessageReceived -= _messageService.HandleUpdateAsync;
             OnMessageReceived -= _bot.HandleUpdateAsync;
+
+            Status = ServiceStatusType.Stopped;
+            Log.Info("The service was stopped");
         }
 
         /// <inheritdoc />
         public async Task RestartAsync()
         {
+            if (Status != ServiceStatusType.Running)
+            {
+                Log.Warn("Сancel restart: the service has not been started yet");
+                return;
+            }
+
+            Status = ServiceStatusType.NotLaunch;
+
             Stop();
             Dispose();
-            Initialize();
             await StartAsync();
         }
 

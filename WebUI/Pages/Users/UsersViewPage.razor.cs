@@ -34,6 +34,8 @@ namespace WebUI.Pages.Users
 
         private UserStateViewModal _userStateViewModal;
 
+        private EditUserStateModal _editUserStateModal;
+
         #endregion
 
         #region Methods
@@ -58,12 +60,10 @@ namespace WebUI.Pages.Users
                     .Include(_ => _.UserReferralLink)
                     .OrderByDescending(x => x.LastAction)
                     .ToList();
-
-                await InvokeAsync(StateHasChanged);
             }
             catch (Exception ex)
             {
-                Logger.Error(ex);
+                Logger.Warn(ex);
             }
             finally
             {
@@ -77,6 +77,14 @@ namespace WebUI.Pages.Users
         private void ShowUserStateViewModal(UserStateEntity userState)
         {
             _userStateViewModal.ShowModal(userState);
+        }
+
+        /// <summary>
+        ///     Открывает модалку изменений
+        /// </summary>
+        private void Edit(UserStateEntity userState)
+        {
+            _editUserStateModal.ShowModal(userState);
         }
 
         /// <summary>

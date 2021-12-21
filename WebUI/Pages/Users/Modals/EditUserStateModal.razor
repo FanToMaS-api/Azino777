@@ -3,19 +3,18 @@
     <ModalContent>
         <ModalHeader>
             <h4 class="modal-title">Состояние пользователя</h4>
-            <CloseButton Class="btn-sm" Clicked=@(() => Close()) />
+            <CloseButton To="/users" Class="btn-sm" Clicked=@(() => Close()) />
         </ModalHeader>
         <ModalBody>
-            <EditForm Model="@_model" OnValidSubmit="@HandleValidSubmit">
-                <DataAnnotationsValidator />
-
+            <EditForm Model="@_model">
+                <EditDouble Name="Баланс" @bind-Value="_model.Balance" />
             </EditForm>
             @* <TextView Name="Баланс" @bind-Value="_model.Balance.ToString()"/>
                 <TextView Name="Состояние" @bind-Value="_model.UserStateType.Display()"/>
                 <TextView Name="Причина бана" @bind-Value="_model.BanReason.Display()"/>*@
         </ModalBody>
         <ModalFooter>
-            <button type="submit" class="btn btn-outline-primary">Сохранить</button>
+            <button type="submit" class="btn btn-outline-primary" @onclick="@(async () => await SaveAsync())">Сохранить</button>
             <button type="button" class="btn btn-outline-secondary" @onclick="@Close">Отмена</button>
         </ModalFooter>
     </ModalContent>

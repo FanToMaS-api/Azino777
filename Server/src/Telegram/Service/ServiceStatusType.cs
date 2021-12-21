@@ -6,6 +6,11 @@
     public enum ServiceStatusType
     {
         /// <summary>
+        ///     Не запущен
+        /// </summary>
+        NotLaunch,
+
+        /// <summary>
         ///     Запущен
         /// </summary>
         Running,
