@@ -31,25 +31,26 @@
                 <tbody>
                     @for (var i = 0; i < @_users.Count; i++)
                     {
+                        var user = _users[i];
                         <tr>
                             <td>@(i+1)</td>
-                            <td>@_users[i].TelegramId</td>
-                            <td>@_users[i].ChatId</td>
-                            <td>@_users[i].FirstName</td>
-                            <td>@_users[i].LastName</td>
-                            <td>@_users[i].Nickname</td>
-                            <td>@_users[i].LastAction.ToString("F")</td>
-                            <td>@_users[i].ReferralLink</td>
+                            <td>@user.TelegramId</td>
+                            <td>@user.ChatId</td>
+                            <td>@user.FirstName</td>
+                            <td>@user.LastName</td>
+                            <td>@user.Nickname</td>
+                            <td>@user.LastAction.ToString("F")</td>
+                            <td>@user.ReferralLink</td>
                             <td>
-                                <a class="btn btn-sm bg-success mt-2 text-white" @onclick="@(() => ShowUserStateViewModal(_users[i - 1].UserState))">
+                                <a class="btn btn-sm bg-success mt-2 text-white" @onclick="@(() => ShowUserStateViewModal(user.UserState))">
                                     <i class="fa fa-sm fa-fw fa-eye" />
                                 </a>
                             </td>
                             <td>
-                                <a class="btn btn-sm btn-primary mt-2 text-white" @onclick="@(() => Edit(_users[i - 1].UserState))">
+                                <a class="btn btn-sm btn-primary mt-2 text-white" @onclick="@(() => Edit(user.UserState))">
                                     <i class="fa fa-sm fa-fw fa-user-edit" />
                                 </a>
-                                <a class="btn btn-sm btn-danger mt-2 text-white" @onclick="@(async () => await DeleteUserAsync(_users[i - 1]))">
+                                <a class="btn btn-sm btn-danger mt-2 text-white" @onclick="@(async () => await DeleteUserAsync(user))">
                                     <i class="fa fa-sm fa-fw fa-trash" />
                                 </a>
                             </td>

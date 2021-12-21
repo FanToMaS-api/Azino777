@@ -123,7 +123,7 @@ namespace Server.GameHandlers.Impl
         }
 
         /// <summary>
-        ///     ОБновляет дату последнего действия пользователя
+        ///     Обновляет дату последнего действия пользователя
         /// </summary>
         private static void UpdateUserEntity(UserEntity user)
         {

@@ -179,6 +179,16 @@ namespace Server.Telegram.Bot.Impl
                         break;
                     }
             }
+
+            await database.Users.UpdateAsync(userId, UpdateUserEntity, cancellationToken);
+        }
+
+        /// <summary>
+        ///     Обновляет дату последнего действия пользователя
+        /// </summary>
+        private static void UpdateUserEntity(UserEntity user)
+        {
+            user.LastAction = DateTime.Now;
         }
 
         /// <summary>
