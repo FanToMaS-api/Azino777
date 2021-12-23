@@ -8,12 +8,11 @@
         </div>
     </div>
 
-    <br /><br />
-
     @{
         if (@_users.Any())
         {
-            <table class="table table-bordered table-striped text-sm-center" style="width:100%">
+            <QueryPagination TotalCount="@_totalCount" ActivePage="@_activePage" PageSize="@UsersOnPage"/>
+            <table class="table table-bordered table-striped text-sm-center sticky-header" style="width:100%">
                 <thead>
                     <tr>
                         <th>Index</th>

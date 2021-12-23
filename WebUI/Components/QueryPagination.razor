@@ -1,0 +1,83 @@
+﻿@inject NavigationManager NavigationManager
+
+@code {
+
+    /// <summary>
+    /// Общее кол-во элементов
+    /// </summary>
+    [Parameter]
+    public int TotalCount { get; set; }
+
+    /// <summary>
+    /// Кол-во элементов на 1ой странице
+    /// </summary>
+    [Parameter]
+    public int PageSize { get; set; }
+
+    /// <summary>
+    /// Активная страница
+    /// </summary>
+    [Parameter]
+    public int ActivePage { get; set; }
+
+    /// <summary>
+    /// Кол-во страниц для показа
+    /// </summary>
+    [Parameter]
+    public int CountLinksToShow { get; set; } = 20;
+
+    string GeneratePageLink(int page)
+    {
+        var url = NavigationManager.Uri.SetQueryParam("page", page);
+        return url;
+    }
+
+    /// <summary>
+    /// Обработчик перехода на пред страницу
+    /// </summary>
+    string PreviousPage()
+    {
+        var previousPageNumber = ActivePage - 1 < 1 ? 1 : ActivePage - 1;
+        return NavigationManager.Uri.SetQueryParam("page", previousPageNumber);
+    }
+
+    /// <summary>
+    /// Обработчик перехода на след страницу
+    /// </summary>
+    string NextPage()
+    {
+        var nextPageNumber = ActivePage + 1 > TotalCount ? TotalCount : ActivePage + 1;
+        return NavigationManager.Uri.SetQueryParam("page", nextPageNumber);
+    }
+}
+
+@{
+    var pagesToShow = ActivePage + CountLinksToShow / 2;
+    var allPagesCount = Math.Ceiling((double)TotalCount / PageSize);
+    var pageCount = pagesToShow < allPagesCount ? pagesToShow : allPagesCount;
+
+    //  Указываю начальную страницу, чтобы можно было листать обратно
+    var startPage = ActivePage - CountLinksToShow / 2;
+    startPage = startPage > 1 ? startPage : 1;
+}
+
+@if (TotalCount > 0 && TotalCount > PageSize)
+{
+    <div class="mt-2">
+        <Pagination class="pagination-sm">
+            @for (var page = startPage; page <= pageCount; page++)
+            {
+                var isActive = page == ActivePage;
+                var url = GeneratePageLink(page);
+                var text = $"{page}";
+                <div class="col-md-auto">
+                    <PaginationItem Active="@isActive">
+                        <PaginationLink Href="@url">
+                            @text
+                        </PaginationLink>
+                    </PaginationItem>
+                </div>
+            }
+        </Pagination>
+    </div>
+}

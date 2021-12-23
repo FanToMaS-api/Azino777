@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Blazorise;
 using DataBase.Entities;
+using DataBase.Models;
 using DataBase.Repositories;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,6 +36,10 @@ namespace WebUI.Pages.Users.Modals
         private Modal _modalRef;
 
         private EditUserStateModel _model = new();
+
+        private UserStateType[] _userStates = Enum.GetValues<UserStateType>();
+
+        private BanReasonType[] _banReasons = Enum.GetValues<BanReasonType>();
 
         #endregion
 

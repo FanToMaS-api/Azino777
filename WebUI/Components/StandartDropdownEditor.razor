@@ -1,0 +1,59 @@
+﻿<h3>StandartDropDown</h3>
+@typeparam TItem
+@inherits InputBase<TItem>
+
+@code {
+    /// <summary>
+    ///     Назвавание элемента
+    /// </summary>
+    [Parameter]
+    public string Name { get; set; }
+
+    /// <summary>
+    ///     Элементы в выпадающем списке
+    /// </summary>
+    [Parameter]
+    public TItem[] Items { get; set; }
+
+    /// <summary>
+    ///     Функция выводящая названия элементов списка
+    /// </summary>
+    [Parameter]
+    public Func<TItem, string> ItemsText { get; set; } = _ => _.ToString();
+
+    /// <summary>
+    ///     Обработчик выбора элемента в списке
+    /// </summary>
+    private async Task OnClickHandle(TItem selection)
+    {
+        Value = selection;
+        await ValueChanged.InvokeAsync(Value);
+    }
+
+    protected override bool TryParseValueFromString(string value, out TItem result, out string validationErrorMessage)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+<div class="dropdown">
+    <label class="form-label">
+        @Name
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fa fa-sm fa-fw mr-2 fa-chevron-down" aria-hidden="true"></i>
+        </button>
+    </label>
+
+    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        @for (var i = 0; i < Items.Length; i++)
+        {
+            var item = Items[i];
+            <label class="form-label" @onclick="@(() => OnClickHandle(item))">
+                @ItemsText(item)
+            </label>
+        }
+        <a class="dropdown-item" href="#">Action</a>
+        <a class="dropdown-item" href="#">Another action</a>
+        <a class="dropdown-item" href="#">Something else here</a>
+    </div>
+</div>
