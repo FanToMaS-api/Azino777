@@ -1,5 +1,4 @@
-﻿@using Scraper.Common.UI.Helpers
-@inject NavigationManager NavigationManager
+﻿@inject NavigationManager NavigationManager
 
 @code {
 
@@ -41,6 +40,8 @@
     var pagesToShow = ActivePage + CountLinksToShow / 2;
     var allPagesCount = Math.Ceiling((double)TotalCount / PageSize);
     var pageCount = pagesToShow < allPagesCount ? pagesToShow : allPagesCount;
+    var showFirst = (ActivePage - 10) > 1;
+    var showLasst = (ActivePage + 10) < allPagesCount;
 
     //  Указываю начальную страницу, чтобы можно было листать обратно
     var startPage = ActivePage - CountLinksToShow / 2;
@@ -51,12 +52,22 @@
 {
     <div class="my-2 text-center">
         <div class="btn-group" role="group">
+            @if (showFirst)
+            {
+                <input type="button" value="1.." class="btn btn-sm btn-outline-primary" @onclick="@(()=>NavigateToPage(1))">
+            }
+
             @for (var page = startPage; page <= pageCount; page++)
             {
                 var isActive = page == ActivePage;
                 var text = $"{page}";
                 var linkPage = page;
                 <input type="button" value="@text" class="btn btn-sm @(isActive ? "btn-primary":"btn-outline-primary")" @onclick="@(()=>NavigateToPage(linkPage))">
+            }
+
+            @if (showLasst)
+            {
+                <input type="button" value="..@allPagesCount" class="btn btn-sm btn-outline-primary" @onclick="@(()=>NavigateToPage((int)allPagesCount))">
             }
         </div>
     </div>
