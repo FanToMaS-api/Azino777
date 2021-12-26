@@ -53,6 +53,12 @@ namespace Server.Telegram.Bot.Impl
                 return;
             }
 
+            if (string.IsNullOrEmpty(text))
+            {
+                Log.Warn(new NullReferenceException(nameof(text)));
+                return;
+            }
+
             using var database = TelegramDbContextFactory.Create();
 
             try
