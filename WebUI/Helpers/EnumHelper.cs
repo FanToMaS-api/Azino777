@@ -25,11 +25,11 @@ namespace WebUI.Helpers
         /// <summary>
         ///     Отобразить
         /// </summary>
-        public static string Display(this BanReasonType? banReason)
+        public static string Display(this BanReasonType banReason)
         {
             return banReason switch
             {
-                null => "Не забанен",
+                BanReasonType.NotBanned => "Не забанен",
                 BanReasonType.Common => "Общая",
                 BanReasonType.BadBehavior => "Нарушил правила",
                 BanReasonType.Spam => "Спам",

@@ -1,5 +1,5 @@
 ﻿@page "/users"
-@using DataBase.Entities
+@inherits LocationAwareComponent
 
 <div class="container p-3">
     <div class="row pt-4">
@@ -8,12 +8,10 @@
         </div>
     </div>
 
-    <br /><br />
-
     @{
         if (@_users.Any())
         {
-            <table class="table table-bordered table-striped text-sm-center" style="width:100%">
+            <table class="table table-bordered table-striped text-sm-center sticky-header" style="width:100%">
                 <thead>
                     <tr>
                         <th>Index</th>
@@ -58,6 +56,7 @@
                     }
                 </tbody>
             </table>
+            <QueryPagination TotalCount="@_totalCount" ActivePage="@_activePage" PageSize="@UsersOnPage"/>
         }
         else
         {

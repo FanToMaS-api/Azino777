@@ -1,0 +1,74 @@
+﻿@inject NavigationManager NavigationManager
+
+@code {
+
+    /// <summary>
+    /// Общее кол-во элементов
+    /// </summary>
+    [Parameter]
+    public int TotalCount { get; set; }
+
+    /// <summary>
+    /// Кол-во элементов на 1ой странице
+    /// </summary>
+    [Parameter]
+    public int PageSize { get; set; }
+
+    /// <summary>
+    /// Кол-во страниц для показа
+    /// </summary>
+    [Parameter]
+    public int CountLinksToShow { get; set; } = 20;
+
+    /// <summary>
+    /// Активная страница
+    /// </summary>
+    [Parameter]
+    public int ActivePage { get; set; }
+
+    /// <summary>
+    /// Осуществляет переход по страницам
+    /// </summary>
+    void NavigateToPage(int page)
+    {
+        var url = NavigationManager.Uri.SetQueryParam("page", page);
+        NavigationManager.NavigateTo(url);
+    }
+}
+
+@{
+    var pagesToShow = ActivePage + CountLinksToShow / 2;
+    var allPagesCount = Math.Ceiling((double)TotalCount / PageSize);
+    var pageCount = pagesToShow < allPagesCount ? pagesToShow : allPagesCount;
+    var showFirst = (ActivePage - pagesToShow) > 1;
+    var showLasst = (ActivePage + pagesToShow) < allPagesCount;
+
+    //  Указываю начальную страницу, чтобы можно было листать обратно
+    var startPage = ActivePage - CountLinksToShow / 2;
+    startPage = startPage > 1 ? startPage : 1;
+}
+
+@if (TotalCount > 0 && TotalCount > PageSize)
+{
+    <div class="my-2 text-center">
+        <div class="btn-group" role="group">
+            @if (showFirst)
+            {
+                <input type="button" value="1.." class="btn btn-sm btn-outline-primary" @onclick="@(()=>NavigateToPage(1))">
+            }
+
+            @for (var page = startPage; page <= pageCount; page++)
+            {
+                var isActive = page == ActivePage;
+                var text = $"{page}";
+                var linkPage = page;
+                <input type="button" value="@text" class="btn btn-sm @(isActive ? "btn-primary":"btn-outline-primary")" @onclick="@(()=>NavigateToPage(linkPage))">
+            }
+
+            @if (showLasst)
+            {
+                <input type="button" value="..@allPagesCount" class="btn btn-sm btn-outline-primary" @onclick="@(()=>NavigateToPage((int)allPagesCount))">
+            }
+        </div>
+    </div>
+}

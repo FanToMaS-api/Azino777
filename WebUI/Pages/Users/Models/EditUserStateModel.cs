@@ -25,6 +25,6 @@ namespace WebUI.Pages.Users.Models
         /// <summary>
         ///     Причина бана
         /// </summary>
-        public BanReasonType? BanReason { get; set; }
+        public BanReasonType BanReason { get; set; }
     }
 }

@@ -6,6 +6,11 @@
     public enum BanReasonType
     {
         /// <summary>
+        ///     Не забанен
+        /// </summary>
+        NotBanned,
+
+        /// <summary>
         ///     Спам
         /// </summary>
         Spam,

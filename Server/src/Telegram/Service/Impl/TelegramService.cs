@@ -100,7 +100,7 @@ namespace Server.Telegram.Impl
             }
             catch (OperationCanceledException exception)
             {
-                Log.Warn("The service was stopped by token cancellation");
+                Log.Warn(exception, "The service was stopped by token cancellation");
             }
             catch (Exception ex)
             {
@@ -149,7 +149,7 @@ namespace Server.Telegram.Impl
         /// <inheritdoc />
         public void Dispose()
         {
-            _cancellationTokenSource.Dispose();
+            _cancellationTokenSource?.Dispose();
         }
 
         #endregion
