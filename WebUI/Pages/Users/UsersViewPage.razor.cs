@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NLog;
+using WebUI.Helpers;
 using WebUI.Pages.Users.Modals;
 
 namespace WebUI.Pages.Users
@@ -23,6 +24,9 @@ namespace WebUI.Pages.Users
         [Inject]
         private IServiceScopeFactory Scope { get; set; }
 
+        [Inject]
+        protected NavigationManager NavigationManager { get; set; }
+
         #endregion
 
         #region Fields
@@ -35,6 +39,24 @@ namespace WebUI.Pages.Users
 
         private EditUserStateModal _editUserStateModal;
 
+        private int _totalCount;
+
+        private int _activePage;
+
+        #endregion
+
+        #region Query parameters
+
+        /// <summary>
+        ///     Параметр для запроса
+        /// </summary>
+        private const string PageNumberQueryParameter = "page";
+
+        /// <summary>
+        ///     Кол-во пользователей на 1ой странице
+        /// </summary>
+        private const int UsersOnPage = 10;
+
         #endregion
 
         #region Methods
@@ -42,7 +64,17 @@ namespace WebUI.Pages.Users
         /// <summary>
         ///     Метод перед показом страницы
         /// </summary>
-        protected override async Task OnInitializedAsync() => await RefreshAsync();
+        protected override async Task OnInitializedAsync()
+        {
+            using var scope = Scope.CreateScope();
+            using var database = scope.ServiceProvider.GetRequiredService<ITelegramDbContext>();
+            _totalCount = database.Users.CreateQuery().Count();
+
+            await RefreshAsync();
+        }
+
+        /// <inheritdoc />
+        protected override Task OnLocationChangedAsync() => RefreshAsync();
 
         /// <summary>
         ///     Получение пользователей из бд
@@ -53,11 +85,15 @@ namespace WebUI.Pages.Users
             {
                 using var scope = Scope.CreateScope();
                 using var database = scope.ServiceProvider.GetRequiredService<ITelegramDbContext>();
+
+                _activePage = NavigationManager.TryGetQueryParametr(PageNumberQueryParameter, out var res, 1) ? res : 1;
                 _users = database.Users
                     .CreateQuery()
                     .Include(_ => _.UserState)
                     .Include(_ => _.UserReferralLink)
                     .OrderByDescending(x => x.LastAction)
+                    .Skip((_activePage - 1) * UsersOnPage)
+                    .Take(UsersOnPage)
                     .ToList();
             }
             catch (Exception ex)

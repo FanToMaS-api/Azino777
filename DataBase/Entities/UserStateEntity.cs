@@ -47,9 +47,8 @@ namespace DataBase.Entities
         /// <summary>
         ///     Причина бана
         /// </summary>
-        [CanBeNull]
         [Column("ban_reason")]
-        public BanReasonType? BanReason { get; set; }
+        public BanReasonType BanReason { get; set; }
 
         #endregion
 
@@ -81,13 +80,13 @@ namespace DataBase.Entities
                 .Property(_ => _.UserStateType)
                 .HasConversion(
                     v => v.ToString(),
-                    v => string.IsNullOrEmpty(v) ? UserStateType.Banned : (UserStateType)Enum.Parse(typeof(UserStateType), v));
+                    v => string.IsNullOrEmpty(v) ? UserStateType.Active : (UserStateType)Enum.Parse(typeof(UserStateType), v));
 
             modelBuilder.Entity<UserStateEntity>()
                 .Property(_ => _.BanReason)
                 .HasConversion(
                     v => v.ToString(),
-                    v => string.IsNullOrEmpty(v) ? null : (BanReasonType)Enum.Parse(typeof(BanReasonType), v));
+                    v => string.IsNullOrEmpty(v) ? BanReasonType.NotBanned : (BanReasonType)Enum.Parse(typeof(BanReasonType), v));
         }
 
         #endregion
