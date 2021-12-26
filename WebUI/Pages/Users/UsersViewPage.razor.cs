@@ -50,6 +50,11 @@ namespace WebUI.Pages.Users
         private const string PageNumberQueryParameter = "page";
 
         /// <summary>
+        ///     Параметр для фильтрации по имени пользователя
+        /// </summary>
+        private const string UserNameQueryParameter = "name";
+
+        /// <summary>
         ///     Кол-во пользователей на 1ой странице
         /// </summary>
         private const int ItemsOnPage = 10;
@@ -83,15 +88,21 @@ namespace WebUI.Pages.Users
                 using var scope = Scope.CreateScope();
                 using var database = scope.ServiceProvider.GetRequiredService<ITelegramDbContext>();
 
-                _activePage = NavigationManager.TryGetQueryParametr(PageNumberQueryParameter, out var res, 1) ? res : 1;
-                _users = await database.Users
+                _activePage = NavigationManager.TryGetQueryParameter(PageNumberQueryParameter, out var res, 1) ? res : 1;
+                var queryable = database.Users
                     .CreateQuery()
                     .Include(_ => _.UserState)
                     .Include(_ => _.UserReferralLink)
                     .OrderByDescending(x => x.LastAction)
                     .Skip((_activePage - 1) * ItemsOnPage)
-                    .Take(ItemsOnPage)
-                    .ToArrayAsync();
+                    .Take(ItemsOnPage);
+
+                if (NavigationManager.TryGetQueryParameter<string>(UserNameQueryParameter, out var filterName))
+                {
+                    queryable = queryable.Where(_ => _.FirstName.Contains(filterName));
+                }
+
+                _users = await queryable.ToArrayAsync();
             }
             catch (Exception ex)
             {
