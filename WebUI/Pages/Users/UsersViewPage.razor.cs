@@ -24,16 +24,13 @@ namespace WebUI.Pages.Users
         [Inject]
         private IServiceScopeFactory Scope { get; set; }
 
-        [Inject]
-        protected NavigationManager NavigationManager { get; set; }
-
         #endregion
 
         #region Fields
 
         private static ILogger Logger = LogManager.GetCurrentClassLogger();
 
-        private List<UserEntity> _users = new();
+        private UserEntity[] _users = Array.Empty<UserEntity>();
 
         private UserStateViewModal _userStateViewModal;
 
@@ -55,7 +52,7 @@ namespace WebUI.Pages.Users
         /// <summary>
         ///     Кол-во пользователей на 1ой странице
         /// </summary>
-        private const int UsersOnPage = 10;
+        private const int ItemsOnPage = 10;
 
         #endregion
 
@@ -74,7 +71,7 @@ namespace WebUI.Pages.Users
         }
 
         /// <inheritdoc />
-        protected override Task OnLocationChangedAsync() => RefreshAsync();
+        protected override async Task OnLocationChangedAsync() => await RefreshAsync();
 
         /// <summary>
         ///     Получение пользователей из бд
@@ -87,14 +84,14 @@ namespace WebUI.Pages.Users
                 using var database = scope.ServiceProvider.GetRequiredService<ITelegramDbContext>();
 
                 _activePage = NavigationManager.TryGetQueryParametr(PageNumberQueryParameter, out var res, 1) ? res : 1;
-                _users = database.Users
+                _users = await database.Users
                     .CreateQuery()
                     .Include(_ => _.UserState)
                     .Include(_ => _.UserReferralLink)
                     .OrderByDescending(x => x.LastAction)
-                    .Skip((_activePage - 1) * UsersOnPage)
-                    .Take(UsersOnPage)
-                    .ToList();
+                    .Skip((_activePage - 1) * ItemsOnPage)
+                    .Take(ItemsOnPage)
+                    .ToArrayAsync();
             }
             catch (Exception ex)
             {
@@ -135,7 +132,7 @@ namespace WebUI.Pages.Users
                 database.Users.Remove(entity);
                 await database.SaveChangesAsync();
 
-                _users.Remove(entity);
+                _users = _users.Except(new[] { entity }).ToArray();
                 await InvokeAsync(StateHasChanged);
             }
             catch (Exception ex)

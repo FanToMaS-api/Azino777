@@ -1,0 +1,51 @@
+﻿@page "/blackjack"
+@using WebUI.Helpers
+@inherits LocationAwareComponent
+
+<div class="container p-3">
+    <div class="row pt-4">
+        <div class="col-6">
+            <h2 class="text-primary">Блэкджек</h2>
+        </div>
+    </div>
+
+    @{
+        if (@_games.Any())
+        {
+            <table class="table table-bordered text-sm-center sticky-header">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>№</th>
+                        <th>Имя пользователя</th>
+                        <th>Состояние игры</th>
+                        <th>Ставка</th>
+                        <th>Счет пользователя</th>
+                        <th>Счет дилера</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        var index = (_activePage - 1) * ItemsOnPage;
+                        for (var i = 0; i < @_games.Length; i++)
+                        {
+                            var game = _games[i];
+                            <tr>
+                                <td>@(index++)</td>
+                                <td>@game.User.FirstName</td>
+                                <td>@game.GameState.Display()</td>
+                                <td>@game.Bid.ToString("0.##")</td>
+                                <td>@game.UserScope</td>
+                                <td>@game.DialerScope</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+            <QueryPagination TotalCount="@_totalCount" ActivePage="@_activePage" PageSize="@ItemsOnPage" />
+        }
+        else
+        {
+            <p> No games exists </p>
+        }
+    }
+</div>
