@@ -8,6 +8,13 @@
         </div>
     </div>
 
+    <div class="container">
+        <div class="row my-2">
+            <div class="col-md-auto">
+                <SearchFilter Name="Имя пользователя" QueryParameter="@UserNameQueryParameter" />
+            </div>
+        </div>
+    </div>
     @{
         if (@_users.Any())
         {
@@ -59,13 +66,14 @@
                     }
                 </tbody>
             </table>
-            <QueryPagination TotalCount="@_totalCount" ActivePage="@_activePage" PageSize="@ItemsOnPage" />
         }
         else
         {
             <p> No user exists </p>
         }
     }
+
+    <QueryPagination TotalCount="@_totalCount" ActivePage="@_activePage" PageSize="@ItemsOnPage" />
 </div>
 <UserStateViewModal @ref="@_userStateViewModal" />
 <EditUserStateModal @ref="_editUserStateModal" />

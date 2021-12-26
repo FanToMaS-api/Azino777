@@ -44,6 +44,11 @@ namespace WebUI.Pages.RouletteHistory
         private const string PageNumberQueryParameter = "page";
 
         /// <summary>
+        ///     Параметр для фильтрации по имени пользователя
+        /// </summary>
+        private const string UserNameQueryParameter = "name";
+
+        /// <summary>
         ///     Кол-во игр на 1ой странице
         /// </summary>
         private const int ItemsOnPage = 40;
@@ -75,14 +80,21 @@ namespace WebUI.Pages.RouletteHistory
                 using var scope = Scope.CreateScope();
                 using var database = scope.ServiceProvider.GetRequiredService<ITelegramDbContext>();
 
-                _activePage = NavigationManager.TryGetQueryParametr(PageNumberQueryParameter, out var res, 1) ? res : 1;
-                _games = await database.RouletteHistory
+                _activePage = NavigationManager.TryGetQueryParameter(PageNumberQueryParameter, out var res, 1) ? res : 1;
+                var queryable = database.RouletteHistory
                     .CreateQuery()
-                    .Include(_ => _.User)
                     .OrderByDescending(x => x.GameState)
                     .Skip((_activePage - 1) * ItemsOnPage)
-                    .Take(ItemsOnPage)
-                    .ToArrayAsync();
+                    .Take(ItemsOnPage);
+
+
+                queryable = queryable.Include(_ => _.User);
+                if (NavigationManager.TryGetQueryParameter<string>(UserNameQueryParameter, out var filterName))
+                {
+                    queryable = queryable.Where(_ => _.User.FirstName.Contains(filterName));
+                }
+
+                _games = await queryable.ToArrayAsync();
             }
             catch (Exception ex)
             {

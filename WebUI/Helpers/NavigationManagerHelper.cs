@@ -13,7 +13,7 @@ namespace WebUI.Helpers
         /// <summary>
         ///     Возвращает параметр из запроса
         /// </summary>
-        public static bool TryGetQueryParametr<T>(this NavigationManager manager, string paramName, out T result, T defaultParam = default(T))
+        public static bool TryGetQueryParameter<T>(this NavigationManager manager, string paramName, out T result, T defaultParam = default(T))
         {
             var absoluteUri = manager.ToAbsoluteUri(manager.Uri);
             result = defaultParam;
