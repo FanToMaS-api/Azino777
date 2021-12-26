@@ -8,13 +8,20 @@
         </div>
     </div>
 
+    <div class="container">
+        <div class="row my-2">
+            <div class="col-md-auto">
+                <SearchFilter Name="Имя пользователя" QueryParameter="@UserNameQueryParameter" />
+            </div>
+        </div>
+    </div>
     @{
         if (@_users.Any())
         {
-            <table class="table table-bordered table-striped text-sm-center sticky-header" style="width:100%">
-                <thead>
+            <table class="table table-bordered text-sm-center sticky-header">
+                <thead class="thead-dark">
                     <tr>
-                        <th>Index</th>
+                        <th>№</th>
                         <th>Телеграмм ID</th>
                         <th>Чат ID</th>
                         <th>Имя</th>
@@ -27,42 +34,46 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @for (var i = 0; i < @_users.Count; i++)
-                    {
-                        var user = _users[i];
-                        <tr>
-                            <td>@(i+1)</td>
-                            <td>@user.TelegramId</td>
-                            <td>@user.ChatId</td>
-                            <td>@user.FirstName</td>
-                            <td>@user.LastName</td>
-                            <td>@user.Nickname</td>
-                            <td>@user.LastAction.ToString("F")</td>
-                            <td>@user.ReferralLink</td>
-                            <td>
-                                <a class="btn btn-sm bg-success mt-2 text-white" @onclick="@(() => ShowUserStateViewModal(user.UserState))">
-                                    <i class="fa fa-sm fa-fw fa-eye" />
-                                </a>
-                            </td>
-                            <td>
-                                <a class="btn btn-sm btn-primary mt-2 text-white" @onclick="@(() => Edit(user.UserState))">
-                                    <i class="fa fa-sm fa-fw fa-user-edit" />
-                                </a>
-                                <a class="btn btn-sm btn-danger mt-2 text-white" @onclick="@(async () => await DeleteUserAsync(user))">
-                                    <i class="fa fa-sm fa-fw fa-trash" />
-                                </a>
-                            </td>
-                        </tr>
+                    @{
+                        var index = (_activePage - 1) * ItemsOnPage;
+                        for (var i = 0; i < @_users.Length; i++)
+                        {
+                            var user = _users[i];
+                            <tr>
+                                <td>@(index++)</td>
+                                <td>@user.TelegramId</td>
+                                <td>@user.ChatId</td>
+                                <td>@user.FirstName</td>
+                                <td>@user.LastName</td>
+                                <td>@user.Nickname</td>
+                                <td>@user.LastAction.ToString("F")</td>
+                                <td>@user.ReferralLink</td>
+                                <td>
+                                    <a class="btn btn-sm bg-success mt-2 text-white" @onclick="@(() => ShowUserStateViewModal(user.UserState))">
+                                        <i class="fa fa-sm fa-fw fa-eye" />
+                                    </a>
+                                </td>
+                                <td>
+                                    <a class="btn btn-sm btn-primary mt-2 text-white" @onclick="@(() => Edit(user.UserState))">
+                                        <i class="fa fa-sm fa-fw fa-user-edit" />
+                                    </a>
+                                    <a class="btn btn-sm btn-danger mt-2 text-white" @onclick="@(async () => await DeleteUserAsync(user))">
+                                        <i class="fa fa-sm fa-fw fa-trash" />
+                                    </a>
+                                </td>
+                            </tr>
+                        }
                     }
                 </tbody>
             </table>
-            <QueryPagination TotalCount="@_totalCount" ActivePage="@_activePage" PageSize="@UsersOnPage"/>
         }
         else
         {
             <p> No user exists </p>
         }
     }
+
+    <QueryPagination TotalCount="@_totalCount" ActivePage="@_activePage" PageSize="@ItemsOnPage" />
 </div>
 <UserStateViewModal @ref="@_userStateViewModal" />
 <EditUserStateModal @ref="_editUserStateModal" />

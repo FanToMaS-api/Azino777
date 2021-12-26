@@ -1,0 +1,55 @@
+﻿@page "/roulette"
+@using WebUI.Helpers
+@inherits LocationAwareComponent
+
+<div class="container p-3">
+    <div class="row pt-4">
+        <div class="col-6">
+            <h2 class="text-primary">Австралийская рулетка</h2>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row my-2">
+            <div class="col-md-auto">
+                <SearchFilter Name="Имя пользователя" QueryParameter="@UserNameQueryParameter" />
+            </div>
+        </div>
+    </div>
+    @{
+        if (@_games.Any())
+        {
+            <table class="table table-bordered sticky-header text-sm-center">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>№</th>
+                        <th>Имя пользователя</th>
+                        <th>Состояние игры</th>
+                        <th>Монеты</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        var index = (_activePage - 1) * ItemsOnPage;
+                        for (var i = 0; i < @_games.Length; i++)
+                        {
+                            var game = _games[i];
+                            <tr>
+                                <td>@(index++)</td>
+                                <td>@game.User.FirstName</td>
+                                <td>@game.GameState.Display()</td>
+                                <td>@game.Coin.ToString("0.##")</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p> No games exists </p>
+        }
+
+        <QueryPagination TotalCount="@_totalCount" ActivePage="@_activePage" PageSize="@ItemsOnPage" />
+    }
+</div>

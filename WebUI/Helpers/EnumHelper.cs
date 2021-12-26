@@ -36,5 +36,18 @@ namespace WebUI.Helpers
                 _ => banReason.ToString()
             };
         }
+
+        /// <summary>
+        ///     Отобразить
+        /// </summary>
+        public static string Display(this GameStateType stateType)
+        {
+            return stateType switch
+            {
+                GameStateType.IsOn => "Активна",
+                GameStateType.IsOver => "Закончена",
+                _ => stateType.ToString()
+            };
+        }
     }
 }

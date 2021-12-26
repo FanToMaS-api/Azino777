@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DataBase.Entities;
@@ -9,14 +8,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using WebUI.Helpers;
-using WebUI.Pages.Users.Modals;
 
-namespace WebUI.Pages.Users
+namespace WebUI.Pages.BlackjackHistory
 {
     /// <summary>
-    ///     Страница пользователей
+    ///     Страница истории игр в блэкджек
     /// </summary>
-    public partial class UsersViewPage
+    public partial class BlackjackHistoryViewPage
     {
         #region Injects
 
@@ -30,11 +28,7 @@ namespace WebUI.Pages.Users
 
         private static ILogger Logger = LogManager.GetCurrentClassLogger();
 
-        private UserEntity[] _users = Array.Empty<UserEntity>();
-
-        private UserStateViewModal _userStateViewModal;
-
-        private EditUserStateModal _editUserStateModal;
+        private BlackjackHistoryEntity[] _games = Array.Empty<BlackjackHistoryEntity>();
 
         private int _totalCount;
 
@@ -55,17 +49,15 @@ namespace WebUI.Pages.Users
         private const string UserNameQueryParameter = "name";
 
         /// <summary>
-        ///     Кол-во пользователей на 1ой странице
+        ///     Кол-во игр на 1ой странице
         /// </summary>
-        private const int ItemsOnPage = 10;
+        private const int ItemsOnPage = 40;
 
         #endregion
 
         #region Methods
 
-        /// <summary>
-        ///     Метод перед показом страницы
-        /// </summary>
+        /// <inheritdoc />
         protected override async Task OnInitializedAsync()
         {
             using var scope = Scope.CreateScope();
@@ -79,7 +71,7 @@ namespace WebUI.Pages.Users
         protected override async Task OnLocationChangedAsync() => await RefreshAsync();
 
         /// <summary>
-        ///     Получение пользователей из бд
+        ///     Получение список игр из бд
         /// </summary>
         private async Task RefreshAsync()
         {
@@ -89,20 +81,20 @@ namespace WebUI.Pages.Users
                 using var database = scope.ServiceProvider.GetRequiredService<ITelegramDbContext>();
 
                 _activePage = NavigationManager.TryGetQueryParameter(PageNumberQueryParameter, out var res, 1) ? res : 1;
-                var queryable = database.Users
+                var queryable = database.BlackjackHistory
                     .CreateQuery()
-                    .Include(_ => _.UserState)
-                    .Include(_ => _.UserReferralLink)
-                    .OrderByDescending(x => x.LastAction)
+                    .OrderByDescending(x => x.GameState)
                     .Skip((_activePage - 1) * ItemsOnPage)
                     .Take(ItemsOnPage);
 
+
+                queryable = queryable.Include(_ => _.User);
                 if (NavigationManager.TryGetQueryParameter<string>(UserNameQueryParameter, out var filterName))
                 {
-                    queryable = queryable.Where(_ => _.FirstName.Contains(filterName));
+                    queryable = queryable.Where(_ => _.User.FirstName.Contains(filterName));
                 }
 
-                _users = await queryable.ToArrayAsync();
+                _games = await queryable.ToArrayAsync();
             }
             catch (Exception ex)
             {
@@ -110,49 +102,6 @@ namespace WebUI.Pages.Users
             }
             finally
             {
-                await InvokeAsync(StateHasChanged);
-            }
-        }
-
-        /// <summary>
-        ///     Открывает модальное окно показа и изменения состояния пользователя
-        /// </summary>
-        private void ShowUserStateViewModal(UserStateEntity userState)
-        {
-            _userStateViewModal.ShowModal(userState);
-        }
-
-        /// <summary>
-        ///     Открывает модалку изменений
-        /// </summary>
-        private void Edit(UserStateEntity userState)
-        {
-            _editUserStateModal.ShowModal(userState);
-        }
-
-        /// <summary>
-        ///     Удаляет пользователя
-        /// </summary>
-        private async Task DeleteUserAsync(UserEntity entity)
-        {
-            using var scope = Scope.CreateScope();
-            using var database = scope.ServiceProvider.GetRequiredService<ITelegramDbContext>();
-            using var transaction = await database.BeginTransactionAsync();
-            try
-            {
-                database.Users.Remove(entity);
-                await database.SaveChangesAsync();
-
-                _users = _users.Except(new[] { entity }).ToArray();
-                await InvokeAsync(StateHasChanged);
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-            }
-            finally
-            {
-                await transaction.CommitAsync();
                 await InvokeAsync(StateHasChanged);
             }
         }
