@@ -1,5 +1,4 @@
-﻿<h3>StandartDropDown</h3>
-@typeparam TItem
+﻿@typeparam TItem
 @inherits InputBase<TItem>
 
 @code {
@@ -37,23 +36,20 @@
 }
 
 <div class="dropdown">
-    <label class="form-label">
-        @Name
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <i class="fa fa-sm fa-fw mr-2 fa-chevron-down" aria-hidden="true"></i>
-        </button>
-    </label>
+    <div class="btn-group group">
+        <input type="button" disabled class="btn btn-light text-nowrap text-black font-weight-bold" value="@Name:" readonly>
+        <input type="button" disabled class="btn btn-light text-nowrap text-black" value="@(ItemsText(Value))" readonly>
+    </div>
+
+    <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" />
 
     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
         @for (var i = 0; i < Items.Length; i++)
         {
             var item = Items[i];
-            <label class="form-label" @onclick="@(() => OnClickHandle(item))">
+            <a class="dropdown-item form-label" @onclick="@(() => OnClickHandle(item))">
                 @ItemsText(item)
-            </label>
+            </a>
         }
-        <a class="dropdown-item" href="#">Action</a>
-        <a class="dropdown-item" href="#">Another action</a>
-        <a class="dropdown-item" href="#">Something else here</a>
     </div>
 </div>

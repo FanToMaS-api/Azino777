@@ -40,8 +40,8 @@
     var pagesToShow = ActivePage + CountLinksToShow / 2;
     var allPagesCount = Math.Ceiling((double)TotalCount / PageSize);
     var pageCount = pagesToShow < allPagesCount ? pagesToShow : allPagesCount;
-    var showFirst = (ActivePage - 10) > 1;
-    var showLasst = (ActivePage + 10) < allPagesCount;
+    var showFirst = (ActivePage - pagesToShow) > 1;
+    var showLasst = (ActivePage + pagesToShow) < allPagesCount;
 
     //  Указываю начальную страницу, чтобы можно было листать обратно
     var startPage = ActivePage - CountLinksToShow / 2;

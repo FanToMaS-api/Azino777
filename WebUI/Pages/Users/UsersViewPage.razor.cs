@@ -45,7 +45,7 @@ namespace WebUI.Pages.Users
 
         #endregion
 
-        #region Query parametrs
+        #region Query parameters
 
         /// <summary>
         ///     Параметр для запроса
@@ -55,7 +55,7 @@ namespace WebUI.Pages.Users
         /// <summary>
         ///     Кол-во пользователей на 1ой странице
         /// </summary>
-        private const int UsersOnPage = 20;
+        private const int UsersOnPage = 10;
 
         #endregion
 
@@ -73,6 +73,9 @@ namespace WebUI.Pages.Users
             await RefreshAsync();
         }
 
+        /// <inheritdoc />
+        protected override Task OnLocationChangedAsync() => RefreshAsync();
+
         /// <summary>
         ///     Получение пользователей из бд
         /// </summary>
@@ -83,14 +86,14 @@ namespace WebUI.Pages.Users
                 using var scope = Scope.CreateScope();
                 using var database = scope.ServiceProvider.GetRequiredService<ITelegramDbContext>();
 
-                _activePage = NavigationManager.TryGetQueryParametr<int>(PageNumberQueryParameter, out var res, 1) ? res : 1;
+                _activePage = NavigationManager.TryGetQueryParametr(PageNumberQueryParameter, out var res, 1) ? res : 1;
                 _users = database.Users
                     .CreateQuery()
                     .Include(_ => _.UserState)
                     .Include(_ => _.UserReferralLink)
+                    .OrderByDescending(x => x.LastAction)
                     .Skip((_activePage - 1) * UsersOnPage)
                     .Take(UsersOnPage)
-                    .OrderByDescending(x => x.LastAction)
                     .ToList();
             }
             catch (Exception ex)

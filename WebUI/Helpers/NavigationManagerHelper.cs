@@ -24,6 +24,15 @@ namespace WebUI.Helpers
                     result = (T)(object)stringValue.ToString();
                     return true;
                 }
+
+                if (typeof(T) == typeof(int) && !string.IsNullOrEmpty(stringValue))
+                {
+                    if (int.TryParse(stringValue, out var res))
+                    {
+                        result = (T)(object)res;
+                        return true;
+                    }
+                }
             }
 
             return false;
