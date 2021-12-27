@@ -66,14 +66,7 @@ namespace WebUI.Pages.Users
         /// <summary>
         ///     Метод перед показом страницы
         /// </summary>
-        protected override async Task OnInitializedAsync()
-        {
-            using var scope = Scope.CreateScope();
-            using var database = scope.ServiceProvider.GetRequiredService<ITelegramDbContext>();
-            _totalCount = database.Users.CreateQuery().Count();
-
-            await RefreshAsync();
-        }
+        protected override async Task OnInitializedAsync() => await RefreshAsync();
 
         /// <inheritdoc />
         protected override async Task OnLocationChangedAsync() => await RefreshAsync();
@@ -89,20 +82,23 @@ namespace WebUI.Pages.Users
                 using var database = scope.ServiceProvider.GetRequiredService<ITelegramDbContext>();
 
                 _activePage = NavigationManager.TryGetQueryParameter(PageNumberQueryParameter, out var res, 1) ? res : 1;
-                var queryable = database.Users
-                    .CreateQuery()
-                    .Include(_ => _.UserState)
-                    .Include(_ => _.UserReferralLink)
-                    .OrderByDescending(x => x.LastAction)
-                    .Skip((_activePage - 1) * ItemsOnPage)
-                    .Take(ItemsOnPage);
+                _totalCount = database.Users.CreateQuery().Count();
 
+                var queryable = database.Users.CreateQuery();
                 if (NavigationManager.TryGetQueryParameter<string>(UserNameQueryParameter, out var filterName))
                 {
                     queryable = queryable.Where(_ => _.FirstName.Contains(filterName));
                 }
 
-                _users = await queryable.ToArrayAsync();
+                _totalCount = queryable.Count();
+
+                _users = await queryable
+                    .Include(_ => _.UserState)
+                    .Include(_ => _.UserReferralLink)
+                    .OrderByDescending(x => x.LastAction)
+                    .Skip((_activePage - 1) * ItemsOnPage)
+                    .Take(ItemsOnPage)
+                    .ToArrayAsync();
             }
             catch (Exception ex)
             {
