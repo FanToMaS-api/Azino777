@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DataBase.Entities;
@@ -36,9 +35,9 @@ namespace WebUI.Pages.Users
 
         private EditUserStateModal _editUserStateModal;
 
-        private int _totalCount;
+        private int _totalCount; // общее кол-во записей в запросе
 
-        private int _activePage;
+        private int _activePage; // номер активной страницы
 
         #endregion
 
