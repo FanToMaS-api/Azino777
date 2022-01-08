@@ -29,7 +29,7 @@ namespace WebUI.Pages.Users
 
         private static ILogger Logger = LogManager.GetCurrentClassLogger();
 
-        private UserEntity[] _users = Array.Empty<UserEntity>();
+        private BotUserEntity[] _users = Array.Empty<BotUserEntity>();
 
         private UserStateViewModal _userStateViewModal;
 
@@ -81,9 +81,9 @@ namespace WebUI.Pages.Users
                 using var database = scope.ServiceProvider.GetRequiredService<ITelegramDbContext>();
 
                 _activePage = NavigationManager.TryGetQueryParameter(PageNumberQueryParameter, out var res, 1) ? res : 1;
-                _totalCount = database.Users.CreateQuery().Count();
+                _totalCount = database.BotUsers.CreateQuery().Count();
 
-                var queryable = database.Users.CreateQuery();
+                var queryable = database.BotUsers.CreateQuery();
                 if (NavigationManager.TryGetQueryParameter<string>(UserNameQueryParameter, out var filterName))
                 {
                     queryable = queryable.Where(_ => _.FirstName.Contains(filterName));
@@ -112,7 +112,7 @@ namespace WebUI.Pages.Users
         /// <summary>
         ///     Открывает модальное окно показа и изменения состояния пользователя
         /// </summary>
-        private void ShowUserStateViewModal(UserStateEntity userState)
+        private void ShowUserStateViewModal(BotUserStateEntity userState)
         {
             _userStateViewModal.ShowModal(userState);
         }
@@ -120,7 +120,7 @@ namespace WebUI.Pages.Users
         /// <summary>
         ///     Открывает модалку изменений
         /// </summary>
-        private void Edit(UserStateEntity userState)
+        private void Edit(BotUserStateEntity userState)
         {
             _editUserStateModal.ShowModal(userState);
         }
@@ -128,14 +128,14 @@ namespace WebUI.Pages.Users
         /// <summary>
         ///     Удаляет пользователя
         /// </summary>
-        private async Task DeleteUserAsync(UserEntity entity)
+        private async Task DeleteUserAsync(BotUserEntity entity)
         {
             using var scope = Scope.CreateScope();
             using var database = scope.ServiceProvider.GetRequiredService<ITelegramDbContext>();
             using var transaction = await database.BeginTransactionAsync();
             try
             {
-                database.Users.Remove(entity);
+                database.BotUsers.Remove(entity);
                 await database.SaveChangesAsync();
 
                 _users = _users.Except(new[] { entity }).ToArray();

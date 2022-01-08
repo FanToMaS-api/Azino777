@@ -67,10 +67,10 @@ namespace Server.Telegram.Bot.Impl
                 // TODO: добавить баф для пользователя чей реф ссылкой пользуются => по 1 монете за каждую выйгранную рефералом игру
                 var userId = message.From.Id;
                 var chatId = message.Chat.Id;
-                if (!database.Users.CreateQuery().Any(_ => _.TelegramId == userId))
+                if (!database.BotUsers.CreateQuery().Any(_ => _.TelegramId == userId))
                 {
                     await StartFunctionAsync(database, message, cancellationToken);
-                    var user = await database.Users.CreateAsync(CreateUserEntity, cancellationToken);
+                    var user = await database.BotUsers.CreateAsync(CreateUserEntity, cancellationToken);
 
                     await _messageService.SendAsync(DefaultText.InputReferralLink, chatId, cancellationToken);
                     var referralLinklHelper = new ReferralLinkHelper(_messageService, userId);
@@ -78,7 +78,7 @@ namespace Server.Telegram.Bot.Impl
                     return;
                 }
 
-                if ((await database.Users.GetAsync(userId, cancellationToken)).UserState.UserStateType == UserStateType.Banned)
+                if ((await database.BotUsers.GetAsync(userId, cancellationToken)).UserState.UserStateType == UserStateType.Banned)
                 {
                     await _messageService.SendAsync(DefaultText.BannedAccountText, chatId, cancellationToken);
                     return;
@@ -90,8 +90,8 @@ namespace Server.Telegram.Bot.Impl
             {
                 if (IsUserBlockedBot(apiEx))
                 {
-                    var user = await database.Users.GetAsync(message.From.Id, cancellationToken);
-                    await database.UserStates.UpdateAsync(
+                    var user = await database.BotUsers.GetAsync(message.From.Id, cancellationToken);
+                    await database.BotUserStates.UpdateAsync(
                         user.UserState.Id,
                         _ => { _.UserStateType = UserStateType.BlockedBot; },
                         cancellationToken);
@@ -106,7 +106,7 @@ namespace Server.Telegram.Bot.Impl
                 Log.Error(ex);
             }
 
-            void CreateUserEntity(UserEntity user)
+            void CreateUserEntity(BotUserEntity user)
             {
                 user.TelegramId = message.From.Id;
                 user.Nickname = message.From.Username;
@@ -114,7 +114,7 @@ namespace Server.Telegram.Bot.Impl
                 user.ChatId = message.Chat.Id;
                 user.FirstName = message.From.FirstName;
                 user.LastAction = DateTime.Now;
-                user.UserState = new UserStateEntity
+                user.UserState = new BotUserStateEntity
                 {
                     Balance = 200,
                     UserId = user.TelegramId,
@@ -186,13 +186,13 @@ namespace Server.Telegram.Bot.Impl
                     }
             }
 
-            await database.Users.UpdateAsync(userId, UpdateUserEntity, cancellationToken);
+            await database.BotUsers.UpdateAsync(userId, UpdateUserEntity, cancellationToken);
         }
 
         /// <summary>
         ///     Обновляет дату последнего действия пользователя
         /// </summary>
-        private static void UpdateUserEntity(UserEntity user)
+        private static void UpdateUserEntity(BotUserEntity user)
         {
             user.LastAction = DateTime.Now;
         }
@@ -203,7 +203,7 @@ namespace Server.Telegram.Bot.Impl
         private async Task StartFunctionAsync(ITelegramDbContext database, Message message, CancellationToken cancellationToken)
         {
             var chatId = message.Chat.Id;
-            if (database.Users.CreateQuery().Any(_ => _.TelegramId == message.From.Id))
+            if (database.BotUsers.CreateQuery().Any(_ => _.TelegramId == message.From.Id))
             {
                 await _messageService.SendAsync(DefaultText.HelloText, chatId, cancellationToken);
             }
@@ -219,11 +219,11 @@ namespace Server.Telegram.Bot.Impl
         private async Task AddCoinAsync(ITelegramDbContext database, Message message, CancellationToken cancellationToken)
         {
             var userId = message.From.Id;
-            var user = await database.Users.GetAsync(userId, cancellationToken);
+            var user = await database.BotUsers.GetAsync(userId, cancellationToken);
 
-            await database.UserStates.UpdateAsync(user.UserState.Id, UpdateState, cancellationToken);
+            await database.BotUserStates.UpdateAsync(user.UserState.Id, UpdateState, cancellationToken);
 
-            static void UpdateState(UserStateEntity stateEntity)
+            static void UpdateState(BotUserStateEntity stateEntity)
             {
                 stateEntity.Balance += 50;
                 stateEntity.UserStateType = UserStateType.Active;
@@ -241,7 +241,7 @@ namespace Server.Telegram.Bot.Impl
         {
             try
             {
-                var user = await database.Users.GetAsync(userId, cancellationToken);
+                var user = await database.BotUsers.GetAsync(userId, cancellationToken);
                 return $"Ваш баланс: {user.UserState.Balance}\nВаш статус: {user.UserState.UserStateType}" +
                     $"\nВаша реферальная ссылка: {user.UserReferralLink.ReferralLink}";
             }

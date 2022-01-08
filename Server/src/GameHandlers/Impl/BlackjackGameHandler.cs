@@ -42,10 +42,10 @@ namespace Server.GameHandlers.Impl
         /// <inheritdoc />
         public async Task StartGameAsync(ITelegramDbContext dbContext, long userId, double bid, CancellationToken cancellationToken)
         {
-            UserEntity userEntity;
+            BotUserEntity userEntity;
             try
             {
-                userEntity = await dbContext.Users.GetAsync(userId, cancellationToken);
+                userEntity = await dbContext.BotUsers.GetAsync(userId, cancellationToken);
 
                 var activeGame = await dbContext.BlackjackHistory
                    .CreateQuery()
@@ -103,8 +103,8 @@ namespace Server.GameHandlers.Impl
             try
             {
                 var userId = game.User.Id;
-                var userState = await database.UserStates.GetAsync(userId, token);
-                userState = await database.UserStates.UpdateAsync(userState.Id, UpdateUserStateEntity, token);
+                var userState = await database.BotUserStates.GetAsync(userId, token);
+                userState = await database.BotUserStates.UpdateAsync(userState.Id, UpdateUserStateEntity, token);
             }
             catch (Exception ex)
             {
@@ -115,7 +115,7 @@ namespace Server.GameHandlers.Impl
                 await OnGameUpdatedAsync(game, null, token);
             }
 
-            void UpdateUserStateEntity(UserStateEntity state)
+            void UpdateUserStateEntity(BotUserStateEntity state)
             {
                 state.Balance = game.User.GetBalance();
                 state.UserStateType = UserStateType.Active;
@@ -125,7 +125,7 @@ namespace Server.GameHandlers.Impl
         /// <summary>
         ///     Обновляет дату последнего действия пользователя
         /// </summary>
-        private static void UpdateUserEntity(UserEntity user)
+        private static void UpdateUserEntity(BotUserEntity user)
         {
             user.LastAction = DateTime.Now;
         }
@@ -141,7 +141,7 @@ namespace Server.GameHandlers.Impl
 
                 try
                 {
-                    var user = await database.Users.UpdateAsync(blackjackGame.User.TelegramId, UpdateUserEntity, token);
+                    var user = await database.BotUsers.UpdateAsync(blackjackGame.User.TelegramId, UpdateUserEntity, token);
                     await database.BlackjackHistory.UpdateAsync(user.Id, UpdateRecord, token);
                 }
                 catch (Exception ex)

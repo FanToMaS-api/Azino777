@@ -1,19 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
+using DataBase.Entities;
 using Microsoft.EntityFrameworkCore;
 using NLog;
 
 namespace DataBase.Repositories.Impl
 {
     /// <summary>
-    ///     Репозиторий пользователей сайта
+    ///     Репозиторий пользователей бота
     /// </summary>
-    internal class UserRepository : IUserRepository
+    internal class BotUserRepository : IBotUserRepository
     {
         #region Fields
 
@@ -25,8 +23,8 @@ namespace DataBase.Repositories.Impl
 
         #region .ctor
 
-        /// <inheritdoc cref="UserRepository"/>
-        public UserRepository(AppDbContext dbContext)
+        /// <inheritdoc cref="BotUserRepository"/>
+        public BotUserRepository(AppDbContext dbContext)
         {
             _dbContext = dbContext;
         }
@@ -36,43 +34,45 @@ namespace DataBase.Repositories.Impl
         #region Public methods
 
         /// <inheritdoc />
-        public IQueryable<IdentityUser> CreateQuery() => _dbContext.Users.AsQueryable();
+        public IQueryable<BotUserEntity> CreateQuery() => _dbContext.BotUsers.AsQueryable();
 
         /// <inheritdoc />
-        public void Remove(IdentityUser entity)
+        public void Remove(BotUserEntity entity)
         {
-            _dbContext.Users.Remove(entity);
+            _dbContext.BotUsers.Remove(entity);
         }
 
         /// <inheritdoc />
-        public async Task<IdentityUser> GetAsync(string id, CancellationToken cancellationToken = default)
+        public async Task<BotUserEntity> GetAsync(long id, CancellationToken cancellationToken = default)
         {
-            var user = await _dbContext.Users
-                .Where(_ => _.Id == id)
+            var user = await _dbContext.BotUsers
+                .Include(_ => _.UserState)
+                .Include(_ => _.UserReferralLink)
+                .Where(_ => _.TelegramId == id)
                 .FirstOrDefaultAsync(cancellationToken);
 
             return user;
         }
 
         /// <inheritdoc />
-        public async Task<IdentityUser> CreateAsync(Action<IdentityUser> action, CancellationToken cancellationToken = default)
+        public async Task<BotUserEntity> CreateAsync(Action<BotUserEntity> action, CancellationToken cancellationToken = default)
         {
-            var user = new IdentityUser();
+            var user = new BotUserEntity();
             action(user);
 
-            var conflictingUser = await _dbContext.Users
-                .Where(_ => _.Id == user.Id)
+            var conflictingUser = await _dbContext.BotUsers
+                .Where(_ => _.TelegramId == user.TelegramId)
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (conflictingUser != null)
             {
-                Log.Error("User with this id is already exist");
+                Log.Error("BotUser with this id is already exist");
                 return user;
             }
 
             await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
 
-            await _dbContext.Users.AddAsync(user, cancellationToken);
+            await _dbContext.BotUsers.AddAsync(user, cancellationToken);
             await _dbContext.SaveChangesAsync(cancellationToken);
 
             await transaction.CommitAsync(cancellationToken);
@@ -81,7 +81,7 @@ namespace DataBase.Repositories.Impl
         }
 
         /// <inheritdoc />
-        public async Task<IdentityUser> UpdateAsync(string id, Action<IdentityUser> action, CancellationToken cancellationToken = default)
+        public async Task<BotUserEntity> UpdateAsync(long id, Action<BotUserEntity> action, CancellationToken cancellationToken = default)
         {
             var user = await GetAsync(id, cancellationToken);
             if (user is null)
@@ -91,12 +91,12 @@ namespace DataBase.Repositories.Impl
 
             action(user);
 
-            var conflictingUser = await _dbContext.Users
-                .Where(_ => _.Id == id && _.Id != user.Id)
+            var conflictingUser = await _dbContext.BotUsers
+                .Where(_ => _.TelegramId == id && _.Id != user.Id)
                 .FirstOrDefaultAsync(cancellationToken);
             if (conflictingUser != null)
             {
-                Log.Error("User with this id is already exist");
+                Log.Error("BotUser with this id is already exist");
                 return user;
             }
 

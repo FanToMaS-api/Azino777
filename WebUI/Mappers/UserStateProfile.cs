@@ -5,7 +5,7 @@ using WebUI.Pages.Users.Models;
 namespace WebUI.Mappers
 {
     /// <summary>
-    ///     Профиль для маппинга <see cref="UserStateEntity"/> и <see cref="EditUserStateModel"/>
+    ///     Профиль для маппинга <see cref="BotUserStateEntity"/> и <see cref="EditUserStateModel"/>
     /// </summary>
     internal class UserStateProfile : Profile
     {
@@ -14,8 +14,8 @@ namespace WebUI.Mappers
         /// <inheritdoc cref="UserStateProfile"/>
         public UserStateProfile()
         {
-            CreateMap<EditUserStateModel, UserStateEntity>();
-            CreateMap<UserStateEntity, EditUserStateModel>();
+            CreateMap<EditUserStateModel, BotUserStateEntity>();
+            CreateMap<BotUserStateEntity, EditUserStateModel>();
         }
 
         #endregion

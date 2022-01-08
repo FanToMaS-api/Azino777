@@ -10,8 +10,8 @@ namespace DataBase.Entities
     /// <summary>
     ///     Таблица состояний пользователей бота
     /// </summary>
-    [Table("users_state")]
-    public class UserStateEntity
+    [Table("bot_users_state")]
+    public class BotUserStateEntity
     {
         #region Properties
 
@@ -30,7 +30,7 @@ namespace DataBase.Entities
         /// <summary>
         ///     Сам пользователь для связи
         /// </summary>
-        public UserEntity User { get; set; }
+        public BotUserEntity User { get; set; }
 
         /// <summary>
         ///     Баланс пользователя
@@ -60,29 +60,29 @@ namespace DataBase.Entities
         public static void SetupModelBuilder(ModelBuilder modelBuilder)
         {
             // Ключ
-            modelBuilder.Entity<UserStateEntity>().HasKey(_ => _.Id);
+            modelBuilder.Entity<BotUserStateEntity>().HasKey(_ => _.Id);
 
             // Связи
-            modelBuilder.Entity<UserStateEntity>()
+            modelBuilder.Entity<BotUserStateEntity>()
                 .HasOne(_ => _.User)
                 .WithOne(_ => _.UserState)
-                .HasForeignKey<UserStateEntity>(_ => _.UserId)
+                .HasForeignKey<BotUserStateEntity>(_ => _.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Индексы
-            modelBuilder.Entity<UserStateEntity>().HasIndex(_ => _.UserId).IsUnique().HasDatabaseName("IX_users_state_user_id");
-            modelBuilder.Entity<UserStateEntity>().HasIndex(_ => _.UserStateType).HasDatabaseName("IX_users_state_state_type");
-            modelBuilder.Entity<UserStateEntity>().HasIndex(_ => _.Balance).HasDatabaseName("IX_users_state_balance");
-            modelBuilder.Entity<UserStateEntity>().HasIndex(_ => _.BanReason).HasDatabaseName("IX_users_state_ban_reason");
+            modelBuilder.Entity<BotUserStateEntity>().HasIndex(_ => _.UserId).IsUnique().HasDatabaseName("IX_bot_users_state_user_id");
+            modelBuilder.Entity<BotUserStateEntity>().HasIndex(_ => _.UserStateType).HasDatabaseName("IX_bot_users_state_state_type");
+            modelBuilder.Entity<BotUserStateEntity>().HasIndex(_ => _.Balance).HasDatabaseName("IX_bot_users_state_balance");
+            modelBuilder.Entity<BotUserStateEntity>().HasIndex(_ => _.BanReason).HasDatabaseName("IX_bot_users_state_ban_reason");
 
             // конвертеры
-            modelBuilder.Entity<UserStateEntity>()
+            modelBuilder.Entity<BotUserStateEntity>()
                 .Property(_ => _.UserStateType)
                 .HasConversion(
                     v => v.ToString(),
                     v => string.IsNullOrEmpty(v) ? UserStateType.Active : (UserStateType)Enum.Parse(typeof(UserStateType), v));
 
-            modelBuilder.Entity<UserStateEntity>()
+            modelBuilder.Entity<BotUserStateEntity>()
                 .Property(_ => _.BanReason)
                 .HasConversion(
                     v => v.ToString(),

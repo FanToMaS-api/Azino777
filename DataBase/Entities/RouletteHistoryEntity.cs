@@ -23,13 +23,13 @@ namespace DataBase.Entities
         /// <summary>
         ///     Id пользователя
         /// </summary>
-        [Column("user_id")]
+        [Column("bot_user_id")]
         public long UserId { get; set; }
 
         /// <summary>
         ///     Сам пользователь для связи
         /// </summary>
-        public UserEntity User { get; set; }
+        public BotUserEntity User { get; set; }
 
         /// <summary>
         ///     Состояние игры
@@ -62,7 +62,7 @@ namespace DataBase.Entities
                 .HasForeignKey(_ => _.UserId);
 
             // Индексы
-            modelBuilder.Entity<RouletteHistoryEntity>().HasIndex(_ => _.UserId).HasDatabaseName("IX_roulette_history_user_id");
+            modelBuilder.Entity<RouletteHistoryEntity>().HasIndex(_ => _.UserId).HasDatabaseName("IX_roulette_history_bot_user_id");
             modelBuilder.Entity<RouletteHistoryEntity>().HasIndex(_ => _.GameState).HasDatabaseName("IX_roulette_history_state");
             modelBuilder.Entity<RouletteHistoryEntity>().HasIndex(_ => _.Coin).HasDatabaseName("IX_roulette_history_coin");
 

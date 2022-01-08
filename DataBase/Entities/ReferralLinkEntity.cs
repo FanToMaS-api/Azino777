@@ -19,13 +19,13 @@ namespace DataBase.Entities
         /// <summary>
         ///     Id пользователя
         /// </summary>
-        [Column("user_id")]
+        [Column("bot_user_id")]
         public long UserId { get; set; }
 
         /// <summary>
         ///     Сам пользователь для связи
         /// </summary>
-        public UserEntity User { get; set; }
+        public BotUserEntity User { get; set; }
 
         /// <summary>
         ///     Реферальная ссылка пользователя

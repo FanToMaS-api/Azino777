@@ -1,4 +1,5 @@
 ﻿using DataBase.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Npgsql.NameTranslation;
@@ -8,7 +9,7 @@ namespace DataBase
     /// <summary>
     ///     Контекст базы данных
     /// </summary>
-    public class AppDbContext : DbContext
+    public class AppDbContext : IdentityDbContext
     {
         #region .ctor
 
@@ -25,7 +26,7 @@ namespace DataBase
         /// <summary>
         ///     Пользователи бота
         /// </summary>
-        public DbSet<UserEntity> Users { get; set; }
+        public DbSet<BotUserEntity> BotUsers { get; set; }
 
         /// <summary>
         ///     Таблица реферальных ссылок
@@ -35,7 +36,7 @@ namespace DataBase
         /// <summary>
         ///     Состояния пользователей
         /// </summary>
-        public DbSet<UserStateEntity> UsersStates { get; set; }
+        public DbSet<BotUserStateEntity> UsersStates { get; set; }
 
         /// <summary>
         ///     История игр в блэкджэк
@@ -54,6 +55,8 @@ namespace DataBase
         /// <inheritdoc />
         override protected void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             // Проставляем имя поля по умолчанию (snake_case)
             var mapper = new NpgsqlSnakeCaseNameTranslator();
             foreach (var entity in modelBuilder.Model.GetEntityTypes())
@@ -66,9 +69,9 @@ namespace DataBase
             }
 
             // Setup
-            UserEntity.Setup(modelBuilder.Entity<UserEntity>());
+            BotUserEntity.Setup(modelBuilder.Entity<BotUserEntity>());
             ReferralLinkEntity.Setup(modelBuilder.Entity<ReferralLinkEntity>());
-            UserStateEntity.SetupModelBuilder(modelBuilder);
+            BotUserStateEntity.SetupModelBuilder(modelBuilder);
             BlackjackHistoryEntity.SetupModelBuilder(modelBuilder);
             RouletteHistoryEntity.SetupModelBuilder(modelBuilder);
         }

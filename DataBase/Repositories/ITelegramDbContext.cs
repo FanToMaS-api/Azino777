@@ -21,11 +21,14 @@ namespace DataBase.Repositories
         /// <inheritdoc cref="IRouletteHistoryRepository"/>
         public IRouletteHistoryRepository RouletteHistory { get; }
 
+        /// <inheritdoc cref="IBotUserRepository"/>
+        public IBotUserRepository BotUsers { get; }
+
+        /// <inheritdoc cref="IBotUserStateRepository"/>
+        public IBotUserStateRepository BotUserStates { get; }
+
         /// <inheritdoc cref="IUserRepository"/>
         public IUserRepository Users { get; }
-
-        /// <inheritdoc cref="IUserStateRepository"/>
-        public IUserStateRepository UserStates { get; }
 
         #endregion
 

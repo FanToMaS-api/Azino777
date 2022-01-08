@@ -11,8 +11,8 @@ namespace DataBase.Entities
     /// <summary>
     ///     Таблица пользователей бота
     /// </summary>
-    [Table("users")]
-    public class UserEntity
+    [Table("bot_users")]
+    public class BotUserEntity
     {
         #region Properties
 
@@ -78,7 +78,7 @@ namespace DataBase.Entities
         /// <summary>
         ///     Св-во для навигации
         /// </summary>
-        public UserStateEntity UserState { get; set; }
+        public BotUserStateEntity UserState { get; set; }
 
         /// <summary>
         ///     Собственная реферальная ссылка пользователя
@@ -92,19 +92,19 @@ namespace DataBase.Entities
         /// <summary>
         ///     Настройка
         /// </summary>
-        public static void Setup(EntityTypeBuilder<UserEntity> builder)
+        public static void Setup(EntityTypeBuilder<BotUserEntity> builder)
         {
             // Ключ
             builder.HasKey(_ => _.Id);
 
             // Индексы
-            builder.HasIndex(_ => _.Nickname).HasDatabaseName("IX_users_nickname");
-            builder.HasIndex(_ => _.TelegramId).IsUnique().HasDatabaseName("IX_users_telegram_id");
-            builder.HasIndex(_ => _.ChatId).IsUnique().HasDatabaseName("IX_users_chat_id");
-            builder.HasIndex(_ => _.FirstName).HasDatabaseName("IX_users_firstname");
-            builder.HasIndex(_ => _.LastName).HasDatabaseName("IX_users_lastname");
-            builder.HasIndex(_ => _.LastAction).HasDatabaseName("IX_users_last_action");
-            builder.HasIndex(_ => _.ReferralLink).HasDatabaseName("IX_users_referral_link");
+            builder.HasIndex(_ => _.Nickname).HasDatabaseName("IX_bot_users_nickname");
+            builder.HasIndex(_ => _.TelegramId).IsUnique().HasDatabaseName("IX_bot_users_telegram_id");
+            builder.HasIndex(_ => _.ChatId).IsUnique().HasDatabaseName("IX_bot_users_chat_id");
+            builder.HasIndex(_ => _.FirstName).HasDatabaseName("IX_bot_users_firstname");
+            builder.HasIndex(_ => _.LastName).HasDatabaseName("IX_bot_users_lastname");
+            builder.HasIndex(_ => _.LastAction).HasDatabaseName("IX_bot_users_last_action");
+            builder.HasIndex(_ => _.ReferralLink).HasDatabaseName("IX_bot_users_referral_link");
         }
 
         #endregion
