@@ -18,6 +18,11 @@ namespace WebUI.Pages.Users.Models
         public double Balance { get; set; }
 
         /// <summary>
+        ///     Кол-во предупреждений
+        /// </summary>
+        public int WarningNumber { get; set; }
+
+        /// <summary>
         ///     Текущее состояние пользователя
         /// </summary>
         public UserStateType UserStateType { get; set; }

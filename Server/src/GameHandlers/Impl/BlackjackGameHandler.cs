@@ -25,7 +25,7 @@ namespace Server.GameHandlers.Impl
 
         private readonly static Logger Logger = LogManager.GetCurrentClassLogger();
 
-        private readonly IMessageService _telegramService;
+        private readonly IMessageService _messageService;
 
         #endregion
 
@@ -34,7 +34,7 @@ namespace Server.GameHandlers.Impl
         /// <inheritdoc cref="BlackjackGameHandler"/>
         public BlackjackGameHandler(IMessageService telegramService)
         {
-            _telegramService = telegramService;
+            _messageService = telegramService;
         }
 
         #endregion
@@ -64,7 +64,7 @@ namespace Server.GameHandlers.Impl
             }
 
             var user = Mapper.Map(userEntity, userEntity.UserState);
-            IGame game = new BlackjackGame(user, _telegramService);
+            IGame game = new BlackjackGame(user, _messageService);
             game.OnGameUpdated += OnGameUpdatedAsync;
             game.OnGameEnded += OnGameEnded;
 
@@ -191,7 +191,7 @@ namespace Server.GameHandlers.Impl
                     referralOwner.UserState.Balance += Const.ReferralAward;
 
                     await database.SaveChangesAsync(token);
-                    await _telegramService.SendAsync(DefaultText.ReferallAwardText, referralOwner.ChatId, token);
+                    await _messageService.SendAsync(DefaultText.ReferallAwardText, referralOwner.ChatId, token);
                 }
             }
             catch (Exception ex)

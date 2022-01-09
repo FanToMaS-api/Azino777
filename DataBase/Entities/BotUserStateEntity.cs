@@ -50,6 +50,12 @@ namespace DataBase.Entities
         [Column("ban_reason")]
         public BanReasonType BanReason { get; set; }
 
+        /// <summary>
+        ///     Кол-во предупреждений полученных пользователем
+        /// </summary>
+        [Column("warning_number")]
+        public int WarningNumber { get; set; }
+
         #endregion
 
         #region Setup
@@ -74,6 +80,7 @@ namespace DataBase.Entities
             modelBuilder.Entity<BotUserStateEntity>().HasIndex(_ => _.UserStateType).HasDatabaseName("IX_bot_users_state_state_type");
             modelBuilder.Entity<BotUserStateEntity>().HasIndex(_ => _.Balance).HasDatabaseName("IX_bot_users_state_balance");
             modelBuilder.Entity<BotUserStateEntity>().HasIndex(_ => _.BanReason).HasDatabaseName("IX_bot_users_state_ban_reason");
+            modelBuilder.Entity<BotUserStateEntity>().HasIndex(_ => _.WarningNumber).HasDatabaseName("IX_bot_users_state_warning_number");
 
             // конвертеры
             modelBuilder.Entity<BotUserStateEntity>()

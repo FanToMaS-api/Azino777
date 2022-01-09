@@ -84,6 +84,7 @@ namespace WebUI.Pages.Users.Modals
                 entity.Balance = _model.Balance;
                 entity.UserStateType = _model.UserStateType;
                 entity.BanReason = _model.BanReason;
+                entity.WarningNumber = _model.WarningNumber;
             }
         }
 

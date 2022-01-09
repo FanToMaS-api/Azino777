@@ -7,9 +7,15 @@
         </ModalHeader>
         <ModalBody>
             <EditForm Model="@_model">
+
                 <EditDouble Name="Баланс" @bind-Value="_model.Balance" />
+
+
                 <StandartDropdownEditor Name="Состояние пользователя" Items="@_userStates" ItemsText="@(_=>_.Display())" @bind-Value="@_model.UserStateType" />
+
                 <StandartDropdownEditor Name="Причина бана" Items="@_banReasons" ItemsText="@(_ => _.Display())" @bind-Value="@_model.BanReason" />
+
+                <EditInteger Name="Кол-во предупреждений" @bind-Value="_model.WarningNumber" />
             </EditForm>
         </ModalBody>
         <ModalFooter>

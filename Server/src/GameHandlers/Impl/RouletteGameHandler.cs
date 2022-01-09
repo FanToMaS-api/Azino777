@@ -23,7 +23,7 @@ namespace Server.GameHandlers.Impl
 
         private readonly static Logger _logger = LogManager.GetCurrentClassLogger();
 
-        private readonly IMessageService _telegramService;
+        private readonly IMessageService _messageService;
 
         #endregion
 
@@ -32,7 +32,7 @@ namespace Server.GameHandlers.Impl
         /// <inheritdoc cref="RouletteGameHandler"/>
         public RouletteGameHandler(IMessageService telegramService)
         {
-            _telegramService = telegramService;
+            _messageService = telegramService;
         }
 
         #endregion
@@ -63,7 +63,7 @@ namespace Server.GameHandlers.Impl
             }
 
             var user = Mapper.Map(userEntity, userEntity.UserState);
-            IGame game = new RouletteGame(user, _telegramService);
+            IGame game = new RouletteGame(user, _messageService);
             game.OnGameUpdated += OnGameUpdatedAsync;
             game.OnGameEnded += OnGameEnded;
 
