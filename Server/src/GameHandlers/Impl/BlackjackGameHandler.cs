@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DataBase;
@@ -10,6 +11,7 @@ using Games.Games.Impl;
 using Games.Services;
 using Microsoft.EntityFrameworkCore;
 using NLog;
+using Server.Helpers;
 using Server.Mappers;
 
 namespace Server.GameHandlers.Impl
@@ -21,7 +23,7 @@ namespace Server.GameHandlers.Impl
     {
         #region Fields
 
-        private readonly static Logger _logger = LogManager.GetCurrentClassLogger();
+        private readonly static Logger Logger = LogManager.GetCurrentClassLogger();
 
         private readonly IMessageService _telegramService;
 
@@ -57,7 +59,7 @@ namespace Server.GameHandlers.Impl
             }
             catch (Exception ex)
             {
-                _logger.Error(ex);
+                Logger.Error(ex);
                 return;
             }
 
@@ -72,7 +74,7 @@ namespace Server.GameHandlers.Impl
             }
             catch (Exception ex)
             {
-                _logger.Error(ex);
+                Logger.Error(ex);
             }
 
             await game.StartGameAsync(bid, cancellationToken);
@@ -108,11 +110,15 @@ namespace Server.GameHandlers.Impl
             }
             catch (Exception ex)
             {
-                _logger.Error(ex);
+                Logger.Error(ex);
             }
             finally
             {
-                await OnGameUpdatedAsync(game, null, token);
+                var endedGame = await OnGameUpdatedAsync(game, null, token);
+                if (endedGame is not null && endedGame.IsUserWin())
+                {
+                    await SendAwardToReferralAsync(database, endedGame, token);
+                }
             }
 
             void UpdateUserStateEntity(BotUserStateEntity state)
@@ -133,7 +139,7 @@ namespace Server.GameHandlers.Impl
         /// <summary>
         ///     Обрабатывает события при обновлении игры
         /// </summary>
-        private async Task OnGameUpdatedAsync(IGame sender, EventArgs e, CancellationToken token = default)
+        private async Task<BlackjackHistoryEntity> OnGameUpdatedAsync(IGame sender, EventArgs e, CancellationToken token = default)
         {
             if (sender is BlackjackGame blackjackGame)
             {
@@ -142,11 +148,11 @@ namespace Server.GameHandlers.Impl
                 try
                 {
                     var user = await database.BotUsers.UpdateAsync(blackjackGame.User.TelegramId, UpdateUserEntity, token);
-                    await database.BlackjackHistory.UpdateAsync(user.Id, UpdateRecord, token);
+                    return await database.BlackjackHistory.UpdateAsync(user.Id, UpdateRecord, token);
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error(ex);
+                    Logger.Error(ex);
                 }
 
                 void UpdateRecord(BlackjackHistoryEntity record)
@@ -156,6 +162,45 @@ namespace Server.GameHandlers.Impl
                     record.UserScope = blackjackGame.UserScope;
                     record.GameState = e is null ? GameStateType.IsOver : GameStateType.IsOn;
                 }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     Отправляет поощрительную награду за победу реферала
+        /// </summary>
+        private async Task SendAwardToReferralAsync(ITelegramDbContext database, BlackjackHistoryEntity game, CancellationToken token)
+        {
+            using var transaction = await database.BeginTransactionAsync(token);
+            try
+            {
+                var user = await database.BotUsers.GetAsync(game.User.TelegramId, token);
+                if (user is not null && !string.IsNullOrEmpty(user.ReferralLink))
+                {
+                    var referralOwner = await database.BotUsers
+                        .CreateQuery()
+                        .Where(_ => _.UserReferralLink.ReferralLink == user.ReferralLink)
+                        .Include(_ => _.UserState)
+                        .FirstOrDefaultAsync(token);
+                    if (referralOwner is null)
+                    {
+                        return;
+                    }
+
+                    referralOwner.UserState.Balance += Const.ReferralAward;
+
+                    await database.SaveChangesAsync(token);
+                    await _telegramService.SendAsync(DefaultText.ReferallAwardText, referralOwner.ChatId, token);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, "Error while sendingaward to referral link owner");
+            }
+            finally
+            {
+                await transaction.CommitAsync(token);
             }
         }
 

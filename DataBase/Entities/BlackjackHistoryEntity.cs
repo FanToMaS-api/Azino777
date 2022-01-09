@@ -87,6 +87,14 @@ namespace DataBase.Entities
                   v => string.IsNullOrEmpty(v) ? GameStateType.IsOver : (GameStateType)Enum.Parse(typeof(GameStateType), v));
         }
 
+        /// <summary>
+        ///     Определяет выйграл ли пользователь
+        /// </summary>
+        public bool IsUserWin()
+        {
+            return UserScope <= 21 && DialerScope < UserScope;
+        }
+
         #endregion
     }
 }

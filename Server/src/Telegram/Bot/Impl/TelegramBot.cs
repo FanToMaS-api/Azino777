@@ -13,7 +13,6 @@ using Server.Helpers;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 
-// TODO: Добавить проверки на статус пользователя (Banned, Active, Inactive)
 // TODO: добавить сервис который раз в день будет всех пользоватлей переводить в неактивные,
 //          если они не писали боту, также добавить лимит по смс в минуту,
 //          при превышении лимита отправлять в бан + добавить причины бана
@@ -70,15 +69,16 @@ namespace Server.Telegram.Bot.Impl
                 if (!database.BotUsers.CreateQuery().Any(_ => _.TelegramId == userId))
                 {
                     await StartFunctionAsync(database, message, cancellationToken);
-                    var user = await database.BotUsers.CreateAsync(CreateUserEntity, cancellationToken);
+                    var newUser = await database.BotUsers.CreateAsync(CreateUserEntity, cancellationToken);
 
-                    await _messageService.SendAsync(DefaultText.InputReferralLink, chatId, cancellationToken);
+                    await _messageService.SendAsync(DefaultText.InputReferralLinkText, chatId, cancellationToken);
                     var referralLinklHelper = new ReferralLinkHelper(_messageService, userId);
 
                     return;
                 }
 
-                if ((await database.BotUsers.GetAsync(userId, cancellationToken)).UserState.UserStateType == UserStateType.Banned)
+                var user = await database.BotUsers.GetAsync(userId, cancellationToken);
+                if (user.UserState.UserStateType == UserStateType.Banned)
                 {
                     await _messageService.SendAsync(DefaultText.BannedAccountText, chatId, cancellationToken);
                     return;
@@ -91,6 +91,11 @@ namespace Server.Telegram.Bot.Impl
                 if (IsUserBlockedBot(apiEx))
                 {
                     var user = await database.BotUsers.GetAsync(message.From.Id, cancellationToken);
+                    if (user is null)
+                    {
+                        return;
+                    }
+
                     await database.BotUserStates.UpdateAsync(
                         user.UserState.Id,
                         _ => { _.UserStateType = UserStateType.BlockedBot; },
@@ -166,21 +171,21 @@ namespace Server.Telegram.Bot.Impl
                     }
                 case "/command4": // снятие средств
                     {
-                        await _messageService.SendAsync(DefaultText.WithdrawFunds, chatId, cancellationToken);
+                        await _messageService.SendAsync(DefaultText.WithdrawFundsText, chatId, cancellationToken);
                         Log.Info($"Пользователь с id: {userId} запросил вывод средств");
                         break;
                     }
                 case "/command5": // 21 очко
                     {
                         var newGame = new BlackjackGameHandler(_messageService);
-                        await _messageService.SendAsync(DefaultText.InputBid, chatId, cancellationToken);
+                        await _messageService.SendAsync(DefaultText.InputBidText, chatId, cancellationToken);
                         var gameHelper = new GameHelper(_messageService, newGame, userId);
                         break;
                     }
                 case "/command6": // рулетка
                     {
                         var newGame = new RouletteGameHandler(_messageService);
-                        await _messageService.SendAsync(DefaultText.InputBid, chatId, cancellationToken);
+                        await _messageService.SendAsync(DefaultText.InputBidText, chatId, cancellationToken);
                         var gameHelper = new GameHelper(_messageService, newGame, userId);
                         break;
                     }

@@ -45,22 +45,27 @@
         /// <summary>
         ///     Сообщение о вводе ставки
         /// </summary>
-        public static string InputBid = "Введите вашу ставку";
+        public static string InputBidText = "Введите вашу ставку";
 
         /// <summary>
         ///     Предложение ввести реферальныю ссылку
         /// </summary>
-        public static string InputReferralLink = "Введите реферальную ссылку\nEсли нет - отправьте любой символ";
+        public static string InputReferralLinkText = "Введите реферальную ссылку\nEсли нет - отправьте любой символ";
 
         /// <summary>
         ///     Сообщение о неверном вводе ставки
         /// </summary>
-        public static string ErrorInputBid = "Ставка не принята, игра отменена";
+        public static string ErrorInputBidText = "Ставка не принята, игра отменена";
 
         /// <summary>
         ///     Сообщение о выводе денежных средств пользователю
         /// </summary>
-        public static string WithdrawFunds = $"Чтобы вывести денежные средства напишите сумму, номер телефона и свой ник в телеграмме на почту: {HelpEmail}\n" +
+        public static string WithdrawFundsText = $"Чтобы вывести денежные средства напишите сумму, номер телефона и свой ник в телеграмме на почту: {HelpEmail}\n" +
                                              "После проверки денежные средства будут зачислены на ваш счет, в течение 2х рабочих дней";
+
+        /// <summary>
+        ///     Сообщение о зачислении монет за выйгрыш реферала
+        /// </summary>
+        public static string ReferallAwardText = $"Пользователь, зарегистрированный по вашей реферальной ссылке, выйграл игру! Вы получатете {Const.ReferralAward} монет";
     }
 }
