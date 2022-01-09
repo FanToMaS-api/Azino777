@@ -63,7 +63,6 @@ namespace Server.Telegram.Bot.Impl
             try
             {
                 // TODO: добавить баннер для защиты от спама
-                // TODO: добавить баф для пользователя чей реф ссылкой пользуются => по 1 монете за каждую выйгранную рефералом игру
                 var userId = message.From.Id;
                 var chatId = message.Chat.Id;
                 if (!database.BotUsers.CreateQuery().Any(_ => _.TelegramId == userId))

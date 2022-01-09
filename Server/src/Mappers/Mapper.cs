@@ -16,7 +16,6 @@ namespace Server.Mappers
         /// </summary>
         public static IUser Map(BotUserEntity user, BotUserStateEntity state)
         {
-            // TODO: AutoMapper ?
             return UserFactory.CreateUser(user.Id, user.TelegramId, user.ChatId, user.Nickname, state.Balance);
         }
 
