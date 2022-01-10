@@ -115,7 +115,7 @@ namespace Server.GameHandlers.Impl
             finally
             {
                 var endedGame = await OnGameUpdatedAsync(game, null, token);
-                if (endedGame is not null && endedGame.IsUserWin())
+                if (endedGame is not null && endedGame.UserScope <= 21 && endedGame.DialerScope < endedGame.UserScope)
                 {
                     await SendAwardToReferralAsync(database, endedGame, token);
                 }
