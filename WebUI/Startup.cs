@@ -6,6 +6,7 @@ using Blazorise.Icons.FontAwesome;
 using DataBase;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -55,6 +56,17 @@ namespace WebUI
             var mapper = mappingConfig.CreateMapper();
             services.AddSingleton(mapper);
 
+            services.AddDefaultIdentity<IdentityUser>()
+                .AddEntityFrameworkStores<AppDbContext>();
+
+            services.AddHttpContextAccessor();
+            services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(10);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
+
             services.UsePostgresDatabase(Configuration);
             services.AddTelegramService(Configuration);
         }
@@ -77,6 +89,8 @@ namespace WebUI
             app.UseStaticFiles();
 
             app.UseRouting();
+            app.UseAuthorization();
+            app.UseSession();
 
             app.UseEndpoints(endpoints =>
             {

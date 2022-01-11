@@ -1,10 +1,5 @@
-﻿using System.Threading.Tasks;
-using AutoMapper;
-using Blazorise;
+﻿using Blazorise;
 using DataBase.Entities;
-using Microsoft.AspNetCore.Components;
-using Microsoft.Extensions.DependencyInjection;
-using WebUI.Pages.Users.Models;
 
 namespace WebUI.Pages.Users.Modals
 {

@@ -37,25 +37,44 @@
 }
 
 @{
-    var pagesToShow = ActivePage + CountLinksToShow / 2;
-    var allPagesCount = Math.Ceiling((double)TotalCount / PageSize);
+    var pagesToShow = ActivePage + CountLinksToShow / 2; // определяю правую границу интервала страниц
+    var allPagesCount = (int)Math.Ceiling((double)TotalCount / PageSize);
     var pageCount = pagesToShow < allPagesCount ? pagesToShow : allPagesCount;
-    var showFirst = (ActivePage - pagesToShow) > 1;
-    var showLasst = (ActivePage + pagesToShow) < allPagesCount;
+    var showFirst = (ActivePage - CountLinksToShow / 2) > 1;
+    var showLast = (ActivePage + CountLinksToShow / 2) < allPagesCount;
 
-    //  Указываю начальную страницу, чтобы можно было листать обратно
+    // определяю левую границу интервала страниц
     var startPage = ActivePage - CountLinksToShow / 2;
     startPage = startPage > 1 ? startPage : 1;
+    if (startPage < CountLinksToShow && CountLinksToShow < allPagesCount)
+    {
+        pageCount = startPage + CountLinksToShow;
+    }
+
+    if (startPage + CountLinksToShow > allPagesCount && CountLinksToShow < allPagesCount)
+    {
+        startPage = allPagesCount - CountLinksToShow;
+    }
 }
+
 
 @if (TotalCount > 0 && TotalCount > PageSize)
 {
-    <div class="my-2 text-center">
+    /// TOOO: РЕФАКТОРИНГ!
+    <div class="my-2 text-left">
         <div class="btn-group" role="group">
             @if (showFirst)
             {
-                <input type="button" value="1.." class="btn btn-sm btn-outline-primary" @onclick="@(()=>NavigateToPage(1))">
+                <input type="button" value="1" class="btn btn-sm btn-outline-primary" @onclick="@(()=>NavigateToPage(1))">
             }
+            @{
+                var skipLeftMany = ActivePage - CountLinksToShow / 2;
+                var skipLeftOne = ActivePage - 1;
+                var skipRightMany = ActivePage + CountLinksToShow / 2;
+                var skipRightOne = ActivePage + 1;
+            }
+            <input type="button" value="<<" class="btn btn-sm btn-outline-primary" @onclick="@(()=>NavigateToPage(skipLeftMany< 1 ? 1 : skipLeftMany))">
+            <input type="button" value="<" class="btn btn-sm btn-outline-primary" @onclick="@(()=>NavigateToPage(skipLeftOne < 1 ? 1 : skipLeftOne))">
 
             @for (var page = startPage; page <= pageCount; page++)
             {
@@ -65,9 +84,11 @@
                 <input type="button" value="@text" class="btn btn-sm @(isActive ? "btn-primary":"btn-outline-primary")" @onclick="@(()=>NavigateToPage(linkPage))">
             }
 
-            @if (showLasst)
+            <input type="button" value=">" class="btn btn-sm btn-outline-primary" @onclick="@(()=>NavigateToPage(skipRightOne < allPagesCount ? skipRightOne : allPagesCount))">
+            <input type="button" value=">>" class="btn btn-sm btn-outline-primary" @onclick="@(()=>NavigateToPage(skipRightMany < allPagesCount ? skipRightMany : allPagesCount))">
+            @if (showLast)
             {
-                <input type="button" value="..@allPagesCount" class="btn btn-sm btn-outline-primary" @onclick="@(()=>NavigateToPage((int)allPagesCount))">
+                <input type="button" value="@allPagesCount" class="btn btn-sm btn-outline-primary" @onclick="@(()=>NavigateToPage(allPagesCount))">
             }
         </div>
     </div>

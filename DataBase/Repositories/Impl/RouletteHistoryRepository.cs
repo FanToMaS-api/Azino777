@@ -42,6 +42,7 @@ namespace DataBase.Repositories.Impl
         {
             var blackjack = await _dbContext.RouletteHistory
                 .Where(_ => _.UserId == userId)
+                .Include(_ => _.User)
                 .FirstOrDefaultAsync(cancellationToken);
             if (blackjack is null)
             {
@@ -71,6 +72,7 @@ namespace DataBase.Repositories.Impl
         {
             var historyRecord = await _dbContext.RouletteHistory
                 .Where(_ => _.UserId == userId && _.GameState == GameStateType.IsOn)
+                .Include(_ => _.User)
                 .FirstOrDefaultAsync(cancellationToken);
             if (historyRecord == null)
             {

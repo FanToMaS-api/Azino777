@@ -55,7 +55,7 @@ namespace Server.Helpers
             }
             else
             {
-                await _messageService.SendAsync(DefaultText.ErrorInputBid, message.Chat.Id, cancellationToken);
+                await _messageService.SendAsync(DefaultText.ErrorInputBidText, message.Chat.Id, cancellationToken);
             }
 
             _messageService.OnMessageReceived -= OnBidRecieved;

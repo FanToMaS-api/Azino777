@@ -1,4 +1,4 @@
-﻿@inherits InputBase<double>
+﻿@inherits InputBase<int>
 
 @code {
 
@@ -31,7 +31,7 @@
     /// </summary>
     public void SetValue(string value)
     {
-        if (double.TryParse(value, out var res))
+        if (int.TryParse(value, out var res))
         {
             _value = value;
             Value = res;
@@ -39,7 +39,7 @@
         }
     }
 
-    protected override bool TryParseValueFromString(string value, out double result, out string validationErrorMessage)
+    protected override bool TryParseValueFromString(string value, out int result, out string validationErrorMessage)
     {
         throw new NotImplementedException();
     }

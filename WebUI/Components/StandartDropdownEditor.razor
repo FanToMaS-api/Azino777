@@ -35,21 +35,34 @@
     }
 }
 
-<div class="dropdown">
-    <div class="btn-group group">
-        <input type="button" disabled class="btn btn-light text-nowrap text-black font-weight-bold" value="@Name:" readonly>
-        <input type="button" disabled class="btn btn-light text-nowrap text-black" value="@(ItemsText(Value))" readonly>
-    </div>
+<div class="container">
+    <div class="row mt-2">
+        <div class="col">
+            <input type="button" disabled class="btn btn-light text-nowrap text-black font-weight-bold" value="@Name:" readonly>
+        </div>
 
-    <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" />
+        <div class="col">
+            <div class="btn-group group">
+                <input type="button" disabled class="btn btn-light text-nowrap text-black" value="@(ItemsText(Value))" readonly>
 
-    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-        @for (var i = 0; i < Items.Length; i++)
-        {
-            var item = Items[i];
-            <a class="dropdown-item form-label" @onclick="@(() => OnClickHandle(item))">
-                @ItemsText(item)
-            </a>
-        }
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false" />
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        @for (var i = 0; i < Items.Length; i++)
+                        {
+                            var item = Items[i];
+                            <a class="dropdown-item form-label" @onclick="@(() => OnClickHandle(item))">
+                                @ItemsText(item)
+                            </a>
+                        }
+                    </div>
+                </div>
+
+            </div>
+        </div>
     </div>
 </div>
+
+
+
