@@ -22,13 +22,13 @@ namespace DataBase.Entities
         /// <summary>
         ///     Id пользователя
         /// </summary>
-        [Column("bot_user_id")]
+        [Column("user_id")]
         public long UserId { get; set; }
 
         /// <summary>
         ///     Сам пользователь для связи
         /// </summary>
-        public BotUserEntity User { get; set; }
+        public UserEntity User { get; set; }
 
         /// <summary>
         ///     Состояние игры
@@ -45,7 +45,7 @@ namespace DataBase.Entities
         /// <summary>
         ///     Очки пользователя
         /// </summary>
-        [Column("bot_user_scope")]
+        [Column("user_scope")]
         public int UserScope { get; set; }
 
         /// <summary>
@@ -73,10 +73,10 @@ namespace DataBase.Entities
                 .HasForeignKey(_ => _.UserId);
 
             // Индексы
-            modelBuilder.Entity<BlackjackHistoryEntity>().HasIndex(_ => _.UserId).HasDatabaseName("IX_blackjack_history_bot_user_id");
+            modelBuilder.Entity<BlackjackHistoryEntity>().HasIndex(_ => _.UserId).HasDatabaseName("IX_blackjack_history_user_id");
             modelBuilder.Entity<BlackjackHistoryEntity>().HasIndex(_ => _.GameState).HasDatabaseName("IX_blackjack_history_state");
             modelBuilder.Entity<BlackjackHistoryEntity>().HasIndex(_ => _.DialerScope).HasDatabaseName("IX_blackjack_history_dialer_scope");
-            modelBuilder.Entity<BlackjackHistoryEntity>().HasIndex(_ => _.UserScope).HasDatabaseName("IX_blackjack_history_bot_user_scope");
+            modelBuilder.Entity<BlackjackHistoryEntity>().HasIndex(_ => _.UserScope).HasDatabaseName("IX_blackjack_history_user_scope");
             modelBuilder.Entity<BlackjackHistoryEntity>().HasIndex(_ => _.Bid).HasDatabaseName("IX_blackjack_history_bid");
 
             // конвертеры

@@ -32,9 +32,9 @@ namespace Server.GameHandlers.Impl
         #region .ctor
 
         /// <inheritdoc cref="BlackjackGameHandler"/>
-        public BlackjackGameHandler(IMessageService telegramService)
+        public BlackjackGameHandler(IMessageService messageService)
         {
-            _messageService = telegramService;
+            _messageService = messageService;
         }
 
         #endregion
@@ -44,10 +44,10 @@ namespace Server.GameHandlers.Impl
         /// <inheritdoc />
         public async Task StartGameAsync(ITelegramDbContext dbContext, long userId, double bid, CancellationToken cancellationToken)
         {
-            BotUserEntity userEntity;
+            UserEntity userEntity;
             try
             {
-                userEntity = await dbContext.BotUsers.GetAsync(userId, cancellationToken);
+                userEntity = await dbContext.Users.GetAsync(userId, cancellationToken);
 
                 var activeGame = await dbContext.BlackjackHistory
                    .CreateQuery()
@@ -105,8 +105,8 @@ namespace Server.GameHandlers.Impl
             try
             {
                 var userId = game.User.Id;
-                var userState = await database.BotUserStates.GetAsync(userId, token);
-                userState = await database.BotUserStates.UpdateAsync(userState.Id, UpdateUserStateEntity, token);
+                var userState = await database.UserStates.GetAsync(userId, token);
+                userState = await database.UserStates.UpdateAsync(userState.Id, UpdateUserStateEntity, token);
             }
             catch (Exception ex)
             {
@@ -121,7 +121,7 @@ namespace Server.GameHandlers.Impl
                 }
             }
 
-            void UpdateUserStateEntity(BotUserStateEntity state)
+            void UpdateUserStateEntity(UserStateEntity state)
             {
                 state.Balance = game.User.GetBalance();
                 state.UserStateType = UserStateType.Active;
@@ -131,7 +131,7 @@ namespace Server.GameHandlers.Impl
         /// <summary>
         ///     Обновляет дату последнего действия пользователя
         /// </summary>
-        private static void UpdateUserEntity(BotUserEntity user)
+        private static void UpdateUserEntity(UserEntity user)
         {
             user.LastAction = DateTime.Now;
         }
@@ -147,7 +147,7 @@ namespace Server.GameHandlers.Impl
 
                 try
                 {
-                    var user = await database.BotUsers.UpdateAsync(blackjackGame.User.TelegramId, UpdateUserEntity, token);
+                    var user = await database.Users.UpdateAsync(blackjackGame.User.TelegramId, UpdateUserEntity, token);
                     return await database.BlackjackHistory.UpdateAsync(user.Id, UpdateRecord, token);
                 }
                 catch (Exception ex)
@@ -175,24 +175,37 @@ namespace Server.GameHandlers.Impl
             using var transaction = await database.BeginTransactionAsync(token);
             try
             {
-                var user = await database.BotUsers.GetAsync(game.User.TelegramId, token);
-                if (user is not null && !string.IsNullOrEmpty(user.ReferralLink))
+                // тот кто выйграл игру
+                var user = await database.Users.GetAsync(game.User.TelegramId, token);
+                if (user is null || string.IsNullOrEmpty(user.ReferralLink))
                 {
-                    var referralOwner = await database.BotUsers
+                    return;
+                }
+
+                // тот, чья реферальная ссылка указана у победителя
+                var referralOwner = await database.Users
                         .CreateQuery()
                         .Where(_ => _.UserReferralLink.ReferralLink == user.ReferralLink)
                         .Include(_ => _.UserState)
                         .FirstOrDefaultAsync(token);
-                    if (referralOwner is null)
-                    {
-                        return;
-                    }
+                if (referralOwner is null)
+                {
+                    return;
+                }
 
+                if (user.ReferralLink != user.UserReferralLink.ReferralLink)
+                {
                     referralOwner.UserState.Balance += Const.ReferralAward;
-
-                    await database.SaveChangesAsync(token);
                     await _messageService.SendAsync(DefaultText.ReferallAwardText, referralOwner.ChatId, token);
                 }
+                else
+                {
+                    // если указана собственная реферальная ссылка
+                    user.ReferralLink = string.Empty;
+                    await _messageService.SendAsync(DefaultText.SelfReferralErrorText, referralOwner.ChatId, token);
+                }
+
+                await database.SaveChangesAsync(token);
             }
             catch (Exception ex)
             {

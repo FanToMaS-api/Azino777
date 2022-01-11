@@ -11,7 +11,7 @@ namespace DataBase.Repositories.Impl
     /// <summary>
     ///     Репозиторий состояний пользователя
     /// </summary>
-    internal class BotUserStateRepository : IBotUserStateRepository
+    internal class UserStateRepository : IUserStateRepository
     {
         #region Fields
 
@@ -23,8 +23,8 @@ namespace DataBase.Repositories.Impl
 
         #region .ctor
 
-        /// <inheritdoc cref="BotUserStateRepository"/>
-        public BotUserStateRepository(AppDbContext dbContext)
+        /// <inheritdoc cref="UserStateRepository"/>
+        public UserStateRepository(AppDbContext dbContext)
         {
             _dbContext = dbContext;
         }
@@ -34,13 +34,14 @@ namespace DataBase.Repositories.Impl
         #region Public methods
 
         /// <inheritdoc />
-        public IQueryable<BotUserStateEntity> CreateQuery() => _dbContext.UsersStates.AsQueryable();
+        public IQueryable<UserStateEntity> CreateQuery() => _dbContext.UsersStates.AsQueryable();
 
         /// <inheritdoc />
-        public async Task<BotUserStateEntity> GetAsync(long userId, CancellationToken cancellationToken = default)
+        public async Task<UserStateEntity> GetAsync(long userId, CancellationToken cancellationToken = default)
         {
             var userState = await _dbContext.UsersStates
                 .Where(_ => _.UserId == userId)
+                .Include(_ => _.User)
                 .FirstOrDefaultAsync(cancellationToken);
             if (userState is null)
             {
@@ -51,9 +52,9 @@ namespace DataBase.Repositories.Impl
         }
 
         /// <inheritdoc />
-        public async Task<BotUserStateEntity> CreateAsync(Action<BotUserStateEntity> action, CancellationToken cancellationToken = default)
+        public async Task<UserStateEntity> CreateAsync(Action<UserStateEntity> action, CancellationToken cancellationToken = default)
         {
-            var userState = new BotUserStateEntity();
+            var userState = new UserStateEntity();
             action(userState);
 
             var conflictState = await _dbContext.UsersStates
@@ -75,10 +76,11 @@ namespace DataBase.Repositories.Impl
         }
 
         /// <inheritdoc />
-        public async Task<BotUserStateEntity> UpdateAsync(long id, Action<BotUserStateEntity> action, CancellationToken cancellationToken = default)
+        public async Task<UserStateEntity> UpdateAsync(long id, Action<UserStateEntity> action, CancellationToken cancellationToken = default)
         {
             var userState = await _dbContext.UsersStates
                 .Where(_ => _.Id == id)
+                .Include(_ => _.User)
                 .FirstOrDefaultAsync(cancellationToken);
             if (userState == null)
             {

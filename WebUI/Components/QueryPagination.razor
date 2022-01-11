@@ -57,8 +57,10 @@
     }
 }
 
+
 @if (TotalCount > 0 && TotalCount > PageSize)
 {
+    /// TOOO: РЕФАКТОРИНГ!
     <div class="my-2 text-left">
         <div class="btn-group" role="group">
             @if (showFirst)

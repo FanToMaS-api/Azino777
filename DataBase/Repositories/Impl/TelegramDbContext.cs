@@ -22,11 +22,9 @@ namespace DataBase.Repositories.Impl
 
         private IRouletteHistoryRepository _rouletteHistory;
 
-        private IBotUserRepository _botUsers;
-
-        private IBotUserStateRepository _botUserStates;
-
         private IUserRepository _users;
+
+        private IUserStateRepository _userStates;
 
         private bool _disposed;
 
@@ -56,13 +54,10 @@ namespace DataBase.Repositories.Impl
         public IRouletteHistoryRepository RouletteHistory => _rouletteHistory ??= new RouletteHistoryRepository(_dbContext);
 
         /// <inheritdoc />
-        public IBotUserRepository BotUsers => _botUsers ??= new BotUserRepository(_dbContext);
+        public IUserRepository Users => _users ??= new UserRepository(_dbContext);
 
         /// <inheritdoc />
-        public IBotUserStateRepository BotUserStates => _botUserStates ??= new BotUserStateRepository(_dbContext);
-        
-        /// <inheritdoc />
-        public IUserRepository Users => _users ??= new UserRepository(_dbContext);
+        public IUserStateRepository UserStates => _userStates ??= new UserStateRepository(_dbContext);
 
         #endregion
 

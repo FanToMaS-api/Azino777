@@ -48,7 +48,7 @@ namespace WebUI.Pages.Users.Modals
         /// <summary>
         ///     Открывает модальное окно
         /// </summary>
-        public void ShowModal(BotUserStateEntity userState)
+        public void ShowModal(UserStateEntity userState)
         {
             _model = Mapper.Map<EditUserStateModel>(userState);
             _modalRef.Show();
@@ -67,7 +67,7 @@ namespace WebUI.Pages.Users.Modals
             using var database = scope.ServiceProvider.GetRequiredService<ITelegramDbContext>();
             try
             {
-                await database.BotUserStates.UpdateAsync(_model.Id, UpdateUserState);
+                await database.UserStates.UpdateAsync(_model.Id, UpdateUserState);
             }
             catch (Exception ex)
             {
@@ -79,7 +79,7 @@ namespace WebUI.Pages.Users.Modals
                 await InvokeAsync(StateHasChanged);
             }
 
-            void UpdateUserState(BotUserStateEntity entity)
+            void UpdateUserState(UserStateEntity entity)
             {
                 entity.Balance = _model.Balance;
                 entity.UserStateType = _model.UserStateType;

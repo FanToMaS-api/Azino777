@@ -2,38 +2,38 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
+using DataBase.Entities;
 
 namespace DataBase.Repositories
 {
     /// <summary>
-    ///     Репозиторий пользователей сайта
+    ///     Репозиторий пользователей бота
     /// </summary>
     public interface IUserRepository
     {
         /// <summary>
-        ///     Создать запрос к таблице пользователей сайта
+        ///     Создать запрос к таблице пользователей
         /// </summary>
-        IQueryable<IdentityUser> CreateQuery();
+        IQueryable<UserEntity> CreateQuery();
 
         /// <summary>
         ///     Удалить пользователя
         /// </summary>
-        void Remove(IdentityUser entity);
+        void Remove(UserEntity entity);
 
         /// <summary>
         ///     Получить пользователя по его id
         /// </summary>
-        Task<IdentityUser> GetAsync(string id, CancellationToken cancellationToken = default);
+        Task<UserEntity> GetAsync(long id, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Создать пользователя
         /// </summary>
-        Task<IdentityUser> CreateAsync(Action<IdentityUser> action, CancellationToken cancellationToken = default);
+        Task<UserEntity> CreateAsync(Action<UserEntity> action, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Изменить пользователя
         /// </summary>
-        Task<IdentityUser> UpdateAsync(string id, Action<IdentityUser> action, CancellationToken cancellationToken = default);
+        Task<UserEntity> UpdateAsync(long id, Action<UserEntity> action, CancellationToken cancellationToken = default);
     }
 }

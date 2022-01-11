@@ -9,26 +9,26 @@ namespace DataBase.Repositories
     /// <summary>
     ///     Репозиторий состояний пользователя
     /// </summary>
-    public interface IBotUserStateRepository
+    public interface IUserStateRepository
     {
         /// <summary>
         ///     Создать запрос к таблице пользователей
         /// </summary>
-        IQueryable<BotUserStateEntity> CreateQuery();
+        IQueryable<UserStateEntity> CreateQuery();
 
         /// <summary>
         ///     Получить состояние пользователя по его Id
         /// </summary>
-        Task<BotUserStateEntity> GetAsync(long userId, CancellationToken cancellationToken = default);
+        Task<UserStateEntity> GetAsync(long userId, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Создать состояние пользователя
         /// </summary>
-        Task<BotUserStateEntity> CreateAsync(Action<BotUserStateEntity> action, CancellationToken cancellationToken = default);
+        Task<UserStateEntity> CreateAsync(Action<UserStateEntity> action, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Изменить состояние пользователя
         /// </summary>
-        Task<BotUserStateEntity> UpdateAsync(long id, Action<BotUserStateEntity> action, CancellationToken cancellationToken = default);
+        Task<UserStateEntity> UpdateAsync(long id, Action<UserStateEntity> action, CancellationToken cancellationToken = default);
     }
 }

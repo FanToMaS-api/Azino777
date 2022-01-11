@@ -1,17 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
+using DataBase.Entities;
 using Microsoft.EntityFrameworkCore;
 using NLog;
 
 namespace DataBase.Repositories.Impl
 {
     /// <summary>
-    ///     Репозиторий пользователей сайта
+    ///     Репозиторий пользователей бота
     /// </summary>
     internal class UserRepository : IUserRepository
     {
@@ -36,32 +34,34 @@ namespace DataBase.Repositories.Impl
         #region Public methods
 
         /// <inheritdoc />
-        public IQueryable<IdentityUser> CreateQuery() => _dbContext.Users.AsQueryable();
+        public IQueryable<UserEntity> CreateQuery() => _dbContext.Users.AsQueryable();
 
         /// <inheritdoc />
-        public void Remove(IdentityUser entity)
+        public void Remove(UserEntity entity)
         {
             _dbContext.Users.Remove(entity);
         }
 
         /// <inheritdoc />
-        public async Task<IdentityUser> GetAsync(string id, CancellationToken cancellationToken = default)
+        public async Task<UserEntity> GetAsync(long id, CancellationToken cancellationToken = default)
         {
             var user = await _dbContext.Users
-                .Where(_ => _.Id == id)
+                .Include(_ => _.UserState)
+                .Include(_ => _.UserReferralLink)
+                .Where(_ => _.TelegramId == id)
                 .FirstOrDefaultAsync(cancellationToken);
 
             return user;
         }
 
         /// <inheritdoc />
-        public async Task<IdentityUser> CreateAsync(Action<IdentityUser> action, CancellationToken cancellationToken = default)
+        public async Task<UserEntity> CreateAsync(Action<UserEntity> action, CancellationToken cancellationToken = default)
         {
-            var user = new IdentityUser();
+            var user = new UserEntity();
             action(user);
 
             var conflictingUser = await _dbContext.Users
-                .Where(_ => _.Id == user.Id)
+                .Where(_ => _.TelegramId == user.TelegramId)
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (conflictingUser != null)
@@ -81,7 +81,7 @@ namespace DataBase.Repositories.Impl
         }
 
         /// <inheritdoc />
-        public async Task<IdentityUser> UpdateAsync(string id, Action<IdentityUser> action, CancellationToken cancellationToken = default)
+        public async Task<UserEntity> UpdateAsync(long id, Action<UserEntity> action, CancellationToken cancellationToken = default)
         {
             var user = await GetAsync(id, cancellationToken);
             if (user is null)
@@ -92,7 +92,7 @@ namespace DataBase.Repositories.Impl
             action(user);
 
             var conflictingUser = await _dbContext.Users
-                .Where(_ => _.Id == id && _.Id != user.Id)
+                .Where(_ => _.TelegramId == id && _.Id != user.Id)
                 .FirstOrDefaultAsync(cancellationToken);
             if (conflictingUser != null)
             {

@@ -1,5 +1,4 @@
 ﻿using DataBase.Entities;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Npgsql.NameTranslation;
@@ -9,7 +8,7 @@ namespace DataBase
     /// <summary>
     ///     Контекст базы данных
     /// </summary>
-    public class AppDbContext : IdentityDbContext
+    public class AppDbContext : DbContext
     {
         #region .ctor
 
@@ -26,7 +25,7 @@ namespace DataBase
         /// <summary>
         ///     Пользователи бота
         /// </summary>
-        public DbSet<BotUserEntity> BotUsers { get; set; }
+        public DbSet<UserEntity> Users { get; set; }
 
         /// <summary>
         ///     Таблица реферальных ссылок
@@ -36,7 +35,7 @@ namespace DataBase
         /// <summary>
         ///     Состояния пользователей
         /// </summary>
-        public DbSet<BotUserStateEntity> UsersStates { get; set; }
+        public DbSet<UserStateEntity> UsersStates { get; set; }
 
         /// <summary>
         ///     История игр в блэкджэк
@@ -69,9 +68,9 @@ namespace DataBase
             }
 
             // Setup
-            BotUserEntity.Setup(modelBuilder.Entity<BotUserEntity>());
+            UserEntity.Setup(modelBuilder.Entity<UserEntity>());
             ReferralLinkEntity.Setup(modelBuilder.Entity<ReferralLinkEntity>());
-            BotUserStateEntity.SetupModelBuilder(modelBuilder);
+            UserStateEntity.SetupModelBuilder(modelBuilder);
             BlackjackHistoryEntity.SetupModelBuilder(modelBuilder);
             RouletteHistoryEntity.SetupModelBuilder(modelBuilder);
         }

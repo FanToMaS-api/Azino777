@@ -50,12 +50,12 @@ namespace Server.Helpers
 
             if (await IsValidLinkAsync(database, link, cancellationToken))
             {
-                await database.BotUsers.UpdateAsync(message.From.Id, UpdateUserEntity, cancellationToken);
+                await database.Users.UpdateAsync(message.From.Id, UpdateUserEntity, cancellationToken);
             }
 
             _messageService.OnMessageReceived -= OnLinkRecieved;
 
-            void UpdateUserEntity(BotUserEntity user)
+            void UpdateUserEntity(UserEntity user)
             {
                 user.ReferralLink = link;
                 user.UserState.Balance += 50;

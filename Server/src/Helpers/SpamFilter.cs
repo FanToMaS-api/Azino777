@@ -46,7 +46,7 @@ namespace Server.Helpers
             try
             {
                 var message = (Message)@object;
-                var user = await database.BotUsers.GetAsync(message.From.Id);
+                var user = await database.Users.GetAsync(message.From.Id);
                 if (user is not null && SpamCheck(user))
                 {
                     user.UserState.WarningNumber++;
@@ -77,7 +77,7 @@ namespace Server.Helpers
         /// <summary>
         ///     Проверят на спам
         /// </summary>
-        private static bool SpamCheck(BotUserEntity user)
+        private static bool SpamCheck(UserEntity user)
         {
             return DateTime.Now - user.LastAction < Const.TimeToDefineSpam;
         }

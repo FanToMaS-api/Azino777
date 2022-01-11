@@ -12,7 +12,7 @@ namespace WebUI.Pages.Users.Modals
 
         private Modal _modalRef;
 
-        private BotUserStateEntity _model = new();
+        private UserStateEntity _model = new();
 
         #endregion
 
@@ -21,7 +21,7 @@ namespace WebUI.Pages.Users.Modals
         /// <summary>
         ///     Открывает модальное окно
         /// </summary>
-        public void ShowModal(BotUserStateEntity userState)
+        public void ShowModal(UserStateEntity userState)
         {
             _model = userState;
             _modalRef.Show();

@@ -42,6 +42,7 @@ namespace DataBase.Repositories.Impl
         {
             var blackjack = await _dbContext.BlackjackHistory
                 .Where(_ => _.UserId == userId)
+                .Include(_ => _.User)
                 .FirstOrDefaultAsync(cancellationToken);
             if (blackjack is null)
             {

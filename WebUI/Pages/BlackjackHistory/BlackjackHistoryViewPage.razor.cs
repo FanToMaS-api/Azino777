@@ -62,7 +62,7 @@ namespace WebUI.Pages.BlackjackHistory
         {
             using var scope = Scope.CreateScope();
             using var database = scope.ServiceProvider.GetRequiredService<ITelegramDbContext>();
-            _totalCount = database.BotUsers.CreateQuery().Count();
+            _totalCount = database.Users.CreateQuery().Count();
 
             await RefreshAsync();
         }
