@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Games.Services;
 using NLog;
+using Server.Helpers;
 using Server.Telegram.Bot;
 using Server.Telegram.Bot.Impl;
 using Server.Telegram.Service;
@@ -21,7 +22,7 @@ namespace Server.Telegram.Impl
     {
         #region Fields
 
-        private readonly static Logger Log = LogManager.GetCurrentClassLogger();
+        private readonly static Logger Logger = LogManager.GetCurrentClassLogger();
 
         private IMessageService _messageService;
 
@@ -65,7 +66,8 @@ namespace Server.Telegram.Impl
         /// <inheritdoc />
         public void Initialize()
         {
-            _messageService = new MessageService(_client);
+            _messageService = new MessageService(_client)
+                .AddSpamFilter();
             _bot = new TelegramBot(_messageService);
         }
 
@@ -74,7 +76,7 @@ namespace Server.Telegram.Impl
         {
             if (Status == ServiceStatusType.Running)
             {
-                Log.Warn("Сancel start: the service is already running");
+                Logger.Warn("Сancel start: the service is already running");
                 return;
             }
 
@@ -91,7 +93,7 @@ namespace Server.Telegram.Impl
 
             try
             {
-                Log.Info("Successful connection to bot");
+                Logger.Info("Successful connection to bot");
 
                 await foreach (var update in _updateReceiver.WithCancellation(_cancellationTokenSource.Token))
                 {
@@ -100,11 +102,11 @@ namespace Server.Telegram.Impl
             }
             catch (OperationCanceledException exception)
             {
-                Log.Warn(exception, "The service was stopped by token cancellation");
+                Logger.Warn(exception, "The service was stopped by token cancellation");
             }
             catch (Exception ex)
             {
-                Log.Error(ex);
+                Logger.Error(ex);
                 await RestartAsync();
             }
         }
@@ -114,7 +116,7 @@ namespace Server.Telegram.Impl
         {
             if (Status == ServiceStatusType.Stopped)
             {
-                Log.Warn("Сancel stop: the service has already been stopped");
+                Logger.Warn("Сancel stop: the service has already been stopped");
                 return;
             }
 
@@ -123,7 +125,7 @@ namespace Server.Telegram.Impl
             OnMessageReceived -= _bot.HandleUpdateAsync;
 
             Status = ServiceStatusType.Stopped;
-            Log.Info("The service was stopped");
+            Logger.Info("The service was stopped");
         }
 
         /// <inheritdoc />
@@ -131,7 +133,7 @@ namespace Server.Telegram.Impl
         {
             if (Status != ServiceStatusType.Running)
             {
-                Log.Warn("Сancel restart: the service has not been started yet");
+                Logger.Warn("Сancel restart: the service has not been started yet");
                 return;
             }
 

@@ -54,6 +54,8 @@ namespace DataBase
         /// <inheritdoc />
         override protected void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             // Проставляем имя поля по умолчанию (snake_case)
             var mapper = new NpgsqlSnakeCaseNameTranslator();
             foreach (var entity in modelBuilder.Model.GetEntityTypes())

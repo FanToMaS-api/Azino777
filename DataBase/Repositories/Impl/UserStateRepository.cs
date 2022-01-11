@@ -41,6 +41,7 @@ namespace DataBase.Repositories.Impl
         {
             var userState = await _dbContext.UsersStates
                 .Where(_ => _.UserId == userId)
+                .Include(_ => _.User)
                 .FirstOrDefaultAsync(cancellationToken);
             if (userState is null)
             {
@@ -79,6 +80,7 @@ namespace DataBase.Repositories.Impl
         {
             var userState = await _dbContext.UsersStates
                 .Where(_ => _.Id == id)
+                .Include(_ => _.User)
                 .FirstOrDefaultAsync(cancellationToken);
             if (userState == null)
             {
