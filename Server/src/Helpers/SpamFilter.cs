@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using DataBase;
 using DataBase.Entities;
 using DataBase.Repositories;
+using DataBase.Types;
 using Games.Services;
 using NLog;
 using Telegram.Bot.Types;
@@ -52,8 +53,8 @@ namespace Server.Helpers
                     user.UserState.WarningNumber++;
                     if (user.UserState.WarningNumber > Const.LimitWarningNumber)
                     {
-                        user.UserState.UserStateType = DataBase.Models.UserStateType.Banned;
-                        user.UserState.BanReason = DataBase.Models.BanReasonType.Spam;
+                        user.UserState.UserStateType = UserStateType.Banned;
+                        user.UserState.BanReason = BanReasonType.Spam;
                         await _messageService.SendAsync($"{DefaultText.BannedAccountText}. Причина бана: спам", user.ChatId, cancellationToken);
                     }
                     else

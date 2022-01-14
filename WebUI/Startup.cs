@@ -56,9 +56,6 @@ namespace WebUI
             var mapper = mappingConfig.CreateMapper();
             services.AddSingleton(mapper);
 
-            services.AddDefaultIdentity<IdentityUser>()
-                .AddEntityFrameworkStores<AppDbContext>();
-
             services.AddHttpContextAccessor();
             services.AddSession(options =>
             {

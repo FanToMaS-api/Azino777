@@ -1,6 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
-using DataBase.Models;
+using DataBase.Types;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataBase.Entities
