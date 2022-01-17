@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -10,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace DataBase.Entities
 {
     /// <summary>
-    ///     Сущность пользователя имеющего доступ к сайту управления ботом
+    ///     Сущность пользователя, имеющего доступ к сайту
     /// </summary>
     [Table("web_users")]
     public class WebUserEntity
@@ -60,6 +59,20 @@ namespace DataBase.Entities
         ///     Сессии пользователя
         /// </summary>
         public ICollection<WebUserSessionEntity> Sessions { get; set; } = new List<WebUserSessionEntity>();
+
+        #endregion
+
+        #region Password Operation
+
+        /// <summary>
+        ///     Проверка пароля
+        /// </summary>
+        public bool VerifyPassword(string password) => BCrypt.Net.BCrypt.Verify(password, Password);
+
+        /// <summary>
+        ///     Задаёт пароль
+        /// </summary>
+        public void SetPassword(string password) => Password = BCrypt.Net.BCrypt.HashPassword(password);
 
         #endregion
 
