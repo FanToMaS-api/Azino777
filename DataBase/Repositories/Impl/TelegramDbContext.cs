@@ -26,6 +26,10 @@ namespace DataBase.Repositories.Impl
 
         private IUserStateRepository _userStates;
 
+        private IWebUserRepository _webUsers;
+
+        private IWebUserSessionRepository _webUserSessions;
+
         private bool _disposed;
 
         #endregion
@@ -58,6 +62,12 @@ namespace DataBase.Repositories.Impl
 
         /// <inheritdoc />
         public IUserStateRepository UserStates => _userStates ??= new UserStateRepository(_dbContext);
+
+        /// <inheritdoc />
+        public IWebUserRepository WebUsers => _webUsers ??= new WebUserRepository(_dbContext);
+
+        /// <inheritdoc />
+        public IWebUserSessionRepository WebUserSessions => _webUserSessions ??= new WebUserSessionRepository(_dbContext);
 
         #endregion
 

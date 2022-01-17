@@ -32,16 +32,10 @@ namespace DataBase.Repositories.Impl
         #region Public methods
 
         /// <inheritdoc />
-        public IQueryable<WebUserEntity> CreateQuery()
-        {
-            return _dbContext.WebUsers.AsQueryable();
-        }
+        public IQueryable<WebUserEntity> CreateQuery() => _dbContext.WebUsers.AsQueryable();
 
         /// <inheritdoc />
-        public void Remove(WebUserEntity entity)
-        {
-            _dbContext.WebUsers.Remove(entity);
-        }
+        public void Remove(WebUserEntity entity) => _dbContext.WebUsers.Remove(entity);
 
         /// <inheritdoc />
         public async Task<WebUserEntity> CreateAsync(Action<WebUserEntity> action, CancellationToken cancellationToken = default)
@@ -70,10 +64,11 @@ namespace DataBase.Repositories.Impl
         }
 
         /// <inheritdoc />
-        public async Task<WebUserEntity> GetByIdAsync(int webUserId, CancellationToken cancellationToken = default)
+        public async Task<WebUserEntity> GetByIdAsync(long webUserId, CancellationToken cancellationToken = default)
         {
             return await CreateQuery()
                 .Where(_ => _.Id == webUserId)
+                .Include(_ => _.Sessions)
                 .FirstOrDefaultAsync(cancellationToken);
         }
 
@@ -82,11 +77,12 @@ namespace DataBase.Repositories.Impl
         {
             return await CreateQuery()
                 .Where(_ => _.Username == username)
+                .Include(_ => _.Sessions)
                 .FirstOrDefaultAsync(cancellationToken);
         }
 
         /// <inheritdoc />
-        public async Task<WebUserEntity> UpdateAsync(int webUserId, Action<WebUserEntity> action, CancellationToken cancellationToken = default)
+        public async Task<WebUserEntity> UpdateAsync(long webUserId, Action<WebUserEntity> action, CancellationToken cancellationToken = default)
         {
             var user = await GetByIdAsync(webUserId, cancellationToken);
             if (user is null)

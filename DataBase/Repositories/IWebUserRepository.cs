@@ -19,7 +19,7 @@ namespace DataBase.Repositories
         /// <summary>
         ///     Получить пользователя по его Id
         /// </summary>
-        Task<WebUserEntity> GetByIdAsync(int webUserId, CancellationToken cancellationToken = default);
+        Task<WebUserEntity> GetByIdAsync(long webUserId, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Получить пользователя по его имени
@@ -34,7 +34,7 @@ namespace DataBase.Repositories
         /// <summary>
         ///     Изменить пользователя
         /// </summary>
-        Task<WebUserEntity> UpdateAsync(int webUserId, Action<WebUserEntity> action, CancellationToken cancellationToken = default);
+        Task<WebUserEntity> UpdateAsync(long webUserId, Action<WebUserEntity> action, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Удалить пользователя

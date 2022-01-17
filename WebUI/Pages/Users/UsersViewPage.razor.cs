@@ -27,7 +27,7 @@ namespace WebUI.Pages.Users
 
         #region Fields
 
-        private static ILogger Logger = LogManager.GetCurrentClassLogger();
+        private readonly static ILogger Logger = LogManager.GetCurrentClassLogger();
 
         private UserEntity[] _users = Array.Empty<UserEntity>();
 
@@ -65,10 +65,10 @@ namespace WebUI.Pages.Users
         /// <summary>
         ///     Метод перед показом страницы
         /// </summary>
-        protected override async Task OnInitializedAsync() => await RefreshAsync();
+        async override protected Task OnInitializedAsync() => await RefreshAsync();
 
         /// <inheritdoc />
-        protected override async Task OnLocationChangedAsync() => await RefreshAsync();
+        async override protected Task OnLocationChangedAsync() => await RefreshAsync();
 
         /// <summary>
         ///     Получение пользователей из бд

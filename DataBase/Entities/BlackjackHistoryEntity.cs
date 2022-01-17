@@ -73,6 +73,7 @@ namespace DataBase.Entities
                 .HasForeignKey(_ => _.UserId);
 
             // Индексы
+            modelBuilder.Entity<BlackjackHistoryEntity>().HasIndex(_ => _.Id).IsUnique().HasDatabaseName("IX_blackjack_history_id");
             modelBuilder.Entity<BlackjackHistoryEntity>().HasIndex(_ => _.UserId).HasDatabaseName("IX_blackjack_history_user_id");
             modelBuilder.Entity<BlackjackHistoryEntity>().HasIndex(_ => _.GameState).HasDatabaseName("IX_blackjack_history_state");
             modelBuilder.Entity<BlackjackHistoryEntity>().HasIndex(_ => _.DialerScope).HasDatabaseName("IX_blackjack_history_dialer_scope");

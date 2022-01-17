@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using DataBase.Types;
@@ -20,7 +22,7 @@ namespace DataBase.Entities
         /// </summary>
         [Key]
         [Column("id")]
-        public int Id { get; set; }
+        public long Id { get; set; }
 
         /// <summary>
         ///     Имя пользователя
@@ -54,6 +56,11 @@ namespace DataBase.Entities
         [Column("role")]
         public WebUserRoleType Role { get; set; }
 
+        /// <summary>
+        ///     Сессии пользователя
+        /// </summary>
+        public ICollection<WebUserSessionEntity> Sessions { get; set; } = new List<WebUserSessionEntity>();
+
         #endregion
 
         #region Setup
@@ -64,13 +71,23 @@ namespace DataBase.Entities
         public static void Setup(EntityTypeBuilder<WebUserEntity> builder)
         {
             // индексы
-            builder.HasIndex(_ => _.Id).HasDatabaseName("IX_web_users_id");
+            builder.HasIndex(_ => _.Id).IsUnique().HasDatabaseName("IX_web_users_id");
             builder.HasIndex(_ => _.Username).IsUnique().HasDatabaseName("IX_web_users_username");
             builder.HasIndex(_ => _.Password).HasDatabaseName("IX_web_users_password");
             builder.HasIndex(_ => _.Created).HasDatabaseName("IX_web_users_created");
             builder.HasIndex(_ => _.Updated).HasDatabaseName("IX_web_users_updated");
             builder.HasIndex(_ => _.Role).HasDatabaseName("IX_web_users_role");
 
+            // связи
+            builder.HasMany(_ => _.Sessions)
+                .WithOne(_ => _.User)
+                .HasForeignKey(_ => _.UserId);
+
+            // конвертеры
+            builder.Property(_ => _.Role)
+                .HasConversion(
+                _ => _.ToString(),
+                _ => string.IsNullOrEmpty(_) ? WebUserRoleType.Moderator : Enum.Parse<WebUserRoleType>(_));
         }
 
         #endregion

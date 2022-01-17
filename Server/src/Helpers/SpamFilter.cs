@@ -18,7 +18,7 @@ namespace Server.Helpers
     {
         #region Fields
 
-        private ILogger Logger = LogManager.GetCurrentClassLogger();
+        private readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         private readonly IMessageService _messageService;
 
@@ -47,7 +47,7 @@ namespace Server.Helpers
             try
             {
                 var message = (Message)@object;
-                var user = await database.Users.GetAsync(message.From.Id);
+                var user = await database.Users.GetAsync(message.From.Id, cancellationToken);
                 if (user is not null && SpamCheck(user))
                 {
                     user.UserState.WarningNumber++;
