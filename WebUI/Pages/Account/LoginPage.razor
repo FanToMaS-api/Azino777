@@ -1,0 +1,17 @@
+﻿<div style="position: fixed; width: 100vw; height: 100vh;">
+    <div class="container d-flex h-100">
+        <div class="col align-self-center">
+            <EditForm Model="@_model" OnSubmit="Authorization" class="text-center">
+                <div><InputText class="col-3 pb-1 pt-1" placeholder="Логин" @bind-Value="@_model.Name" /></div>
+                <div><InputText class="col-3 pb-1 pt-1" type="password" placeholder="Пароль" @bind-Value="@_model.Password" /></div>
+                <div><Button class="btn btn-primary col-3" Type="ButtonType.Submit">Вход</Button></div>
+                @if (!string.IsNullOrEmpty(_errorMessage))
+                {
+                    <div class="text-danger">
+                        <TextView Value="@_errorMessage"></TextView>
+                    </div>
+                }
+            </EditForm>
+        </div>
+    </div>
+</div>

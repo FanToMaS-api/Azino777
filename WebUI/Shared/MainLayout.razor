@@ -1,21 +1,30 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+<AuthorizeView>
+    <Authorized>
+        <div class="page">
 
-    <div class="main">
-        <div class="top-row">
-            <div class="btn-group pt-2 align-text-right group">
-                <input type="button" class="btn w-100 btn-outline-success" @onclick="@(async () => await StartAsync())" value="Запустить">
-                <input type="button" class="btn w-100 btn-outline-warning" @onclick="@Stop" value="Остановить">
-                <input type="button" class="btn w-100 btn-outline-danger" @onclick="@(async () => await RestartAsync())" value="Рестарт">
+            <div class="sidebar">
+                <NavMenu />
             </div>
-        </div>
 
-        <div class="content px-4">
-            @Body
+            <div class="main">
+                <div class="top-row">
+                    <div class="btn-group pt-2 align-text-right group">
+                        <input type="button" class="btn w-100 btn-outline-success" @onclick="@(async () => await StartAsync())" value="Запустить">
+                        <input type="button" class="btn w-100 btn-outline-warning" @onclick="@Stop" value="Остановить">
+                        <input type="button" class="btn w-100 btn-outline-danger" @onclick="@(async () => await RestartAsync())" value="Рестарт">
+                    </div>
+                </div>
+
+                <LayoutContent Padding="Padding.Is4.OnAll" Style="position: relative;">
+                    @Body
+                </LayoutContent>
+            </div>
+
         </div>
-    </div>
-</div>
+    </Authorized>
+    <NotAuthorized>
+        <LoginPage />
+    </NotAuthorized>
+</AuthorizeView>

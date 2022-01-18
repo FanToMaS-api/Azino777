@@ -6,20 +6,28 @@
             <CloseButton To="/users" Class="btn-sm" Clicked=@(() => Close()) />
         </ModalHeader>
         <ModalBody>
-            <EditForm Model="@_model">
+            @if (ProfileService.IsAuthenticated && ProfileService.Role == DataBase.Types.WebUserRoleType.Admin)
+            {
+                <EditForm Model="@_model">
 
-                <EditDouble Name="Баланс" @bind-Value="_model.Balance" />
+                    <EditDouble Name="Баланс" @bind-Value="_model.Balance" />
 
 
-                <StandartDropdownEditor Name="Состояние пользователя" Items="@_userStates" ItemsText="@(_=>_.Display())" @bind-Value="@_model.UserStateType" />
+                    <StandartDropdownEditor Name="Состояние пользователя" Items="@_userStates" ItemsText="@(_=>_.Display())" @bind-Value="@_model.UserStateType" />
 
-                <StandartDropdownEditor Name="Причина бана" Items="@_banReasons" ItemsText="@(_ => _.Display())" @bind-Value="@_model.BanReason" />
+                    <StandartDropdownEditor Name="Причина бана" Items="@_banReasons" ItemsText="@(_ => _.Display())" @bind-Value="@_model.BanReason" />
 
-                <EditInteger Name="Кол-во предупреждений" @bind-Value="_model.WarningNumber" />
-            </EditForm>
+                    <EditInteger Name="Кол-во предупреждений" @bind-Value="_model.WarningNumber" />
+                </EditForm>
+            }
+
         </ModalBody>
         <ModalFooter>
-            <button type="submit" class="btn btn-outline-primary" @onclick="@(async () => await SaveAsync())">Сохранить</button>
+            @if (ProfileService.IsAuthenticated && ProfileService.Role == DataBase.Types.WebUserRoleType.Admin)
+            {
+                <button type="submit" class="btn btn-outline-primary" @onclick="@(async () => await SaveAsync())">Сохранить</button>
+            }
+
             <button type="button" class="btn btn-outline-secondary" @onclick="@Close">Отмена</button>
         </ModalFooter>
     </ModalContent>

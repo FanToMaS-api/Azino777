@@ -37,10 +37,7 @@ namespace DataBase.Repositories.Impl
         public IQueryable<UserEntity> CreateQuery() => _dbContext.Users.AsQueryable();
 
         /// <inheritdoc />
-        public void Remove(UserEntity entity)
-        {
-            _dbContext.Users.Remove(entity);
-        }
+        public void Remove(UserEntity entity) => _dbContext.Users.Remove(entity);
 
         /// <inheritdoc />
         public async Task<UserEntity> GetAsync(long id, CancellationToken cancellationToken = default)

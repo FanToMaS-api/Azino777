@@ -1,5 +1,5 @@
 ﻿using System;
-using DataBase.Models;
+using DataBase.Types;
 
 namespace Games.User.Impl
 {

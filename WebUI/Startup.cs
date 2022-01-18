@@ -4,15 +4,19 @@ using Blazorise;
 using Blazorise.Bootstrap;
 using Blazorise.Icons.FontAwesome;
 using DataBase;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Server.Telegram.Service;
 using WebUI.Mappers;
+using WebUI.Services.Identity;
+using WebUI.Services.Identity.Impl;
+using WebUI.Services.Profile;
+using WebUI.Services.Profile.Impl;
 
 namespace WebUI
 {
@@ -56,19 +60,20 @@ namespace WebUI
             var mapper = mappingConfig.CreateMapper();
             services.AddSingleton(mapper);
 
-            services.AddDefaultIdentity<IdentityUser>()
-                .AddEntityFrameworkStores<AppDbContext>();
-
             services.AddHttpContextAccessor();
-            services.AddSession(options =>
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
+            services.AddControllers();
+            services.AddSession(_ =>
             {
-                options.IdleTimeout = TimeSpan.FromMinutes(10);
-                options.Cookie.HttpOnly = true;
-                options.Cookie.IsEssential = true;
+                _.IOTimeout = TimeSpan.FromDays(1);
+                _.IdleTimeout = TimeSpan.FromMinutes(120);
             });
 
             services.UsePostgresDatabase(Configuration);
             services.AddTelegramService(Configuration);
+
+            services.AddSingleton<IIdentityManager, IdentityManager>();
+            services.AddSingleton<IProfileService, ProfileService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -90,11 +95,13 @@ namespace WebUI
 
             app.UseRouting();
             app.UseAuthorization();
-            app.UseSession();
+            app.UseCookiePolicy();
+            app.UseAuthentication();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapBlazorHub();
+                endpoints.MapControllers();
                 endpoints.MapFallbackToPage("/_Host");
             });
 

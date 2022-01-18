@@ -59,6 +59,10 @@ namespace DataBase.Migrations
                     b.HasIndex("GameState")
                         .HasDatabaseName("IX_blackjack_history_state");
 
+                    b.HasIndex("Id")
+                        .IsUnique()
+                        .HasDatabaseName("IX_blackjack_history_id");
+
                     b.HasIndex("UserId")
                         .HasDatabaseName("IX_blackjack_history_user_id");
 
@@ -85,6 +89,10 @@ namespace DataBase.Migrations
                         .HasColumnName("user_id");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Id")
+                        .IsUnique()
+                        .HasDatabaseName("IX_referral_links_id");
 
                     b.HasIndex("ReferralLink")
                         .IsUnique()
@@ -124,6 +132,10 @@ namespace DataBase.Migrations
 
                     b.HasIndex("GameState")
                         .HasDatabaseName("IX_roulette_history_state");
+
+                    b.HasIndex("Id")
+                        .IsUnique()
+                        .HasDatabaseName("IX_roulette_history_id");
 
                     b.HasIndex("UserId")
                         .HasDatabaseName("IX_roulette_history_user_id");
@@ -175,6 +187,10 @@ namespace DataBase.Migrations
 
                     b.HasIndex("FirstName")
                         .HasDatabaseName("IX_users_firstname");
+
+                    b.HasIndex("Id")
+                        .IsUnique()
+                        .HasDatabaseName("IX_users_id");
 
                     b.HasIndex("LastAction")
                         .HasDatabaseName("IX_users_last_action");
@@ -233,6 +249,10 @@ namespace DataBase.Migrations
                     b.HasIndex("BanReason")
                         .HasDatabaseName("IX_users_state_ban_reason");
 
+                    b.HasIndex("Id")
+                        .IsUnique()
+                        .HasDatabaseName("IX_users_state_id");
+
                     b.HasIndex("UserId")
                         .IsUnique()
                         .HasDatabaseName("IX_users_state_user_id");
@@ -244,6 +264,100 @@ namespace DataBase.Migrations
                         .HasDatabaseName("IX_users_state_warning_number");
 
                     b.ToTable("users_state");
+                });
+
+            modelBuilder.Entity("DataBase.Entities.WebUserEntity", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("created");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("password");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("role");
+
+                    b.Property<DateTime>("Updated")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("updated");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("username");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Created")
+                        .HasDatabaseName("IX_web_users_created");
+
+                    b.HasIndex("Id")
+                        .IsUnique()
+                        .HasDatabaseName("IX_web_users_id");
+
+                    b.HasIndex("Password")
+                        .HasDatabaseName("IX_web_users_password");
+
+                    b.HasIndex("Role")
+                        .HasDatabaseName("IX_web_users_role");
+
+                    b.HasIndex("Updated")
+                        .HasDatabaseName("IX_web_users_updated");
+
+                    b.HasIndex("Username")
+                        .HasDatabaseName("IX_web_users_username");
+
+                    b.ToTable("web_users");
+                });
+
+            modelBuilder.Entity("DataBase.Entities.WebUserSessionEntity", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<DateTime?>("Expired")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("expired");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Expired")
+                        .HasDatabaseName("IX_web_user_sessions_expired");
+
+                    b.HasIndex("Id")
+                        .IsUnique()
+                        .HasDatabaseName("IX_web_user_sessions_id");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("IX_web_user_sessions_status");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("IX_web_user_sessions_user_id");
+
+                    b.ToTable("web_user_sessions");
                 });
 
             modelBuilder.Entity("DataBase.Entities.BlackjackHistoryEntity", b =>
@@ -290,6 +404,17 @@ namespace DataBase.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("DataBase.Entities.WebUserSessionEntity", b =>
+                {
+                    b.HasOne("DataBase.Entities.WebUserEntity", "User")
+                        .WithMany("Sessions")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("DataBase.Entities.UserEntity", b =>
                 {
                     b.Navigation("BlackjackHistory");
@@ -299,6 +424,11 @@ namespace DataBase.Migrations
                     b.Navigation("UserReferralLink");
 
                     b.Navigation("UserState");
+                });
+
+            modelBuilder.Entity("DataBase.Entities.WebUserEntity", b =>
+                {
+                    b.Navigation("Sessions");
                 });
 #pragma warning restore 612, 618
         }

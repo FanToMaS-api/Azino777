@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Configuration;
 using DataBase.Repositories;
 using DataBase.Repositories.Impl;
 using Microsoft.EntityFrameworkCore;

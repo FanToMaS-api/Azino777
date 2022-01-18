@@ -27,6 +27,12 @@ namespace DataBase.Repositories
         /// <inheritdoc cref="IUserStateRepository"/>
         public IUserStateRepository UserStates { get; }
 
+        /// <inheritdoc cref="IWebUserRepository"/>
+        public IWebUserRepository WebUsers { get; }
+
+        /// <inheritdoc cref="IWebUserSessionRepository"/>
+        public IWebUserSessionRepository WebUserSessions { get; }
+
         #endregion
 
         #region Public methods
