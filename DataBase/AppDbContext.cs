@@ -47,6 +47,16 @@ namespace DataBase
         /// </summary>
         public DbSet<RouletteHistoryEntity> RouletteHistory { get; set; }
 
+        /// <summary>
+        ///     Пользователи сайта
+        /// </summary>
+        public DbSet<WebUserEntity> WebUsers { get; set; }
+
+        /// <summary>
+        ///     Сессии пользователей сайта
+        /// </summary>
+        public DbSet<WebUserSessionEntity> Sessions { get; set; }
+
         #endregion
 
         #region Public methods
@@ -70,6 +80,8 @@ namespace DataBase
             // Setup
             UserEntity.Setup(modelBuilder.Entity<UserEntity>());
             ReferralLinkEntity.Setup(modelBuilder.Entity<ReferralLinkEntity>());
+            WebUserEntity.Setup(modelBuilder.Entity<WebUserEntity>());
+            WebUserSessionEntity.Setup(modelBuilder.Entity<WebUserSessionEntity>());
             UserStateEntity.SetupModelBuilder(modelBuilder);
             BlackjackHistoryEntity.SetupModelBuilder(modelBuilder);
             RouletteHistoryEntity.SetupModelBuilder(modelBuilder);

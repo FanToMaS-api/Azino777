@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DataBase.Entities;
-using DataBase.Models;
+using DataBase.Types;
 using Microsoft.EntityFrameworkCore;
 using NLog;
 

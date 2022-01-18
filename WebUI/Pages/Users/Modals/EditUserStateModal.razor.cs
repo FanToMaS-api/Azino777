@@ -3,12 +3,13 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Blazorise;
 using DataBase.Entities;
-using DataBase.Models;
 using DataBase.Repositories;
+using DataBase.Types;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using WebUI.Pages.Users.Models;
+using WebUI.Services.Profile;
 
 namespace WebUI.Pages.Users.Modals
 {
@@ -26,6 +27,10 @@ namespace WebUI.Pages.Users.Modals
         /// <inheritdoc cref="IMapper" />
         [Inject]
         private IMapper Mapper { get; set; }
+
+        /// <inheritdoc cref="IProfileService" />
+        [Inject]
+        private IProfileService ProfileService { get; set; }
 
         #endregion
 

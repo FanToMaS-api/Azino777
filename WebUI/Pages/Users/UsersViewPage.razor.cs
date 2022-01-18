@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using WebUI.Helpers;
 using WebUI.Pages.Users.Modals;
+using WebUI.Services.Profile;
 
 namespace WebUI.Pages.Users
 {
@@ -23,11 +24,15 @@ namespace WebUI.Pages.Users
         [Inject]
         private IServiceScopeFactory Scope { get; set; }
 
+        /// <inheritdoc cref="IProfileService" />
+        [Inject]
+        private IProfileService ProfileService { get; set; }
+
         #endregion
 
         #region Fields
 
-        private static ILogger Logger = LogManager.GetCurrentClassLogger();
+        private readonly static ILogger Logger = LogManager.GetCurrentClassLogger();
 
         private UserEntity[] _users = Array.Empty<UserEntity>();
 
@@ -65,10 +70,10 @@ namespace WebUI.Pages.Users
         /// <summary>
         ///     Метод перед показом страницы
         /// </summary>
-        protected override async Task OnInitializedAsync() => await RefreshAsync();
+        async override protected Task OnInitializedAsync() => await RefreshAsync();
 
         /// <inheritdoc />
-        protected override async Task OnLocationChangedAsync() => await RefreshAsync();
+        async override protected Task OnLocationChangedAsync() => await RefreshAsync();
 
         /// <summary>
         ///     Получение пользователей из бд

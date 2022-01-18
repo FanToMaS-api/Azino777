@@ -44,6 +44,7 @@ namespace DataBase.Entities
             builder.HasKey(x => x.Id);
 
             // Индексы
+            builder.HasIndex(x => x.Id).IsUnique().HasDatabaseName("IX_referral_links_id");
             builder.HasIndex(x => x.ReferralLink).IsUnique().HasDatabaseName("IX_referral_links_referral_link");
 
             // Связи

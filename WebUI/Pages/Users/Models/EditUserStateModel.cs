@@ -1,4 +1,4 @@
-﻿using DataBase.Models;
+﻿using DataBase.Types;
 
 namespace WebUI.Pages.Users.Models
 {

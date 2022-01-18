@@ -11,7 +11,7 @@
         public readonly static string EndOfMoneyText = "Недостаточно денег на счете";
 
         /// <summary>
-        ///     Предлоэение продолжить игру
+        ///     Предложение продолжить игру
         /// </summary>
         public readonly static string IsContinueText = "Хотите продолжить?";
 

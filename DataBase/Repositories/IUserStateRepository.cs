@@ -12,7 +12,7 @@ namespace DataBase.Repositories
     public interface IUserStateRepository
     {
         /// <summary>
-        ///     Создать запрос к таблице пользователей
+        ///     Создать запрос к таблице состояний пользователей
         /// </summary>
         IQueryable<UserStateEntity> CreateQuery();
 

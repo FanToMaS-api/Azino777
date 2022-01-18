@@ -1,4 +1,4 @@
-﻿namespace DataBase.Models
+﻿namespace DataBase.Types
 {
     /// <summary>
     ///     Отражает последнее состояние игры

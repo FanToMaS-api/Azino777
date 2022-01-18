@@ -98,6 +98,7 @@ namespace DataBase.Entities
             builder.HasKey(_ => _.Id);
 
             // Индексы
+            builder.HasIndex(_ => _.Id).IsUnique().HasDatabaseName("IX_users_id");
             builder.HasIndex(_ => _.Nickname).HasDatabaseName("IX_users_nickname");
             builder.HasIndex(_ => _.TelegramId).IsUnique().HasDatabaseName("IX_users_telegram_id");
             builder.HasIndex(_ => _.ChatId).IsUnique().HasDatabaseName("IX_users_chat_id");
