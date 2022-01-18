@@ -26,7 +26,7 @@ namespace WebUI.Pages.Account
         #region Public methods
 
         /// <summary>
-        ///     Осуществляет шифрование введенных данных и пересылкой их контроллеру входа
+        ///     Осуществляет шифрование введенных данных и их передачу контроллеру входа
         /// </summary>
         public void Authorization()
         {

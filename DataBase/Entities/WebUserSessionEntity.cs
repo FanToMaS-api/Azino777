@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace DataBase.Entities
 {
     /// <summary>
-    ///     Сущность сессии пользоватлея сайта
+    ///     Сущность сессии пользователя сайта
     /// </summary>
     [Table("web_user_sessions")]
     public class WebUserSessionEntity

@@ -16,7 +16,7 @@
         </div>
     </div>
     @{
-        if (@_users.Any() && ProfileService.IsAuthenticated)
+        if (@_users.Any() && ProfileService.IsAuthenticated && ProfileService.Role == DataBase.Types.WebUserRoleType.Admin)
         {
             <table class="table table-bordered text-sm-center sticky-header">
                 <thead class="thead-dark">

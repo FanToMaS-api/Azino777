@@ -31,6 +31,9 @@ namespace WebUI.Pages.Account
             return JsonConvert.SerializeObject(this, Formatting.None);
         }
 
+        /// <summary>
+        ///     Десериализация модели
+        /// </summary>
         public static AuthorizationModel Deserialize(string json)
         {
             return JsonConvert.DeserializeObject<AuthorizationModel>(json);

@@ -65,7 +65,7 @@ namespace DataBase.Repositories.Impl
             var user = await GetByIdAsync(webUserId, cancellationToken);
             if (user is null)
             {
-                return user;
+                return null;
             }
 
             action(user);

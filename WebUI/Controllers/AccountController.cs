@@ -75,7 +75,7 @@ namespace WebUI.Controllers
 
             if (!(await database.WebUsers.CreateQuery().ToListAsync(cancellationToken)).Any())
             {
-                (user, session) = await SetAdminAsync(database, model, cancellationToken);
+                (user, session) = await CreateAdminAsync(database, model, cancellationToken);
             }
 
             try
@@ -172,7 +172,7 @@ namespace WebUI.Controllers
         /// <summary>
         ///     Регистрирует первого админа, если бд пустая
         /// </summary>
-        private async Task<(WebUserEntity, WebUserSessionEntity)> SetAdminAsync(ITelegramDbContext database, AuthorizationModel model, CancellationToken cancellationToken)
+        private async Task<(WebUserEntity, WebUserSessionEntity)> CreateAdminAsync(ITelegramDbContext database, AuthorizationModel model, CancellationToken cancellationToken)
         {
             var now = DateTime.Now;
             var user = CreateNewUser(model, now, WebUserRoleType.Admin);
@@ -236,7 +236,7 @@ namespace WebUI.Controllers
         }
 
         /// <summary>
-        ///     Поулчить требования к идентификации
+        ///     Получить требования к идентификации
         /// </summary>
         private static ClaimsIdentity GetClaimsIdentity(WebUserEntity user, WebUserSessionEntity session) =>
             new(GetClaims(user, session), CookieAuthenticationDefaults.AuthenticationScheme);
