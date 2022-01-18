@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using WebUI.Helpers;
 using WebUI.Pages.Users.Modals;
+using WebUI.Services.Profile;
 
 namespace WebUI.Pages.Users
 {
@@ -22,6 +23,10 @@ namespace WebUI.Pages.Users
         /// <inheritdoc cref="IServiceScopeFactory" />
         [Inject]
         private IServiceScopeFactory Scope { get; set; }
+
+        /// <inheritdoc cref="IProfileService" />
+        [Inject]
+        private IProfileService ProfileService { get; set; }
 
         #endregion
 
