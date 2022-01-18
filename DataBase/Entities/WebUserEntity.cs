@@ -31,7 +31,7 @@ namespace DataBase.Entities
         public string Username { get; set; }
 
         /// <summary>
-        ///     Пароль пользователя
+        ///     Токен пользователя (генерируется на основании хеширования логина и пароля)
         /// </summary>
         [Required]
         [Column("password")]
@@ -65,7 +65,7 @@ namespace DataBase.Entities
         #region Password Operation
 
         /// <summary>
-        ///     Проверка пароля
+        ///     Сравнивает пароли
         /// </summary>
         public bool VerifyPassword(string password) => BCrypt.Net.BCrypt.Verify(password, Password);
 
@@ -85,11 +85,11 @@ namespace DataBase.Entities
         {
             // индексы
             builder.HasIndex(_ => _.Id).IsUnique().HasDatabaseName("IX_web_users_id");
-            builder.HasIndex(_ => _.Username).IsUnique().HasDatabaseName("IX_web_users_username");
-            builder.HasIndex(_ => _.Password).HasDatabaseName("IX_web_users_password");
             builder.HasIndex(_ => _.Created).HasDatabaseName("IX_web_users_created");
             builder.HasIndex(_ => _.Updated).HasDatabaseName("IX_web_users_updated");
             builder.HasIndex(_ => _.Role).HasDatabaseName("IX_web_users_role");
+            builder.HasIndex(_ => _.Username).HasDatabaseName("IX_web_users_username");
+            builder.HasIndex(_ => _.Password).HasDatabaseName("IX_web_users_password");
 
             // связи
             builder.HasMany(_ => _.Sessions)

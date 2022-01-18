@@ -27,9 +27,9 @@ namespace DataBase.Repositories
         Task<WebUserEntity> GetByUsernameAsync(string username, CancellationToken cancellationToken = default);
 
         /// <summary>
-        ///     Создать пользователя
+        ///     Добавить пользователя
         /// </summary>
-        Task<WebUserEntity> CreateAsync(Action<WebUserEntity> action, CancellationToken cancellationToken = default);
+        Task AddAsync(WebUserEntity entity, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Изменить пользователя

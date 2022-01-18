@@ -38,30 +38,8 @@ namespace DataBase.Repositories.Impl
         public void Remove(WebUserEntity entity) => _dbContext.WebUsers.Remove(entity);
 
         /// <inheritdoc />
-        public async Task<WebUserEntity> CreateAsync(Action<WebUserEntity> action, CancellationToken cancellationToken = default)
-        {
-            var webUser = new WebUserEntity();
-
-            action(webUser);
-
-            var conflictingUser = await CreateQuery()
-                .Where(_ => _.Username == webUser.Username)
-                .FirstOrDefaultAsync(cancellationToken);
-            if (conflictingUser != null)
-            {
-                Logger.Error("User with this username is already exist");
-                return null;
-            }
-
-            using var tr = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
-
-            await _dbContext.WebUsers.AddAsync(webUser, cancellationToken);
-
-            await _dbContext.SaveChangesAsync(cancellationToken);
-            await tr.CommitAsync(cancellationToken);
-
-            return webUser;
-        }
+        public async Task AddAsync(WebUserEntity entity, CancellationToken cancellationToken = default) =>
+            await _dbContext.WebUsers.AddAsync(entity, cancellationToken);
 
         /// <inheritdoc />
         public async Task<WebUserEntity> GetByIdAsync(long webUserId, CancellationToken cancellationToken = default)

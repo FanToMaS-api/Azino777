@@ -1,22 +1,60 @@
-﻿using DataBase.Types;
+﻿using System;
+using System.Security.Claims;
+using DataBase.Types;
+using Microsoft.AspNetCore.Http;
 
 namespace WebUI.Services.Profile.Impl
 {
     /// <inheritdoc cref="IProfileService"/>
     public class ProfileService : IProfileService
     {
+        #region Fields
+
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        #endregion
+
+        #region .ctor
+
+        /// <inheritdoc cref="ProfileService"/>
+        public ProfileService(IHttpContextAccessor httpContextAccessor)
+        {
+            _httpContextAccessor = httpContextAccessor;
+        }
+
+        #endregion
+
         #region Properties
 
-        // TODO: Доделать!
+        /// <inheritdoc />
+        public bool IsAuthenticated => _httpContextAccessor.HttpContext.User?.Identity?.IsAuthenticated ?? false;
 
         /// <inheritdoc />
-        public bool IsAuthenticated => throw new System.NotImplementedException();
+        public string Username => _httpContextAccessor.HttpContext.User?.FindFirstValue(ClaimTypes.Name) ?? string.Empty;
 
         /// <inheritdoc />
-        public string Username => throw new System.NotImplementedException();
+        public WebUserRoleType? Role => GetRole();
 
-        /// <inheritdoc />
-        public WebUserRoleType? Role => throw new System.NotImplementedException();
+        #endregion
+
+        #region Public methods
+
+        /// <summary>
+        ///     Возвращает роль пользователя
+        /// </summary>
+        public WebUserRoleType? GetRole()
+        {
+            if (IsAuthenticated)
+            {
+                var roleStr = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.Role);
+                if (!string.IsNullOrEmpty(roleStr) && Enum.TryParse<WebUserRoleType>(roleStr, out var role))
+                {
+                    return role;
+                }
+            }
+
+            return null;
+        }
 
         #endregion
     }

@@ -4,6 +4,7 @@ using Blazorise;
 using Blazorise.Bootstrap;
 using Blazorise.Icons.FontAwesome;
 using DataBase;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -60,13 +61,12 @@ namespace WebUI
             services.AddSingleton(mapper);
 
             services.AddHttpContextAccessor();
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
             services.AddControllers();
-
-            services.AddSession(options =>
+            services.AddSession(_ =>
             {
-                options.IdleTimeout = TimeSpan.FromMinutes(10);
-                options.Cookie.HttpOnly = true;
-                options.Cookie.IsEssential = true;
+                _.IOTimeout = TimeSpan.FromDays(1);
+                _.IdleTimeout = TimeSpan.FromMinutes(120);
             });
 
             services.UsePostgresDatabase(Configuration);
@@ -95,9 +95,8 @@ namespace WebUI
 
             app.UseRouting();
             app.UseAuthorization();
-            app.UseCookiePolicy(); // ? разобраться
+            app.UseCookiePolicy();
             app.UseAuthentication();
-            app.UseSession(); // ? разобраться
 
             app.UseEndpoints(endpoints =>
             {
