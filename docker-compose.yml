@@ -11,15 +11,38 @@ services:
       - "5432:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data/
-      
-  server:
+    networks:
+      - web_network
+       
+  seq:
+    image: datalust/seq
+    container_name: seq
+    restart: always
+    environment: # принимаю условия лицензионного соглашения
+      - ACCEPT_EULA=Y
+    ports:
+      - 80:80
+    volumes:
+      - seq_data:/var/seq/data
+    networks:
+      - web_network
+
+  web:
     depends_on:
       - postgres
-    container_name: server
+    container_name: web
     restart: always
-    image: server_image:1
+    image: web_image:1
+    ports:
+      - "5001:5001"
     env_file:
-      - server.env
+      - web.env
+    networks:
+      - web_network
+
 
 volumes:
   pg_data:
+  seq_data:
+networks:
+  web_network: {}
