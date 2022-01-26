@@ -21,7 +21,7 @@ services:
     environment: # принимаю условия лицензионного соглашения
       - ACCEPT_EULA=Y
     ports:
-      - 80:80
+      - 7000:80
     volumes:
       - seq_data:/var/seq/data
     networks:
@@ -34,7 +34,7 @@ services:
     restart: always
     image: web_image:1
     ports:
-      - "5001:5001"
+      - "5000:5000"
     env_file:
       - web.env
     networks:

@@ -39,18 +39,16 @@
 @{
     var allPagesCount = (int)Math.Ceiling((double)TotalCount / PageSize);
 
-    var pagesToShow = ActivePage + CountLinksToShow / 2; 
-    var pageCount = pagesToShow < allPagesCount ? pagesToShow : allPagesCount; // определяю правую границу интервала страниц
+    var pagesToShow = Math.Min(ActivePage + CountLinksToShow / 2, allPagesCount); // определяю правую границу интервала страниц
 
     var showFirst = (ActivePage - CountLinksToShow / 2) > 1; // показывать ли переход к первой странице
     var showLast = (ActivePage + CountLinksToShow / 2) < allPagesCount; // показывать ли переход к последеней странице
 
     // определяю левую границу интервала страниц
-    var startPage = ActivePage - CountLinksToShow / 2;
-    startPage = startPage > 1 ? startPage : 1;
+    var startPage = Math.Max(ActivePage - CountLinksToShow / 2, 1);;
     if (startPage < CountLinksToShow && CountLinksToShow < allPagesCount)
     {
-        pageCount = startPage + CountLinksToShow;
+        pagesToShow = startPage + CountLinksToShow;
     }
 
     if (startPage + CountLinksToShow > allPagesCount && CountLinksToShow < allPagesCount)
@@ -76,7 +74,7 @@
             <input type="button" value="<<" class="btn btn-sm btn-outline-primary" @onclick="@(()=>NavigateToPage(skipLeftMany< 1 ? 1 : skipLeftMany))">
             <input type="button" value="<" class="btn btn-sm btn-outline-primary" @onclick="@(()=>NavigateToPage(skipLeftOne < 1 ? 1 : skipLeftOne))">
 
-            @for (var page = startPage; page <= pageCount; page++)
+            @for (var page = startPage; page <= pagesToShow; page++)
             {
                 var isActive = page == ActivePage;
                 var text = $"{page}";
