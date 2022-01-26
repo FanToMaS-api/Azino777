@@ -11,8 +11,6 @@ services:
       - "5432:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data/
-    networks:
-      - web_network
        
   seq:
     image: datalust/seq
@@ -21,11 +19,10 @@ services:
     environment: # принимаю условия лицензионного соглашения
       - ACCEPT_EULA=Y
     ports:
-      - 7000:80
+      - 5431:5431
+      - 7010:80
     volumes:
       - seq_data:/var/seq/data
-    networks:
-      - web_network
 
   web:
     depends_on:
@@ -34,15 +31,10 @@ services:
     restart: always
     image: web_image:1
     ports:
-      - "5000:5000"
+      - "7000:5000"
     env_file:
       - web.env
-    networks:
-      - web_network
-
 
 volumes:
   pg_data:
   seq_data:
-networks:
-  web_network: {}

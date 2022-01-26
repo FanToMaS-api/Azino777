@@ -102,7 +102,8 @@ namespace Server.Telegram.Impl
             }
             catch (OperationCanceledException exception)
             {
-                Logger.Warn(exception, "The service was stopped by token cancellation");
+                Logger.Warn(exception, "The service was stopped by token cancellation. Reason: ");
+                Stop();
             }
             catch (Exception ex)
             {
