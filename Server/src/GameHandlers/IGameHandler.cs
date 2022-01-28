@@ -7,7 +7,7 @@ namespace Server.GameHandlers
     /// <summary>
     ///     Общий интерфейс обработчиков игр
     /// </summary>
-    internal interface IGameHandler
+    public interface IGameHandler
     {
         /// <summary>
         ///     Создает новую игру
