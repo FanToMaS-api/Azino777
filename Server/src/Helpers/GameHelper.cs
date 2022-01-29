@@ -1,7 +1,11 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using DataBase;
+using DataBase.Repositories;
 using Games.Services;
+using Microsoft.Extensions.DependencyInjection;
+using NLog;
 using Server.GameHandlers;
 using Telegram.Bot.Types;
 
@@ -13,6 +17,8 @@ namespace Server.Helpers
     internal class GameHelper
     {
         #region Fields
+
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         private readonly IMessageService _messageService;
 
@@ -48,17 +54,26 @@ namespace Server.Helpers
                 return;
             }
 
-            if (double.TryParse(text, out var bid) && bid >= 10)
+            try
             {
-                using var database = TelegramDbContextFactory.Create();
-                await _gameHandler.StartGameAsync(database, message.From.Id, bid, cancellationToken);
+                if (double.TryParse(text, out var bid) && bid >= 10)
+                {
+                    using var database = TelegramDbContextFactory.Create();
+                    await _gameHandler.StartGameAsync(database, message.From.Id, bid, cancellationToken);
+                }
+                else
+                {
+                    await _messageService.SendAsync(DefaultText.ErrorInputBidText, message.Chat.Id, cancellationToken);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                await _messageService.SendAsync(DefaultText.ErrorInputBidText, message.Chat.Id, cancellationToken);
+                Logger.Error(ex, "Failed to procces input bid from user");
             }
-
-            _messageService.OnMessageReceived -= OnBidRecieved;
+            finally
+            {
+                _messageService.OnMessageReceived -= OnBidRecieved;
+            }
         }
 
         #endregion

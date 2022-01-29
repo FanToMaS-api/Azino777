@@ -6,6 +6,7 @@ using DataBase.Entities;
 using DataBase.Repositories;
 using DataBase.Types;
 using Games.Services;
+using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using Telegram.Bot.Types;
 
@@ -38,7 +39,7 @@ namespace Server.Helpers
         #region Private methods
 
         /// <summary>
-        ///     Обработчик ввода реферальной ссылки
+        ///     Проверка на спам
         /// </summary>
         private async Task OnMessageReceived(object @object, string text, CancellationToken cancellationToken = default)
         {

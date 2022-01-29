@@ -1,9 +1,7 @@
 using System;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
 using NLog;
-using NLog.Web;
 
 namespace WebUI
 {
@@ -17,7 +15,7 @@ namespace WebUI
 
         public static void Main(string[] args)
         {
-            Log = LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
+            Log = LogManager.Setup().GetCurrentClassLogger();
 
             try
             {
@@ -39,6 +37,6 @@ namespace WebUI
                 {
                     webBuilder.UseStartup<Startup>();
 
-                }).UseNLog();
+                });
     }
 }

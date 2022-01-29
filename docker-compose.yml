@@ -8,18 +8,33 @@ services:
     env_file:
       - postgres.env
     ports:
-      - "5432:5432"
+      - "35432:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data/
-      
-  server:
+       
+  seq:
+    image: datalust/seq
+    container_name: seq
+    restart: always
+    environment:
+        - ACCEPT_EULA=Y
+    volumes:
+        - ./var/seq:/data
+    ports:
+        - 35341:5341
+        - 7010:80
+
+  web:
     depends_on:
       - postgres
-    container_name: server
+    container_name: web
     restart: always
-    image: server_image:1
+    image: web_image:1
+    ports:
+      - "7000:5000"
     env_file:
-      - server.env
+      - web.env
 
 volumes:
   pg_data:
+  seq_data:
