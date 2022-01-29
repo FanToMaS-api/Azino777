@@ -28,7 +28,7 @@ namespace DataBase
         /// </summary>
         public static void UsePostgresDatabase(this IServiceCollection services, IConfiguration configuration)
         {
-            var connectionString = configuration.GetConnectionString(DatabaseConnectionEnvName);
+            var connectionString = configuration.GetValue<string>(DatabaseConnectionEnvName);
             Logger.Trace($"Db connection string: '{connectionString}'");
 
             services.AddDbContext<AppDbContext>(option => option.UseNpgsql(connectionString));

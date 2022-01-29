@@ -1,9 +1,11 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using DataBase;
 using DataBase.Entities;
 using DataBase.Repositories;
 using Games.Services;
+using NLog;
 using Telegram.Bot.Types;
 
 namespace Server.Helpers
@@ -14,6 +16,8 @@ namespace Server.Helpers
     internal class ReferralLinkHelper
     {
         #region Fields
+
+        private readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         private readonly IMessageService _messageService;
 
@@ -47,18 +51,26 @@ namespace Server.Helpers
             }
 
             using var database = TelegramDbContextFactory.Create();
-
-            if (await IsValidLinkAsync(database, link, cancellationToken))
+            try
             {
-                await database.Users.UpdateAsync(message.From.Id, UpdateUserEntity, cancellationToken);
+                if (await IsValidLinkAsync(database, link, cancellationToken))
+                {
+                    await database.Users.UpdateAsync(message.From.Id, UpdateUserEntity, cancellationToken);
+                }
+
+                void UpdateUserEntity(UserEntity user)
+                {
+                    user.ReferralLink = link;
+                    user.UserState.Balance += 50;
+                }
             }
-
-            _messageService.OnMessageReceived -= OnLinkRecieved;
-
-            void UpdateUserEntity(UserEntity user)
+            catch (Exception ex)
             {
-                user.ReferralLink = link;
-                user.UserState.Balance += 50;
+                Logger.Error(ex, "Failed to validate referral link");
+            }
+            finally
+            {
+                _messageService.OnMessageReceived -= OnLinkRecieved;
             }
         }
 

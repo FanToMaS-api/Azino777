@@ -16,8 +16,6 @@ namespace Games.Services
 
         private readonly ITelegramBotClient _client;
 
-        private readonly static Logger Log = LogManager.GetCurrentClassLogger();
-
         #endregion
 
         #region .ctor
